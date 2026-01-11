@@ -1,0 +1,37 @@
+﻿.vs/
+.vscode/
+
+# Build results
+bin/
+obj/
+Debug/
+Release/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Resharper / Rider
+_ReSharper*/
+*.DotSettings.user
+
+# Publish output
+*.Publish.xml
+publish/
+
+# Others
+*.log
+*.cache
