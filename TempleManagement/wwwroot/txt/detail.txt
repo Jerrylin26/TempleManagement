@@ -1,15 +1,15 @@
 ﻿廟宇管理系統
 
-1. 信徒資本資料
-2. 捐獻類別管理
-3. 信徒捐獻作業
-4. 戶家郵遞標籤
-5. 信徒清冊
-6. 信徒點燈疏文
-7. 信徒捐獻查詢
-8. 信徒增歲作業
-9. 戶長變更作業
-10. 密碼作業管理
+1. 信徒資本資料 BasicInfo
+2. 捐獻類別管理 DonateType
+3. 信徒捐獻作業 DonateOperation
+4. 戶家郵遞標籤 MailLabel
+5. 信徒清冊 FollowerList
+6. 信徒點燈疏文 ProList
+7. 信徒捐獻查詢 DonateQuery
+8. 信徒增歲作業 ModifyAge
+9. 戶長變更作業 ChangeHousehold
+10. 帳密作業管理  AccountManagement
 
 
 需求介紹:
@@ -83,7 +83,7 @@
 	9. 戶長變更作業:
 		更換戶長
 
-	10. 密碼作業管理:
+	10. 帳密作業管理:
 		新增刪除修改帳密
 		
 		
