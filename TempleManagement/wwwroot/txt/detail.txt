@@ -14,41 +14,62 @@
 
 需求介紹:
 
-	1. 信徒資本資料:
-		戶長
-		姓名
-		信徒編號
-		性別
-		生肖
-		年齡
-		室話
-		行動電話
-		職業
-		類別
-		農曆生日
-		國曆生日
-		身分證字號
-		戶籍地址
-		通訊地址
-		備註
+	1. 信徒資本資料: BasicInfo
 		
+		[BasicInfo]
+		[Primary Key : MID] 個人編號
+		姓名 Name
+		性別 Sex
+		生肖 Zodiac
+		年齡 Age
+		室話 Home_num
+		行動電話 Phone
+		職業 Job
+		類別 Character_type
+		農曆生日 Lunar_birthday
+		國曆生日 Birthday
+		身分證字號 Identical_num
+		戶籍地址 Household_address
+		通訊地址 Current_address
+		備註 Note
+
+		[HouseholdMember]
+		[Primary Key : HouseholdID] => 一個人可以有2筆以上資料。意謂著換戶號
+		[Primary Key : MemberID]  => 對應BasicInfo MID
+		編號 Member_no
+		戶號 House_ID
+		戶長與否 Is_head
+		開始日期 Start_date
+		結束日期 End_date
+
+		[Household]
+		[Primary Key : HID]
 		* CRUD
 
 	2. 捐獻類別管理:
+
+		
+		[Donation_Household] 一戶
+		 
+		[Primary Key : HouseID] 戶號
+		Is_Dipper 是否點燈
 		(燈別)
-		大斗
-		小斗
-		安太歲
+		大斗 Dipper_big 4800 (一戶)
+		小斗 Dipper_small 500 *同上
+		安太歲 Is_Taisui (一戶) 500
+		平安燈 Is_PeaceLight (一戶) 200
 
+
+		[Donation_Individual] 個人
 		* 前提為安斗，才能光明燈
-		光明燈(一) 600
-		光明燈(二) 700
-		光明燈(三) 800
-		光明燈(四) 1000
 
-		* 戶家為單位 
-		平安燈
-
+		[Primary Key : MID]  個人編號
+		=> 用bit
+		光明燈(一) 600  BlessingLight600
+		光明燈(二) 700  BlessingLight700
+		光明燈(三) 800  BlessingLight800
+		光明燈(四) 1000 BlessingLight1000		
+		
 		* CRUD
 
 	3.  信徒捐獻作業:
