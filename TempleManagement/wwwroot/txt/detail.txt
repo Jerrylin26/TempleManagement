@@ -16,70 +16,76 @@
 
 	1. 信徒資本資料: BasicInfo
 		
-		[BasicInfo]
-		[Primary Key : MID] 個人編號
-		姓名 Name
-		性別 Sex
-		生肖 Zodiac
-		年齡 Age
-		室話 Home_num
-		行動電話 Phone
-		職業 Job
-		類別 Character_type
-		農曆生日 Lunar_birthday
-		國曆生日 Birthday
-		身分證字號 Identical_num
-		戶籍地址 Household_address
-		通訊地址 Current_address
-		備註 Note
+		DB [BasicInfo]
+			[Primary Key : MID] 個人編號
+			姓名 Name
+			性別 Sex
+			生肖 Zodiac
+			年齡 Age
+			室話 Home_num
+			行動電話 Phone
+			職業 Job
+			類別 Character_type
+			農曆生日 Lunar_birthday
+			國曆生日 Birthday
+			身分證字號 Identical_num
+			戶籍地址 Household_address
+			通訊地址 Current_address
+			備註 Note
 
-		[HouseholdMember]
-		[Primary Key : HouseholdID] => 一個人可以有2筆以上資料。意謂著換戶號
-		[Primary Key : MemberID]  => 對應BasicInfo MID
-		編號 Member_no
-		戶號 House_ID
-		戶長與否 Is_head
-		開始日期 Start_date
-		結束日期 End_date
+		DB [HouseholdMember]
+			[Primary Key : HouseholdID] => 一個人可以有2筆以上資料。意謂著換戶號
+			[Primary Key : MemberID]  => 對應BasicInfo MID
+			編號 Member_no
+			戶號 House_ID
+			戶長與否 Is_head
+			開始日期 Start_date
+			結束日期 End_date
 
-		[Household]
-		[Primary Key : HID]
-		* CRUD
+		DB [Household]
+			[Primary Key : HID]
+			* CRUD
 
 	2. 捐獻類別管理:
 
 		
-		[Donation_Household] 一戶
-		 
-		[Primary Key : HouseID] 戶號
-		Is_Dipper 是否點燈
-		(燈別)
-		大斗 Dipper_big 4800 (一戶)
-		小斗 Dipper_small 500 *同上
-		安太歲 Is_Taisui (一戶) 500
-		平安燈 Is_PeaceLight (一戶) 200
+		DB [Donation_Household] 一戶
+		
+			[Primary Key : DH_ID]
+			Is_Dipper 是否點燈
+			HouseID 戶號 => 對應戶
+
+			(燈別) 3組
+			大斗 Dipper_big 4800 (一戶)
+			小斗 Dipper_small 500 *同上
+			安太歲 Is_Taisui (一戶) 500
+			平安燈 Is_PeaceLight (一戶) 200
 
 
-		[Donation_Individual] 個人
+		DB [Donation_Individual] 個人
 		* 前提為安斗，才能光明燈
 
-		[Primary Key : MID]  個人編號
-		=> 用bit
-		光明燈(一) 600  BlessingLight600
-		光明燈(二) 700  BlessingLight700
-		光明燈(三) 800  BlessingLight800
-		光明燈(四) 1000 BlessingLight1000		
+			[Primary Key : DI_ID]
+			MID  個人編號 => 對應MemberID
+			=> 用bit
+			光明燈(一) 600  BlessingLight600
+			光明燈(二) 700  BlessingLight700
+			光明燈(三) 800  BlessingLight800
+			光明燈(四) 1000 BlessingLight1000		
 		
-		* CRUD
+			* CRUD
 
 	3.  信徒捐獻作業:
-		捐獻單號
-		日期
-		金額
-		總計
-		備註
+		DB [Donation_Operation] 捐獻作業
 
-		* CRUD
+			[Primary Key : DonationID]  捐獻單號
+			PID => 對應BasicInfo 的 PersonID
+			捐獻類別 Donation_Type
+			日期 Date
+			金額 Price
+			備註 Note
+
+			* CRUD
 
 	4. 戶家郵遞標籤:
 		姓名、電話、性別、信徒編號、類別  * R
@@ -87,12 +93,24 @@
 		* 列印方向: 橫印、直印
 		* 標籤張數
 
+		DB [MailInfo] 戶家郵遞資訊
+
+			[Primary Key : MailInfo_ID] 郵遞資訊ID
+			報表類型 PrintType
+			列印方向 PrintDirection
+			列印張數 Amount
+
 	5. 信徒清冊:
 		姓名、電話、性別、信徒編號、類別  * R
 		內容: 備註:年齡、生肖
 
 	6. 信徒點燈疏文:
 		燈別類型 & (信徒疏文 | 安斗謝斗)
+
+		DB [PrayerDocument] 疏文
+			
+			[Primary Key : PD_ID] 疏文ID
+			路徑 Path
 
 	7. 信徒捐獻查詢:
 		(燈別 || 信徒編號)
@@ -106,5 +124,11 @@
 
 	10. 帳密作業管理:
 		新增刪除修改帳密
+		
+		DB [Admin] 管理員
+
+		[Primary Key : AdminID]
+		帳號 Account
+		密碼 Password
 		
 		
