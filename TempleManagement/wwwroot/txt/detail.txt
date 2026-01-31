@@ -1,15 +1,19 @@
 ﻿廟宇管理系統
 
 1. 信徒資本資料 BasicInfo
+	Index.cshtml
 2. 捐獻類別管理 DonateType
+	
 3. 信徒捐獻作業 DonateOperation
 4. 戶家郵遞標籤 MailLabel
 5. 信徒清冊 FollowerList
+	Index.cshtml
 6. 信徒點燈疏文 ProList
 7. 信徒捐獻查詢 DonateQuery
 8. 信徒增歲作業 ModifyAge
 9. 戶長變更作業 ChangeHousehold
 10. 帳密作業管理  AccountManagement
+	Login.cshtml
 
 
 需求介紹:

@@ -1,0 +1,120 @@
+﻿.frmtx {
+    --font-size: 100%;
+    --font-family: inherit;
+    --font-color: inherit;
+    --background-color: #FFF;
+    --border-color: #AAA;
+    --border-width: 1px;
+    --border-radius: 5px;
+    container: form/inline-size
+}
+
+    .frmtx * {
+        color: var(--font-color);
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        margin: 0;
+        padding: 0;
+        appearance: auto;
+        outline: none;
+        box-sizing: border-box
+    }
+
+    .frmtx form {
+        margin: 1rem;
+        min-width: 240px;
+    }
+
+    .frmtx fieldset {
+        margin-top: 1.5em;
+        border: 0
+    }
+
+        .frmtx fieldset:first-child {
+            margin: 0
+        }
+
+    .frmtx legend {
+        font-weight: bold;
+        font-size: 1.1em
+    }
+
+    .frmtx label {
+        margin: 0;
+        padding: 1em 0 .3em;
+        display: block;
+        line-height: 1.3
+    }
+
+    .frmtx > label:first-child {
+        padding-top: 0
+    }
+
+    .frmtx label:not([for]) {
+        cursor: pointer
+    }
+
+    .frmtx label.h {
+        padding-bottom: 0;
+        margin-bottom: -.3em
+    }
+
+    .frmtx fieldset:last-child label {
+        padding: 0
+    }
+
+    .frmtx .cntrl {
+        display: block
+    }
+
+        .frmtx .cntrl label {
+            display: inline-block;
+            margin-right: .5em;
+        }
+
+    .frmtx input, .frmtx select, .frmtx button, .frmtx textarea {
+        border: var(--border-width) solid var(--border-color);
+        border-radius: var(--border-radius);
+        background-color: var(--background-color)
+    }
+
+    .frmtx input, .frmtx select, .frmtx textarea {
+        width: 100%;
+        resize: none;
+        padding: .5em;
+        line-height: 1.3;
+        background-image: none
+    }
+
+        .frmtx input[name="_gotcha"] {
+            display: none
+        }
+
+        .frmtx input[type="checkbox"], .frmtx input[type="radio"] {
+            display: inline;
+            width: 1.1em;
+            height: 1.1em;
+            appearance: auto;
+            margin-right: .2em
+        }
+
+    .frmtx button {
+        display: block;
+        padding: .5em 1.5em;
+        margin: 1.5em 0 0;
+        line-height: 1.5;
+        font-weight: bold;
+        cursor: pointer
+    }
+
+@container form (width > 480px) {
+    .frmtx fieldset > div {
+        display: flex;
+        align-items: flex-end;
+        gap: 0 1.5em
+    }
+
+        .frmtx fieldset > div > div {
+            flex: 1
+        }
+}

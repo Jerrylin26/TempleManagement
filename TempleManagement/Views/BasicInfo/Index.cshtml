@@ -2,4 +2,138 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    <link rel="stylesheet" href="~/css/BasicInfo/Index.css" asp-append-version="true" />
 }
+
+<div class="frmtx">
+    <form action="https://form.taxi/s/FORM_CODE" method="POST" accept-charset="utf-8">
+        <fieldset>
+            <legend>信徒基本資料</legend>
+            <div>
+                <label class="household_Lead_ID">戶長編號: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span>XXX</span>
+            </div>
+            <div>
+                <label class="household_ID">信徒編號: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span>XXX</span>
+            </div>
+            
+            
+            
+            <div class="cntrl">
+                <label class="h">設為戶長: </label>
+
+                <label><input type="radio" name="household category" value="leader" > 戶長</label>
+                <label><input type="radio" name="household category" value="not_leader" checked> 否</label>
+                
+            </div>
+            <div>
+                <div>
+                    <label for="vn">姓名</label>
+                    <input type="text" name="name" id="name" required>
+                </div>
+                <div>
+                    <label for="vn">年齡</label>
+                    <input type="text" name="age" id="age" required>
+                </div>
+                
+            </div
+            <label class="h">生肖</label>
+            <div>
+                
+                <div class="cntrl">
+                    <label><input type="radio" name="Zodiac category" value="1" checked> 鼠</label>
+                    <label><input type="radio" name="Zodiac category" value="2"> 牛</label>
+                    <label><input type="radio" name="Zodiac category" value="3" checked> 虎</label>
+                    <label><input type="radio" name="Zodiac category" value="4"> 兔</label>
+                    <label><input type="radio" name="Zodiac category" value="5" checked> 龍</label>
+                    <label><input type="radio" name="Zodiac category" value="6"> 蛇</label>
+                    <label><input type="radio" name="Zodiac category" value="7" checked> 馬</label>
+                    <label><input type="radio" name="Zodiac category" value="8"> 羊</label>
+                    <label><input type="radio" name="Zodiac category" value="9" checked> 猴</label>
+                    <label><input type="radio" name="Zodiac category" value="10"> 雞</label>
+                    <label><input type="radio" name="Zodiac category" value="11" checked> 狗</label>
+                    <label><input type="radio" name="Zodiac category" value="12"> 豬</label>
+                </div>
+                <div>
+                    <label for="datean">身分證字號</label>
+                    <input type="text" name="ID" id="ID" required>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <label for="datean">農曆生日</label>
+                    <input type="text" name="Lunar_birthday" id="Lunar_birthday" placeholder="例如, 1990/01/15" required>
+                </div>
+                
+                <div>
+                    <label for="nn">市話</label>
+                    <input type="text" name="Home_num" id="Home_num" required>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <label for="dateab">國曆生日</label>
+                    <input type="text" name="Birthday" id="Birthday" placeholder="例如, 1990/01/15" required>
+                </div>
+
+                <div>
+                    <label for="nn">行動電話</label>
+                    <input type="text" name="Phone" id="Phone" required>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <label for="nn">戶籍地址</label>
+                    <input type="text" name="Household_address" id="Household_address" required>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <label for="nn" class="address-label">
+                        通訊地址&nbsp;&nbsp;   
+                        <button type="button" style="display:inline-block;">同上</button>
+                            
+                    </label>
+                    
+                    <input type="text" name="Current_address" id="Current_address" required>
+                </div>
+            </div>
+
+            <label class="h">性別</label>
+            <div class="cntrl">
+                <label><input type="radio" name="sex category" value="boy" checked> 男</label>
+                <label><input type="radio" name="sex category" value="girl"> 女</label>
+            </div>
+            
+        </fieldset>
+        <fieldset>
+
+            <div>
+                <div>
+                    <label for="vn">職業<label>
+                    <input type="text" name="Job" id="Job" required>
+                </div>
+                <div>
+                    <label for="vn">類別</label>
+                    <div class="cntrl Character_type">
+                        <label><input type="radio" name="follower category" value="1" checked> 信徒</label>
+                        <label><input type="radio" name="follower category" value="2"> 代表</label>
+                        <label><input type="radio" name="follower category" value="3" checked> 董事</label>
+                        <label><input type="radio" name="follower category" value="4"> 契子</label>
+                        <label><input type="radio" name="follower category" value="5" checked> 廟宇</label>
+                        <label><input type="radio" name="follower category" value="6"> 機關</label>
+                    </div>
+                </div>
+            </div>
+            
+            <label for="msg">備註</label>
+            <textarea rows="5" name="Note" id="Note"></textarea>
+        </fieldset>
+        <fieldset>
+            
+            <input type="text" name="submit" value="">
+            <button type="submit" id="submit_basicInfo">建立</button>
+        </fieldset>
+    </form>
+</div>

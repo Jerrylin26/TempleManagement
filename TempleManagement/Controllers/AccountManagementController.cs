@@ -4,7 +4,12 @@ namespace TempleManagement.Controllers
 {
     public class AccountManagementController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        public IActionResult SignUp()
         {
             return View();
         }
