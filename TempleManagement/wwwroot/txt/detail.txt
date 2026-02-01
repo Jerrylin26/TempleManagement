@@ -3,8 +3,9 @@
 1. 信徒資本資料 BasicInfo
 	Index.cshtml
 2. 捐獻類別管理 DonateType
-	
+	Index.cshtml
 3. 信徒捐獻作業 DonateOperation
+	Index.cshtml
 4. 戶家郵遞標籤 MailLabel
 5. 信徒清冊 FollowerList
 	Index.cshtml
@@ -64,6 +65,7 @@
 			小斗 Dipper_small 500 *同上
 			安太歲 Is_Taisui (一戶) 500
 			平安燈 Is_PeaceLight (一戶) 200
+			備註 Note
 
 
 		DB [Donation_Individual] 個人
@@ -75,7 +77,8 @@
 			光明燈(一) 600  BlessingLight600
 			光明燈(二) 700  BlessingLight700
 			光明燈(三) 800  BlessingLight800
-			光明燈(四) 1000 BlessingLight1000		
+			光明燈(四) 1000 BlessingLight1000	
+			備註 Note
 		
 			* CRUD
 

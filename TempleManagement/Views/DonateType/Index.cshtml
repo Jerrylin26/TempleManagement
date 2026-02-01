@@ -3,3 +3,103 @@
 *@
 @{
 }
+
+@* <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css"> *@
+<link rel="stylesheet" href="~/css/DonateType/Index.css">
+<link rel="stylesheet" href="~/css/DonateType/w3.css">
+<body>
+
+    <div class="w3-container my-table">
+        <h2>捐獻類別管理</h2>
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="DonationTypeButton" data-bs-toggle="dropdown" aria-expanded="false">
+            戶(為單位)
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="DonationTypeButton">
+            <li><a class="dropdown-item" href="#">個人(為單位)</a></li>
+            <li><a class="dropdown-item" href="#">戶(為單位)</a></li>
+            
+        </ul>
+
+        <table class="w3-table-all w3-xlarge fixed-table">
+            <colgroup>
+                <col style="width: 30%;">
+                <col style="width: 30%;">
+                <col style="width: 40%;">
+            </colgroup>
+
+            <tr>
+                <th>類別</th>
+                <th>價格</th>
+                <th>備註</th>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="小斗">
+                </td>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="700">
+                </td>
+                <td>
+                    <textarea class="cell-edit-textarea">...</textarea>
+                </td>
+
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="大斗">
+                </td>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="3000">
+                </td>
+                <td>
+                    <textarea class="cell-edit-textarea">1111111111111111111111111111111111</textarea>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="安太歲">
+                </td>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="500">
+                </td>
+                <td>
+                    <textarea class="cell-edit-textarea">1111111111111111111111111111111111</textarea>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="平安燈">
+                </td>
+                <td>
+                    <input type="text" class="cell-edit-input" maxlength="10" value="2000">
+                </td>
+                <td>
+                    <textarea class="cell-edit-textarea">1111111111111111111111111111111111</textarea>
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
+    <br />
+    <br />
+    <br />
+    <!-- HTML !-->
+    <button class="button-4" role="button"> 新增類別</button>
+    <br />
+    <br />
+    <br />
+    <!-- HTML !-->
+    <button class="button-24" role="button"> 確定儲存</button>
+
+    <div>***若不使用該類別，請自行備註棄用，或是直接覆蓋遺棄類別!!! 無提供刪除類別功能</div>
+
+    
+
+
+
+</body>
