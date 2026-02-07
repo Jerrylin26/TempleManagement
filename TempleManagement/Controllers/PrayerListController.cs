@@ -2,7 +2,7 @@
 
 namespace TempleManagement.Controllers
 {
-    public class ProListController : Controller
+    public class PrayerListController : Controller
     {
         public IActionResult Index()
         {

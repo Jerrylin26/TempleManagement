@@ -9,10 +9,13 @@
 4. 戶家郵遞標籤 MailLabel
 5. 信徒清冊 FollowerList
 	Index.cshtml
-6. 信徒點燈疏文 ProList
+6. 信徒點燈疏文 PrayerList
 7. 信徒捐獻查詢 DonateQuery
+	Index.cshtml
 8. 信徒增歲作業 ModifyAge
+	Index.cshtml
 9. 戶長變更作業 ChangeHousehold
+	Index.cshtml
 10. 帳密作業管理  AccountManagement
 	Login.cshtml
 
@@ -36,6 +39,8 @@
 			身分證字號 Identical_num
 			戶籍地址 Household_address
 			通訊地址 Current_address
+			郵遞區號 Postal_code_cur
+			郵遞區號(通訊) Postal_code_household
 			備註 Note
 
 		DB [HouseholdMember]

@@ -1,4 +1,19 @@
-﻿.frmtx {
+﻿/* 郵遞區號 */
+.Address_col {
+    display: flex;
+}
+
+.Address_col > div:first-child {
+    flex: 0 0 7%; /* 固定 7% */
+}
+
+.Address_col > div:last-child {
+    flex: 1; /* 吃剩下 93% */
+}
+
+
+
+.frmtx {
     --font-size: 100%;
     --font-family: inherit;
     --font-color: inherit;
