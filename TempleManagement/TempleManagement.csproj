@@ -26,4 +26,10 @@
     <Folder Include="wwwroot\css\FollowerList\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" Version="1.51.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Include="NuGet.Protocol" Version="7.0.1" />
+  </ItemGroup>
+
 </Project>

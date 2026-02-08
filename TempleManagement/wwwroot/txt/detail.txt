@@ -8,7 +8,7 @@
 	Index.cshtml
 4. 戶家郵遞標籤 MailLabel
 5. 信徒清冊 FollowerList
-	Index.cshtml
+	GetBasicInfo.cshtml
 6. 信徒點燈疏文 PrayerList
 7. 信徒捐獻查詢 DonateQuery
 	Index.cshtml
@@ -25,7 +25,8 @@
 	1. 信徒資本資料: BasicInfo
 		
 		DB [BasicInfo]
-			[Primary Key : MID] 個人編號
+			[Primary Key : MID] 個人編號 *虛擬 Primary key
+			(真實信徒編號) Real_MID
 			姓名 Name
 			性別 Sex
 			生肖 Zodiac

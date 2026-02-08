@@ -3,10 +3,12 @@
 *@
 @{
     <link rel="stylesheet" href="~/css/BasicInfo/Index.css" asp-append-version="true" />
+    
+
 }
 
 <div class="frmtx">
-    <form action="https://form.taxi/s/FORM_CODE" method="POST" accept-charset="utf-8">
+    <form method="POST" accept-charset="utf-8" id="create_Info">
         <fieldset>
             <legend>信徒基本資料</legend>
             <div>
@@ -30,11 +32,11 @@
             <div>
                 <div>
                     <label for="vn">姓名</label>
-                    <input type="text" name="name" id="name" required>
+                    <input type="text" name="Name" id="name" required>
                 </div>
                 <div>
                     <label for="vn">年齡</label>
-                    <input type="text" name="age" id="age" required>
+                    <input type="text" name="Age" id="age" required>
                 </div>
                 
             </div
@@ -42,22 +44,22 @@
             <div>
                 
                 <div class="cntrl">
-                    <label><input type="radio" name="Zodiac category" value="1" checked> 鼠</label>
-                    <label><input type="radio" name="Zodiac category" value="2"> 牛</label>
-                    <label><input type="radio" name="Zodiac category" value="3" checked> 虎</label>
-                    <label><input type="radio" name="Zodiac category" value="4"> 兔</label>
-                    <label><input type="radio" name="Zodiac category" value="5" checked> 龍</label>
-                    <label><input type="radio" name="Zodiac category" value="6"> 蛇</label>
-                    <label><input type="radio" name="Zodiac category" value="7" checked> 馬</label>
-                    <label><input type="radio" name="Zodiac category" value="8"> 羊</label>
-                    <label><input type="radio" name="Zodiac category" value="9" checked> 猴</label>
-                    <label><input type="radio" name="Zodiac category" value="10"> 雞</label>
-                    <label><input type="radio" name="Zodiac category" value="11" checked> 狗</label>
-                    <label><input type="radio" name="Zodiac category" value="12"> 豬</label>
+                    <label><input type="radio" name="Zodiac" value="鼠" > 鼠</label>
+                    <label><input type="radio" name="Zodiac" value="牛"> 牛</label>
+                    <label><input type="radio" name="Zodiac" value="虎" > 虎</label>
+                    <label><input type="radio" name="Zodiac" value="兔"> 兔</label>
+                    <label><input type="radio" name="Zodiac" value="龍" checked> 龍</label>
+                    <label><input type="radio" name="Zodiac" value="蛇"> 蛇</label>
+                    <label><input type="radio" name="Zodiac" value="馬" > 馬</label>
+                    <label><input type="radio" name="Zodiac" value="羊"> 羊</label>
+                    <label><input type="radio" name="Zodiac" value="猴" > 猴</label>
+                    <label><input type="radio" name="Zodiac" value="雞"> 雞</label>
+                    <label><input type="radio" name="Zodiac" value="狗" > 狗</label>
+                    <label><input type="radio" name="Zodiac" value="豬"> 豬</label>
                 </div>
                 <div>
                     <label for="datean">身分證字號</label>
-                    <input type="text" name="ID" id="ID" required>
+                    <input type="text" name="ID_num" id="ID" required>
                 </div>
             </div>
             <div>
@@ -84,7 +86,7 @@
             </div>
             <div class="Address_col">
                 <div>
-                    <input type="text" name="Postal_code" id="Postal_code" required>
+                    <input type="text" name="Postal_code_household" id="Postal_code" required>
                 </div>
                 <div>
                     <label for="nn">戶籍地址</label>
@@ -93,7 +95,7 @@
             </div>
             <div class="Address_col">
                 <div>
-                    <input type="text" name="Postal_code_current" id="Postal_code" required>
+                    <input type="text" name="Postal_code_cur" id="Postal_code_cur" required>
                 </div>
                 <div>
                     <label for="nn" class="address-label">
@@ -108,8 +110,8 @@
 
             <label class="h">性別</label>
             <div class="cntrl">
-                <label><input type="radio" name="sex category" value="boy" checked> 男</label>
-                <label><input type="radio" name="sex category" value="girl"> 女</label>
+                <label><input type="radio" name="Sex" value="boy" checked> 男</label>
+                <label><input type="radio" name="Sex" value="girl"> 女</label>
             </div>
             
         </fieldset>
@@ -123,12 +125,12 @@
                 <div>
                     <label for="vn">類別</label>
                     <div class="cntrl Character_type">
-                        <label><input type="radio" name="follower category" value="1" checked> 信徒</label>
-                        <label><input type="radio" name="follower category" value="2"> 代表</label>
-                        <label><input type="radio" name="follower category" value="3" checked> 董事</label>
-                        <label><input type="radio" name="follower category" value="4"> 契子</label>
-                        <label><input type="radio" name="follower category" value="5" checked> 廟宇</label>
-                        <label><input type="radio" name="follower category" value="6"> 機關</label>
+                        <label><input type="radio" name="Character_type" value="信徒" checked> 信徒</label>
+                        <label><input type="radio" name="Character_type" value="代表"> 代表</label>
+                        <label><input type="radio" name="Character_type" value="董事" checked> 董事</label>
+                        <label><input type="radio" name="Character_type" value="契子"> 契子</label>
+                        <label><input type="radio" name="Character_type" value="廟宇" checked> 廟宇</label>
+                        <label><input type="radio" name="Character_type" value="機關"> 機關</label>
                     </div>
                 </div>
             </div>
@@ -138,8 +140,39 @@
         </fieldset>
         <fieldset>
             
-            <input type="text" name="submit" value="">
             <button type="submit" id="submit_basicInfo">建立</button>
         </fieldset>
     </form>
 </div>
+
+<! -- 創建個人資料 -->
+    <script>
+        $(document).ready(function () {
+           $('#create_Info').submit(function(e) {
+                e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+
+                // 序列化 form 內的資料
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/BasicInfo/NewBasicInfo",
+                    data: formData ,
+
+                    success: function (result) {
+                        console.log("成功!");
+
+                        if (result.success) {
+                            alert(`${result.Name} : 已成功創建資料！`);
+
+                        }
+                     
+                    },
+                    error: function (xhr, status, error) {
+                        alert("發生錯誤：" + error);
+                    }
+                });
+            });
+        });
+    </script>
+
