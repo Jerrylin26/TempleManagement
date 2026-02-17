@@ -25,8 +25,8 @@
             <div class="cntrl">
                 <label class="h">設為戶長: </label>
 
-                <label><input type="radio" name="household category" value="leader" > 戶長</label>
-                <label><input type="radio" name="household category" value="not_leader" checked> 否</label>
+                <label><input type="radio" name="Is_head" value="leader" > 戶長</label>
+                <label><input type="radio" name="Is_head" value="not_leader" checked> 否</label>
                 
             </div>
             <div>
@@ -59,43 +59,43 @@
                 </div>
                 <div>
                     <label for="datean">身分證字號</label>
-                    <input type="text" name="ID_num" id="ID" required>
+                    <input type="text" name="ID_num" id="ID" >
                 </div>
             </div>
             <div>
                 <div>
                     <label for="datean">農曆生日</label>
-                    <input type="text" name="Lunar_birthday" id="Lunar_birthday" placeholder="例如, 1990/01/15" required>
+                    <input type="text" name="Lunar_birthday" id="Lunar_birthday" placeholder="例如, 1990/01/15">
                 </div>
                 
                 <div>
                     <label for="nn">市話</label>
-                    <input type="text" name="Home_num" id="Home_num" required>
+                    <input type="text" name="Home_num" id="Home_num" >
                 </div>
             </div>
             <div>
                 <div>
                     <label for="dateab">國曆生日</label>
-                    <input type="text" name="Birthday" id="Birthday" placeholder="例如, 1990/01/15" required>
+                    <input type="text" name="Birthday" id="Birthday" placeholder="例如, 1990/01/15" >
                 </div>
 
                 <div>
                     <label for="nn">行動電話</label>
-                    <input type="text" name="Phone" id="Phone" required>
+                    <input type="text" name="Phone" id="Phone" >
                 </div>
             </div>
             <div class="Address_col">
                 <div>
-                    <input type="text" name="Postal_code_household" id="Postal_code" required>
+                    <input type="text" name="Postal_code_household" id="Postal_code" >
                 </div>
                 <div>
                     <label for="nn">戶籍地址</label>
-                    <input type="text" name="Household_address" id="Household_address" required>
+                    <input type="text" name="Household_address" id="Household_address" >
                 </div>
             </div>
             <div class="Address_col">
                 <div>
-                    <input type="text" name="Postal_code_cur" id="Postal_code_cur" required>
+                    <input type="text" name="Postal_code_cur" id="Postal_code_cur" >
                 </div>
                 <div>
                     <label for="nn" class="address-label">
@@ -104,7 +104,7 @@
                             
                     </label>
                     
-                    <input type="text" name="Current_address" id="Current_address" required>
+                    <input type="text" name="Current_address" id="Current_address" >
                 </div>
             </div>
 
@@ -120,7 +120,7 @@
             <div>
                 <div>
                     <label for="vn">職業<label>
-                    <input type="text" name="Job" id="Job" required>
+                    <input type="text" name="Job" id="Job" >
                 </div>
                 <div>
                     <label for="vn">類別</label>
@@ -144,7 +144,7 @@
         </fieldset>
     </form>
 </div>
-
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <! -- 創建個人資料 -->
     <script>
         $(document).ready(function () {
@@ -165,6 +165,8 @@
                         if (result.success) {
                             alert(`${result.Name} : 已成功創建資料！`);
 
+                        }else{
+                            alert(`${result.Name},${result.message} : 失敗創建資料！`);
                         }
                      
                     },

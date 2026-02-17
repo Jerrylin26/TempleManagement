@@ -14,8 +14,7 @@ namespace TempleManagement.Models
         // BasicInfo 資料表
 
 
-        public int MID { get; set; }
-        public string Real_MID { get; set; }
+        public int MID { get; set; } // primary key
         public int Age { get; set; } //
         public bool Sex { get; set; }
         public string? Character_type { get; set; }
@@ -32,6 +31,24 @@ namespace TempleManagement.Models
         public string? Postal_code_cur { get; set; } //
         public string? Postal_code_household { get; set; }
         public string? Note { get; set; }
+        public bool Is_head { get; set; } // 使否為戶長
+
+
+    }
+    public class HouseholdMember
+    {
+        // HouseholdMember 資料表
+        // 基本上只有讀，沒有 create (依附於BasicInfo)
+
+
+        public int HouseholdID { get; set; } // primary key 1
+        public int MemberID { get; set; } // primary key 2
+        public int Member_no { get; set; }
+        public int House_ID { get; set; }
+        public bool Is_head { get; set; } 
+        public DateTime? Start_date { get; set; }
+        public DateTime? End_date { get; set; } 
+
 
 
     }

@@ -24,9 +24,9 @@
 
 	1. 信徒資本資料: BasicInfo
 		
+		# 已建置
 		DB [BasicInfo]
 			[Primary Key : MID] 個人編號 *虛擬 Primary key
-			(真實信徒編號) Real_MID
 			姓名 Name
 			性別 Sex
 			生肖 Zodiac
@@ -45,16 +45,17 @@
 			備註 Note
 
 		DB [HouseholdMember]
-			[Primary Key : HouseholdID] => 一個人可以有2筆以上資料。意謂著換戶號
-			[Primary Key : MemberID]  => 對應BasicInfo MID
+			[Primary Key : HouseholdID] => 一個人可以有2筆以上資料。意謂著換戶號 => 對應 Household HID
+			MemberID  => 對應BasicInfo MID
 			編號 Member_no
 			戶號 House_ID
 			戶長與否 Is_head
 			開始日期 Start_date
 			結束日期 End_date
 
-		DB [Household]
-			[Primary Key : HID]
+		DB [Household] => 用來記錄是否停用 (其實可以與 HouseholdMember 合併)
+			[Primary Key : HID] => 流水號 
+			是否持續使用該戶號 Is_using
 			* CRUD
 
 	2. 捐獻類別管理:

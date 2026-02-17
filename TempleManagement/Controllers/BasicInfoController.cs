@@ -12,20 +12,23 @@ namespace TempleManagement.Controllers
         }
         public IActionResult NewBasicInfo(BasicInfo info)
         {
-            if (!ModelState.IsValid) //驗證 Post 來的資料
-            {
-                return Json(new { success = false, message = "資料驗證失敗" });
-            }
+            //if (!ModelState.IsValid) //驗證 Post 來的資料
+            //{
+            //    Console.WriteLine("ModelState");
+            //    return Json(new { success = false, message = "資料驗證失敗" });
+            //}
 
             try
             {
                 BasicInfo_DBManager dbManager = new BasicInfo_DBManager();
                 dbManager.newBasicInfo(info);
+                Console.WriteLine("BDManager");
 
                 return Json(new { success = true, name = info.Name });
             }
             catch (Exception ex)
             {
+                Console.WriteLine("catch");
                 // 可記錄錯誤 log
                 return Json(new { success = false, message = ex.Message });
             }

@@ -1,6 +1,11 @@
 ﻿.vs/
 .vscode/
 
+
+# api_key
+api_key.txt
+
+
 # Build results
 bin/
 obj/
