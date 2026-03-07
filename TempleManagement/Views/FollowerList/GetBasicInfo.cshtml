@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="~/css/FollowerList/owl.carousel.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/FollowerList/style.css" asp-append-version="true" />
 }
-@model List<TempleManagement.Models.BasicInfo>
+@model Task<List<TempleManagement.Models.BasicInfo>>
 <body>
 
     <div class="content">
@@ -52,7 +52,7 @@
                     <tbody>
                         @if (Model != null)
                         {
-                            @foreach (var item in Model)
+                            @foreach (var item in await Model)
                             {
                                 <tr scope="row">
 

@@ -25,8 +25,8 @@
             <div class="cntrl">
                 <label class="h">設為戶長: </label>
 
-                <label><input type="radio" name="Is_head" value="leader" > 戶長</label>
-                <label><input type="radio" name="Is_head" value="not_leader" checked> 否</label>
+                <label><input type="radio" name="Is_head" value="true" > 戶長</label>
+                <label><input type="radio" name="Is_head" value="false" checked> 否</label>
                 
             </div>
             <div>
@@ -110,8 +110,8 @@
 
             <label class="h">性別</label>
             <div class="cntrl">
-                <label><input type="radio" name="Sex" value="boy" checked> 男</label>
-                <label><input type="radio" name="Sex" value="girl"> 女</label>
+                <label><input type="radio" name="Sex" value="true" checked> 男</label>
+                <label><input type="radio" name="Sex" value="false"> 女</label>
             </div>
             
         </fieldset>
@@ -150,6 +150,8 @@
         $(document).ready(function () {
            $('#create_Info').submit(function(e) {
                 e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+                $('#create_Info').off('submit');   // 先移除舊事件，避免重複提交
+
 
                 // 序列化 form 內的資料
                 var formData = $(this).serialize();
@@ -163,10 +165,10 @@
                         console.log("成功!");
 
                         if (result.success) {
-                            alert(`${result.Name} : 已成功創建資料！`);
+                            alert(`${result.name} : 已成功創建資料！`);
 
                         }else{
-                            alert(`${result.Name},${result.message} : 失敗創建資料！`);
+                            alert(`${result.name},${result.message} : 失敗創建資料！`);
                         }
                      
                     },
@@ -177,4 +179,6 @@
             });
         });
     </script>
+
+<! -- 創建個人資料_及時更新目前戶號、信徒編號 (為了能夠間接理解輸入是否為同個戶號) -->
 

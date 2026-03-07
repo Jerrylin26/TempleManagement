@@ -9,7 +9,7 @@ namespace TempleManagement.Controllers
         public IActionResult GetBasicInfo()
         {
             BasicInfo_DBManager db = new BasicInfo_DBManager();
-            List<BasicInfo> Info = db.getBasicInfo();
+            Task<List<BasicInfo>> Info = db.getBasicInfo(); //已改成 postgresql
             return View(Info);
 
         }
