@@ -12,12 +12,12 @@
         <fieldset>
             <legend>信徒基本資料</legend>
             <div>
-                <label class="household_Lead_ID">戶長編號: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span>XXX</span>
+                <label class="household_Lead_ID">戶長編號:  </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span id="house_id_info">XXX</span>
             </div>
             <div>
                 <label class="household_ID">信徒編號: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span>XXX</span>
+                <span id="member_no_info">XXX</span>
             </div>
             
             
@@ -145,7 +145,7 @@
     </form>
 </div>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<! -- 創建個人資料 -->
+<!-- 創建個人資料 -->
     <script>
         $(document).ready(function () {
            $('#create_Info').submit(function(e) {
@@ -166,6 +166,7 @@
 
                         if (result.success) {
                             alert(`${result.name} : 已成功創建資料！`);
+                            location.reload();
 
                         }else{
                             alert(`${result.name},${result.message} : 失敗創建資料！`);
@@ -180,5 +181,69 @@
         });
     </script>
 
-<! -- 創建個人資料_及時更新目前戶號、信徒編號 (為了能夠間接理解輸入是否為同個戶號) -->
+<!-- 創建個人資料_及時更新目前戶號、信徒編號 (為了能夠間接理解輸入是否為同個戶號) -->
+<!-- 加上最初刷新就是你本人 不是戶長 -->
+
+<script>
+    $(document).ready(function (){
+        
+            $.ajax({
+                type: "POST",
+                url: "/BasicInfo/UpdateHousehold",
+                data: {Is_head:false} ,
+
+                success: function (result) {
+                    console.log("成功!");
+
+                    if (result.success) {
+                        // alert(`${result.message}${result.house_id} ${result.member_no} ${result.househead_head}！`);
+                        $('#house_id_info').text(result.house_id + "    【 " + result.househead_head + " 】");
+                        $('#member_no_info').text(result.member_no);
+                        $().text(result.househead_head);
+
+                    }else{
+                        alert(`${result.message} : 失敗更新！`);
+                    }
+                     
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        
+    });
+</script>
+
+<script>
+    $(document).ready(function (){
+        $("input[name='Is_head']").on("change",function(){
+            let Is_head = $("input[name='Is_head']:checked").serialize();
+
+
+            $.ajax({
+                type: "POST",
+                url: "/BasicInfo/UpdateHousehold",
+                data: Is_head ,
+
+                success: function (result) {
+                    console.log("成功!");
+
+                    if (result.success) {
+                        // alert(`${result.message}${result.house_id} ${result.member_no} ${result.househead_head}！`);
+                        $('#house_id_info').text(result.house_id + "    【 " + result.househead_head + " 】");
+                        $('#member_no_info').text(result.member_no);
+                        $().text(result.househead_head);
+
+                    }else{
+                        alert(`${result.message} : 失敗更新！`);
+                    }
+                     
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>
 

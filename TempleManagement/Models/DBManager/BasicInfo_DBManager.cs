@@ -45,7 +45,7 @@ namespace TempleManagement.Models.DBManager
         private static string column_for_create_value = "@" + string.Join(",  @", column_array.Skip(1));
 
         // 取得BasicInfo 資料表 資料 
-        public async Task<List<BasicInfo>> getBasicInfo(bool latest_MID = false)
+        public async Task<List<BasicInfo>> getBasicInfo(bool latest_MID = false, int member_id = 0)
         {
             using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
@@ -53,7 +53,7 @@ namespace TempleManagement.Models.DBManager
 
             NpgsqlCommand cmd;
 
-            if (latest_MID)
+            if (latest_MID) // 拿來 newHouseholdMember()用
             {
                 cmd = new NpgsqlCommand(
                     "SELECT * FROM BasicInfo ORDER BY MID DESC LIMIT 1",
@@ -64,6 +64,13 @@ namespace TempleManagement.Models.DBManager
             {
                 cmd = new NpgsqlCommand(
                     $"SELECT {column} FROM BasicInfo",
+                    conn);
+            }
+
+            if (member_id != 0) // 為了單獨抓，用 member_id
+            {
+                cmd = new NpgsqlCommand(
+                    $"SELECT {column} FROM BasicInfo where mid = {member_id}",
                     conn);
             }
 
@@ -175,18 +182,31 @@ namespace TempleManagement.Models.DBManager
         private static string column_for_create_value_HouseholdMember = "@" + string.Join(",  @", column_array_HouseholdMember.Skip(1));
 
         // 取得HouseholdMember 資料表 資料 
-        public async Task<List<HouseholdMember>> getHouseholdMember()
+        public async Task<List<HouseholdMember>> getHouseholdMember(string type = "default")
         {
             List<HouseholdMember> Infos = new List<HouseholdMember>();
 
             using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
+            
 
-            NpgsqlCommand cmd;
-            cmd = new NpgsqlCommand(
+            NpgsqlCommand cmd = new NpgsqlCommand();
+            if (type == "default")
+            {
+                cmd = new NpgsqlCommand(
                     $"SELECT {column_HouseholdMember}   FROM HouseholdMember",
                     conn
                  );
+            }else if (type == "get_head")
+            {
+                cmd = new NpgsqlCommand(
+                    $"select {column_HouseholdMember} from householdmember where member_no=1 order by memberid desc limit 1;",
+                    conn
+                 );
+            }
+
+            Debug.WriteLine(cmd.CommandText);
+
 
 
             await using (var reader = await cmd.ExecuteReaderAsync())
@@ -218,6 +238,8 @@ namespace TempleManagement.Models.DBManager
                     Infos.Add(Info);
                 };
             };
+
+            Debug.WriteLine(JsonSerializer.Serialize(Infos));
 
             return Infos;
         }
