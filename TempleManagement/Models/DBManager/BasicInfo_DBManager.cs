@@ -32,7 +32,7 @@ namespace TempleManagement.Models.DBManager
         /*
          Create: newBasicInfo()
          Read: getBasicInfo()、
-         Update:
+         Update: AddAge()
          Delete:
         */
 
@@ -127,7 +127,7 @@ namespace TempleManagement.Models.DBManager
             return Infos;
         }
 
-        // 寫入 BasicInfo 資料表
+
         public async Task newBasicInfo(BasicInfo user)
         {
             Debug.WriteLine("start insert");
@@ -135,8 +135,8 @@ namespace TempleManagement.Models.DBManager
             await conn.OpenAsync();
 
             await using var cmd = new NpgsqlCommand(@$"INSERT INTO BasicInfo({column_for_create}) VALUES({column_for_create_value})", conn);
-            
-    
+
+
             cmd.Parameters.AddWithValue("@Name", user.Name);
             cmd.Parameters.AddWithValue("@Sex", user.Sex);
             cmd.Parameters.AddWithValue("@Zodiac", user.Zodiac);
@@ -157,11 +157,46 @@ namespace TempleManagement.Models.DBManager
             Debug.WriteLine("完成insert");
 
             await cmd.ExecuteNonQueryAsync();
+
+
+        }
+        
+
+        //  Age 全 +1
+        public async Task AddAge()
+        {
+            Debug.WriteLine("開始 update");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"Update BasicInfo set age = age+1", conn);
+                  
+
+            Debug.WriteLine("完成 update");
+
+            await cmd.ExecuteNonQueryAsync();
             
 
         }
 
-        
+        //  Age 全 -1
+        public async Task MinusAge()
+        {
+            Debug.WriteLine("開始 update");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"Update BasicInfo set age = age-1", conn);
+
+
+            Debug.WriteLine("完成 update");
+
+            await cmd.ExecuteNonQueryAsync();
+
+
+        }
+
+
 
 
 

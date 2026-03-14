@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="~/css/ModifyAge/owl.carousel.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/ModifyAge/style.css" asp-append-version="true" />
 }
+@model List<TempleManagement.Models.BasicInfo>
+
 <body>
 
     <div class="content">
@@ -42,76 +44,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr scope="row">
-                            
-                            <td>
-                                1392
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-                                    
-
-                                    <a href="#">James Yates</a>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
-                        </tr>
-                        <tr scope="row">
-                            
-                            <td>
-                                1392
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-                                    
-
-                                    <a href="#">James Yates</a>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
 
 
-                        </tr>
-                        <tr scope="row">
-                            
-                            <td>
-                                1392
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-                                    
+                        @if (Model != null)
+                        {
+                            @foreach (var item in  Model)
+                            {
+                                <tr scope="row">
 
-                                    <a href="#">James Yates</a>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
+                                    <td>
+                                        @item.MID
+                                    </td>
+                                    <td class="pl-0">
+                                        <div class="d-flex align-items-center">
 
 
-                        </tr>
-                        <tr scope="row">
-                            
-                            <td>
-                                1392
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-                                    
-
-                                    <a href="#">James Yates</a>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
-
-
-                        </tr>
+                                            <a href="#">@item.Name</a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @item.Age
+                                    </td>
+                                </tr>
+                            }
+                        }
                         
 
                     </tbody>
@@ -123,13 +79,75 @@
 
     </div>
 
-
-
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/ModifyAge/bootstrap.min.js"></script>
     <script src="~/js/ModifyAge/jquery-3.3.1.min.js"></script>
     <script src="~/js/ModifyAge/main.js"></script>
     <script src="~/js/ModifyAge/owl.carousel.min.js"></script>
     <script src="~/js/ModifyAge/popper.min.js"></script>
+
+
+    <!-- 增1歲  -->
+    <script>
+        $(document).ready(function (){
+            $('#add_age').click(function(e) {
+                $.ajax({
+                    type: "GET",
+                    url: "/ModifyAge/AddAge",
+
+                    success: function (result) {
+                        console.log("成功!");
+
+                        if (result.success) {
+                            // alert(`${result.message} ！`);
+                            location.reload(); // 配合controller傳Json，js刷新頁面
+                            
+                           
+
+                        }else{
+                            alert(`${result.message} : 失敗更新！`);
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert("發生錯誤：" + error);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- 減1歲  -->
+    <script>
+        $(document).ready(function (){
+            $('#minus_age').click(function(e) {
+                $.ajax({
+                    type: "GET",
+                    url: "/ModifyAge/MinusAge",
+
+                    success: function (result) {
+                        console.log("成功!");
+
+                        if (result.success) {
+                            // alert(`${result.message} ！`);
+                            location.reload(); // 配合controller傳Json，js刷新頁面
+
+
+
+                        }else{
+                            alert(`${result.message} : 失敗更新！`);
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert("發生錯誤：" + error);
+                    }
+                });
+            });
+        });
+    </script>
+
 
 
 

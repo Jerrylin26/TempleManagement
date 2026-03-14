@@ -2,4 +2,111 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    <link rel="stylesheet" href="~/css/AccountManagement/Login.css" asp-append-version="true" />
 }
+
+<!-- From Uiverse.io by andrew-demchenk0 -->
+<body>
+<div class="wrapper" >
+    <div class="card-switch">
+        <label class="switch">
+            <input type="checkbox" class="toggle">
+            <span class="slider"></span>
+            <span class="card-side"></span>
+            <div class="flip-card__inner">
+                <div class="flip-card__front">
+                    <div class="title">登入</div>
+                    <form class="flip-card__form" action="POST" id="login">
+                        <input class="flip-card__input" name="account" placeholder="帳號" type="text">
+                        <input class="flip-card__input" name="password" placeholder="密碼" type="password">
+                        <button class="flip-card__btn">送出</button>
+                    </form>
+                </div>
+                <div class="flip-card__back">
+                    <div class="title">註冊</div>
+                    <form class="flip-card__form" action="POST" id="signup">
+                        <input class="flip-card__input" placeholder="姓名" type="text" name="name">
+                        <input class="flip-card__input" name="account" placeholder="帳號" type="text">
+                        <input class="flip-card__input" name="password" placeholder="密碼" type="password">
+                        <button class="flip-card__btn">確認</button>
+                    </form>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
+</body>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+<!-- 創建管理員資料 -->
+<script>
+    $(document).ready(function () {
+       $('#signup').submit(function(e) {
+            e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+            $('#signup').off('submit');   // 先移除舊事件，避免重複提交
+
+
+            // 序列化 form 內的資料
+            var formData = $(this).serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "/AccountManagement/SignUp",
+                data: formData ,
+
+                success: function (result) {
+                    console.log("成功!");
+
+                    if (result.success) {
+                        alert(`${result.name} : 已成功創建資料！`);
+                        location.reload();
+
+                    }else{
+                        alert(`${result.name},${result.message} : 失敗創建資料！`);
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>
+
+<!-- 登入 -->
+<script>
+    $(document).ready(function () {
+       $('#login').submit(function(e) {
+            e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+
+
+            // 序列化 form 內的資料
+            var formData = $(this).serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "/AccountManagement/Login",
+                data: formData ,
+
+                success: function (result) {
+                    console.log("成功!");
+
+                    if (result.success && result.name) {
+                        alert(`${result.name} : 已成功登入資料！`);
+                        location.reload();
+
+                    }else{
+                        alert(`${result.message} `);
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>

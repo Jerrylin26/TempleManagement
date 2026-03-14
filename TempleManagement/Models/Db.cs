@@ -49,7 +49,16 @@ namespace TempleManagement.Models
         public DateTime? Start_date { get; set; }
         public DateTime? End_date { get; set; } 
 
+    }
 
+    public class Admin
+    {
+        public int AdminID { get; set; } // primary key
+        public string Account { get; set; }
+        public string Password { get; set; }
+        public string? Name { get; set; }
 
     }
+
+
 }

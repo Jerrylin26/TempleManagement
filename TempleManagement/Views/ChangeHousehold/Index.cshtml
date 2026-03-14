@@ -15,10 +15,13 @@
 <body>
     <div id="flex-query">
         <div>
-            <input type="text" class="cell-edit-input" maxlength="7" placeholder="輸入戶號">
-            <button id="btn_search">
-                查詢
-            </button>
+            <form method="POST" id="search_household">
+                <input type="text" class="cell-edit-input" maxlength="7" placeholder="輸入戶號" name="household_id">
+                <button id="btn_search">
+                    查詢
+                </button>
+            </form>
+            
         </div>
 
         <div>
@@ -141,6 +144,9 @@
 
     </div>
 
+    <button>上一戶</button>
+    <button>下一戶</button>
+
 
 
     <script src="~/js/ChangeHousehold/bootstrap.min.js"></script>
@@ -149,7 +155,43 @@
     <script src="~/js/ChangeHousehold/owl.carousel.min.js"></script>
     <script src="~/js/ChangeHousehold/popper.min.js"></script>
 
+    <!-- 查詢特定戶號  -->
+    <script>
+        $(document).ready(function (){
+            $('#search_household').submit(function(e) {
+                e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+                $('#search_household').off('submit');   // 先移除舊事件，避免重複提交
 
+
+                // 序列化 form 內的資料
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/ChangeHousehold/GetHousehold",
+                    data: formData,
+
+                    success: function (result) {
+                        console.log("成功!");
+
+                        if (result.success) {
+                            alert(`${JSON.stringify(result.info)} ${result.household_id} ！`);
+                            // location.reload(); 配合controller傳Json，js刷新頁面
+
+
+
+                        }else{
+                            alert(`${result.message} : 失敗更新！`);
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert("發生錯誤：" + error);
+                    }
+                });
+            });
+        });
+    </script>
 
 
 </body>
