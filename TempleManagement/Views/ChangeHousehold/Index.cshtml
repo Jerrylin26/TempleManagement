@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="~/css/ChangeHousehold/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/ChangeHousehold/Index.css" asp-append-version="true" />
 }
+
+@model List<ChangeHousehold>
+
 <body>
     <div id="flex-query">
         <div>
@@ -50,91 +53,33 @@
                             <th scope="col">年齡</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr scope="row">
+                    <tbody id="search_change">
+                        @if (Model != null)
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr scope="row">
 
-                            <td>
-                                <a href="">
-                                    0021
-                                </a>
+                                    <td>
+                                        <a href="">
+                                            00@(item.House_ID) _ @item.Member_no
+                                        </a>
 
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-
-
-                                    <div>James Yates</div>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
-                        </tr>
-                        <tr scope="row">
-
-                            <td>
-                                <a href="">
-                                    0022
-                                </a>
-
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
+                                    </td>
+                                    <td class="pl-0">
+                                        <div class="d-flex align-items-center">
 
 
-                                    <div>James Yates</div>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
-
-
-                        </tr>
-                        <tr scope="row">
-
-                            <td>
-                                <a href="">
-                                    0023
-                                </a>
-
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-
-
-                                    <div>James Yates</div>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
-
-
-                        </tr>
-                        <tr scope="row">
-
-                            <td>
-                                <a href="">
-                                    0024
-                                </a>
-                               
-                            </td>
-                            <td class="pl-0">
-                                <div class="d-flex align-items-center">
-
-
-                                    <div>James Yates</div>
-                                </div>
-                            </td>
-                            <td>
-                                20
-                            </td>
-
-
-                        </tr>
-
-
+                                            <div>@item.Name</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @item.Age
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        
                     </tbody>
                 </table>
             </div>
@@ -160,7 +105,7 @@
         $(document).ready(function (){
             $('#search_household').submit(function(e) {
                 e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
-                $('#search_household').off('submit');   // 先移除舊事件，避免重複提交
+
 
 
                 // 序列化 form 內的資料
@@ -175,8 +120,38 @@
                         console.log("成功!");
 
                         if (result.success) {
-                            alert(`${JSON.stringify(result.info)} ${result.household_id} ！`);
+                            // alert(`${JSON.stringify(result.info)} ${result.household_id} ！`);
                             // location.reload(); 配合controller傳Json，js刷新頁面
+
+                            let html = "";
+
+                            result.info.forEach(function (member) {
+
+                            html += `
+                                <tr scope="row">
+
+                                    <td>
+                                        <a href="">
+                                            00${member.house_ID} _ ${member.member_no}
+                                        </a>
+
+                                    </td>
+                                    <td class="pl-0">
+                                        <div class="d-flex align-items-center">
+
+
+                                            <div>${member.name}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        ${member.age}
+                                    </td>
+                                </tr>
+                            `;
+
+                            });
+
+                            $('#search_change').html(html);
 
 
 

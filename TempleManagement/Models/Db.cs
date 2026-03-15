@@ -60,5 +60,19 @@ namespace TempleManagement.Models
 
     }
 
+    // 為了給 ChangeHousehold 頁面，BasicInfo 跟 HouseholdMember 資料
+    public class ChangeHousehold
+    {
+        public int HouseholdID { get; set; } // primary key 1
+        public int MemberID { get; set; } // primary key 2
+        public int Member_no { get; set; }
+        public int House_ID { get; set; }
+        public bool Is_head { get; set; }
+        public DateTime? Start_date { get; set; }
+        public DateTime? End_date { get; set; }
+
+        public int Age { get; set; }
+        public string Name { get; set; }
+    }
 
 }

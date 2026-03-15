@@ -95,7 +95,7 @@ namespace TempleManagement.Models.DBManager
                 ;
 
             }
-            Debug.WriteLine($"check return back to contro{JsonSerializer.Serialize(Infos)}");
+            Debug.WriteLine($"check return back to controller{JsonSerializer.Serialize(Infos)}");
 
             return Infos;
 
