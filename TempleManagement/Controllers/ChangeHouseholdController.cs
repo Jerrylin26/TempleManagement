@@ -10,6 +10,28 @@ namespace TempleManagement.Controllers
     public class ChangeHouseholdController : Controller
     {
 
+
+        public async Task<IActionResult> ChangeHousehold_head(int mid, string name, int houseid)
+        {
+            Debug.WriteLine("ChangeHousehold_head");
+            Debug.WriteLine($"{mid},{name},{houseid}");
+            HouseholdManagement_DBManager dbManager = new HouseholdManagement_DBManager();
+            Debug.WriteLine("HouseholdManagement_DBManager_ChangeHousehold_head");
+            try
+            {
+                await dbManager.changeHead(mid, houseid);
+                return Json(new { success =  true, message = $"更換戶長為{name}" });
+            }
+            catch
+            {
+                return Json(new { success = false, message = "更換戶長失敗" });
+            }
+
+            
+        }
+
+
+
         public async Task<List<ChangeHousehold>> Changehousehold(List<HouseholdMember> infos)
         {
             BasicInfo_DBManager dbMgr = new BasicInfo_DBManager();
@@ -47,7 +69,7 @@ namespace TempleManagement.Controllers
             List<HouseholdMember> infos = await dbManager.getHousehold("3");
 
             List<ChangeHousehold> b_infos = await Changehousehold(infos); // 合成一個func 讓大家使用
-
+            b_infos.Reverse();
             return View(b_infos);
         }
 
@@ -82,6 +104,7 @@ namespace TempleManagement.Controllers
 
 
                 List<ChangeHousehold> b_infos = await Changehousehold(infos); // BasicInfo + HouseholdMember
+                b_infos.Reverse();
                 Debug.WriteLine($"b_infos check:{JsonSerializer.Serialize(b_infos)}");
                 if (infos?.Any() == true) { 
                     return Json(new { success = true, household_id = household_id, info = b_infos });
@@ -98,7 +121,8 @@ namespace TempleManagement.Controllers
         }
 
 
-        // 下次更改戶長實際作業
+        // 下次更改上下一戶
+        // 姓名查詢
     }
 
     

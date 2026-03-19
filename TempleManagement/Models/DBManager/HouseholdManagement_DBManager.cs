@@ -33,7 +33,7 @@ namespace TempleManagement.Models.DBManager
         /*
          Create: 
          Read: getHousehold()、
-         Update: 
+         Update: changeHead()
          Delete:
         */
 
@@ -102,28 +102,25 @@ namespace TempleManagement.Models.DBManager
         }
 
 
-        public async Task newAccount(Admin user)
+
+        public async Task changeHead(int mid, int houseid)
         {
-            Debug.WriteLine("start insert");
+            Debug.WriteLine("start update");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"INSERT INTO admin({column_for_create}) VALUES({column_for_create_value})", conn);
+            await using var cmd = new NpgsqlCommand(@$"UPDATE householdmember SET  is_head = false where house_id = @house_id; UPDATE householdmember SET  is_head = true where memberid = @mid;", conn);
+
+            cmd.Parameters.AddWithValue("@house_id", houseid);
+            cmd.Parameters.AddWithValue("@mid", mid);
 
 
-            cmd.Parameters.AddWithValue("@name", user.Name);
-            cmd.Parameters.AddWithValue("@account", user.Account);
-            cmd.Parameters.AddWithValue("@password", user.Password);
-
-
-
-            Debug.WriteLine("完成insert");
+            Debug.WriteLine("完成update");
 
             await cmd.ExecuteNonQueryAsync();
 
 
         }
-
 
 
     }

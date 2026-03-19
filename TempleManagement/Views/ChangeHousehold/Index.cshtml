@@ -47,7 +47,7 @@
                 <table class="table table-striped custom-table">
                     <thead>
                         <tr>
-
+                            <th scope="col">戶長</th>
                             <th scope="col">信徒編號</th>
                             <th scope="col">姓名</th>
                             <th scope="col">年齡</th>
@@ -59,6 +59,18 @@
                             @foreach (var item in Model)
                             {
                                 <tr scope="row">
+                                    @if (item.Is_head)
+                                    {
+                                        <td>
+                                            <input type="radio" name="mid" class="change_head" value="@item.MemberID" data-name="@item.Name" data-houseid="@item.House_ID" checked>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <input type="radio" name="mid" class="change_head" value="@item.MemberID" data-name="@item.Name" data-houseid="@item.House_ID">
+                                        </td>
+                                    }
 
                                     <td>
                                         <a href="">
@@ -129,6 +141,12 @@
 
                             html += `
                                 <tr scope="row">
+                                    
+                            
+                                    <td>
+                                            <input type="radio" name="mid" class="change_head" value="${member.memberID}" data-name="${member.name}" data-houseid="${member.house_ID}" ${member.is_head ? "checked" : ""}>
+                                    </td>
+                                    
 
                                     <td>
                                         <a href="">
@@ -168,5 +186,34 @@
         });
     </script>
 
+
+    <!-- 更換戶長 -->
+    <script>
+        $(document).on('change', '.change_head', function () {
+
+            let formData = $(this).serialize();
+            let name = $(this).data('name');
+            let houseid = $(this).data('houseid');
+
+            $.ajax({
+                type: "POST",
+                url: "/ChangeHousehold/ChangeHousehold_head",
+                data: formData
+                    + "&name=" + encodeURIComponent(name)
+                    + "&houseid=" + encodeURIComponent(houseid),
+
+                success: function (result) {
+                    if (result.success) {
+                        alert(result.message);
+                    } else {
+                        alert(result.message + " : 失敗更新！");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    </script>
 
 </body>
