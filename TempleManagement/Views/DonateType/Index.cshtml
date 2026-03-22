@@ -5,6 +5,8 @@
 }
 
 @* <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css"> *@
+@model List<DonateType>
+
 <link rel="stylesheet" href="~/css/DonateType/Index.css">
 <link rel="stylesheet" href="~/css/DonateType/w3.css">
 <body>
@@ -33,55 +35,24 @@
                 <th>備註</th>
             </tr>
 
-            <tr>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="小斗">
-                </td>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="700">
-                </td>
-                <td>
-                    <textarea class="cell-edit-textarea">...</textarea>
-                </td>
+            @foreach (var info in Model)
+            {
+                <tr data-id="@info.ID"> 
+                    <td>
+                        <input type="text" class="cell-edit-input" maxlength="10" value="@info.Name_chinese">
+                    </td>
+                    <td>
+                        <input type="text" class="cell-edit-input" maxlength="10" value="@info.Price">
+                    </td>
+                    <td>
+                        <textarea class="cell-edit-textarea">@info.Note</textarea>
+                    </td>
+                </tr>
+                    
+            }
+                
 
-            </tr>
-
-            <tr>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="大斗">
-                </td>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="3000">
-                </td>
-                <td>
-                    <textarea class="cell-edit-textarea">1111111111111111111111111111111111</textarea>
-                </td>
-
-            </tr>
-            <tr>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="安太歲">
-                </td>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="500">
-                </td>
-                <td>
-                    <textarea class="cell-edit-textarea">1111111111111111111111111111111111</textarea>
-                </td>
-
-            </tr>
-            <tr>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="平安燈">
-                </td>
-                <td>
-                    <input type="text" class="cell-edit-input" maxlength="10" value="2000">
-                </td>
-                <td>
-                    <textarea class="cell-edit-textarea">1111111111111111111111111111111111</textarea>
-                </td>
-
-            </tr>
+            
         </table>
 
     </div>
@@ -95,9 +66,16 @@
     <br />
     <!-- HTML !-->
     <button class="button-24" role="button"> 確定儲存</button>
+    <br />
+    <br />
+    <br />
+    <br />
 
     <div>***若不使用該類別，請自行備註棄用，或是直接覆蓋遺棄類別!!! 無提供刪除類別功能</div>
-
+    <br />
+    <br />
+    <br />
+    <br />
     
 
 

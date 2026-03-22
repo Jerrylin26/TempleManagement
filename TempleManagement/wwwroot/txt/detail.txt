@@ -59,7 +59,13 @@
 			* CRUD
 
 	2. 捐獻類別管理:
-
+		
+		DB[DonateType]
+			[Primary Key : id] 
+			name 名稱
+			price 價格
+			note 備註
+			modifydate 修改日期
 		
 		DB [Donation_Household] 一戶
 		

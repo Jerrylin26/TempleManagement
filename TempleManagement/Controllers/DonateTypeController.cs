@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TempleManagement.Models;
+using TempleManagement.Models.DBManager;
 
 namespace TempleManagement.Controllers
 {
     public class DonateTypeController : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            DonateType_DBManager dbmanager = new DonateType_DBManager();
+            List<DonateType> infos = await dbmanager.get_donatetype();
+
+            return View(infos);
         }
     }
 }
