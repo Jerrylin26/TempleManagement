@@ -28,10 +28,12 @@
         </div>
 
         <div>
-            <input type="text" class="cell-edit-input" maxlength="7" placeholder="輸入姓名">
-            <button id="btn_search_name">
-                查詢
-            </button>
+            <form method="POST" id="search_household_name">
+                <input type="text" class="cell-edit-input" maxlength="7" placeholder="輸入姓名" name="name">
+                <button id="btn_search_name">
+                    查詢
+                </button>
+            </form>
         </div>
     </div>
     
@@ -40,7 +42,8 @@
 
         <div class="container">
 
-
+            <button id="pre_house">上一戶</button>
+            <button id="next_house">下一戶</button>
 
             <div class="table-responsive">
 
@@ -62,13 +65,13 @@
                                     @if (item.Is_head)
                                     {
                                         <td>
-                                            <input type="radio" name="mid" class="change_head" value="@item.MemberID" data-name="@item.Name" data-houseid="@item.House_ID" checked>
+                                            <input type="radio" name="mid_@item.House_ID" class="change_head" value="@item.MemberID" data-name="@item.Name" data-houseid="@item.House_ID" data-mid="@item.MemberID" checked>
                                         </td>
                                     }
                                     else
                                     {
                                         <td>
-                                            <input type="radio" name="mid" class="change_head" value="@item.MemberID" data-name="@item.Name" data-houseid="@item.House_ID">
+                                            <input type="radio" name="mid_@item.House_ID" class="change_head" value="@item.MemberID" data-name="@item.Name" data-houseid="@item.House_ID" data-mid="@item.MemberID">
                                         </td>
                                     }
 
@@ -101,8 +104,7 @@
 
     </div>
 
-    <button>上一戶</button>
-    <button>下一戶</button>
+    
 
 
 
@@ -144,7 +146,7 @@
                                     
                             
                                     <td>
-                                            <input type="radio" name="mid" class="change_head" value="${member.memberID}" data-name="${member.name}" data-houseid="${member.house_ID}" ${member.is_head ? "checked" : ""}>
+                                            <input type="radio" name="mid_${member.house_ID}" class="change_head" value="${member.memberID}" data-name="${member.name}" data-houseid="${member.house_ID}" data-mid="${member.memberID}" ${member.is_head ? "checked" : ""}>
                                     </td>
                                     
 
@@ -187,18 +189,156 @@
     </script>
 
 
+    <!-- 上一戶 -->
+    <script>
+        $(document).on('click', '#pre_house', function () {
+
+
+            let selected = $('input[name^="mid_"]:checked');
+            let house_id = selected.data('houseid');
+
+            $.ajax({
+                type: "POST",
+                url: "/ChangeHousehold/pre_house",
+                data: {
+                    house_id: house_id
+                },
+
+
+                success: function (result) {
+                    if (result.success) {
+                        // alert(result.message);
+                        
+                        let html = "";
+
+                            result.info.forEach(function (member) {
+
+                            html += `
+                                <tr scope="row">
+
+
+                                    <td>
+                                            <input type="radio" name="mid_${member.house_ID}" class="change_head" value="${member.memberID}" data-name="${member.name}" data-houseid="${member.house_ID}" data-mid="${member.memberID}" ${member.is_head ? "checked" : ""}>
+                                    </td>
+
+
+                                    <td>
+                                        <a href="">
+                                            00${member.house_ID} _ ${member.member_no}
+                                        </a>
+
+                                    </td>
+                                    <td class="pl-0">
+                                        <div class="d-flex align-items-center">
+
+
+                                            <div>${member.name}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        ${member.age}
+                                    </td>
+                                </tr>
+                            `;
+
+                            });
+
+                            $('#search_change').html(html);
+
+
+                    }
+                     else {
+                        // alert(result.message + " : 沒東西！");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    </script>
+
+    <!-- 下一戶 -->
+    <script>
+        $(document).on('click', '#next_house', function () {
+
+
+            let selected = $('input[name^="mid_"]:checked');
+            let house_id = selected.data('houseid');
+
+            $.ajax({
+                type: "POST",
+                url: "/ChangeHousehold/next_house",
+                data: {
+                    house_id: house_id
+                },
+
+
+                success: function (result) {
+                    if (result.success) {
+                        // alert(result.message);
+
+                        let html = "";
+
+                            result.info.forEach(function (member) {
+
+                            html += `
+                                <tr scope="row">
+
+
+                                    <td>
+                                            <input type="radio" name="mid_${member.house_ID}" class="change_head" value="${member.memberID}" data-name="${member.name}" data-houseid="${member.house_ID}" data-mid="${member.memberID}" ${member.is_head ? "checked" : ""}>
+                                    </td>
+
+
+                                    <td>
+                                        <a href="">
+                                            00${member.house_ID} _ ${member.member_no}
+                                        </a>
+
+                                    </td>
+                                    <td class="pl-0">
+                                        <div class="d-flex align-items-center">
+
+
+                                            <div>${member.name}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        ${member.age}
+                                    </td>
+                                </tr>
+                            `;
+
+                            });
+
+                            $('#search_change').html(html);
+
+
+                    }
+                     else {
+                        // alert(result.message + " : 沒東西！");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    </script>
+
     <!-- 更換戶長 -->
     <script>
         $(document).on('change', '.change_head', function () {
 
-            let formData = $(this).serialize();
+            let mid = $(this).data('mid');
             let name = $(this).data('name');
             let houseid = $(this).data('houseid');
 
             $.ajax({
                 type: "POST",
                 url: "/ChangeHousehold/ChangeHousehold_head",
-                data: formData
+                data: "mid=" + encodeURIComponent(mid)
                     + "&name=" + encodeURIComponent(name)
                     + "&houseid=" + encodeURIComponent(houseid),
 
@@ -212,6 +352,105 @@
                 error: function (xhr, status, error) {
                     alert("發生錯誤：" + error);
                 }
+            });
+        });
+    </script>
+
+    <!-- 查詢包含姓名  -->
+    <script>
+        $(document).ready(function (){
+            $('#search_household_name').submit(function(e) {
+                e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+
+
+
+                // 序列化 form 內的資料
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/ChangeHousehold/search_name",
+                    data: formData,
+
+                    success: function (result) {
+                        console.log("成功!");
+
+                        if (result.success) {
+                            // alert(`${JSON.stringify(result.info)} ${result.household_id} ！`);
+                            // location.reload(); 配合controller傳Json，js刷新頁面
+
+                            let html = "";
+
+                            result.info.forEach(function (member_List) {
+                                member_List.forEach(function (member) {
+                                html += `
+                                    <tr scope="row">
+
+
+                                        <td>
+                                                <input type="radio" name="mid_${member.house_ID}" class="change_head" value="${member.memberID}" data-name="${member.name}" data-houseid="${member.house_ID}" data-mid="${member.memberID}" ${member.is_head ? "checked" : ""}>
+                                        </td>
+
+
+                                        <td>
+                                            <a href="">
+                                                00${member.house_ID} _ ${member.member_no}
+                                            </a>
+
+                                        </td>
+                                        <td class="pl-0">
+                                            <div class="d-flex align-items-center">
+
+
+                                                <div>${member.name}</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            ${member.age}
+                                        </td>
+                                    </tr>
+                                `;
+                                });
+                                html += ` <tr scope="row" class="no-stripe">
+
+
+                                        <td>
+                                                
+                                        </td>
+
+
+                                        <td>
+                                            <a href="">
+
+                                            </a>
+
+                                        </td>
+                                        <td class="pl-0">
+                                            <div class="d-flex align-items-center">
+
+
+ 
+                                            </div>
+                                        </td>
+                                        <td>
+      
+                                        </td>
+                                    </tr>`
+                            });
+
+                            $('#search_change').html(html);
+
+
+
+                        }else{
+                            alert(`${result.message} ！`);
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert("發生錯誤：" + error);
+                    }
+                });
             });
         });
     </script>

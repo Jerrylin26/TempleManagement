@@ -75,6 +75,7 @@ namespace TempleManagement.Controllers
 
             BasicInfo_DBManager dBManager = new BasicInfo_DBManager();
             List<HouseholdMember> member_info = await dBManager.getHouseholdMember("get_head");
+            List<HouseholdMember> member_no_db = await dBManager.getHouseholdMember("get_houseid_member_no"); // 找出最大member_no
             int house_id = 0;
             int member_no = 0;
             string househead_head = "";
@@ -95,7 +96,7 @@ namespace TempleManagement.Controllers
             else
             {
                 house_id = member_info[0].House_ID;
-                member_no = member_info[0].Member_no + 1;
+                member_no = member_no_db[0].Member_no + 1;
                 househead_head = basicInfo[0].Name;
             }
             Debug.WriteLine("Update House_id 1111:"+ house_id);

@@ -59,3 +59,7 @@
     justify-content:center;
     gap:30px;
 }
+
+.no-stripe {
+    background-color: lightblue !important;
+}

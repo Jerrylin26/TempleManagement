@@ -121,8 +121,86 @@ namespace TempleManagement.Controllers
         }
 
 
-        // 下次更改上下一戶
+        // 上一戶
+        public async Task<IActionResult> pre_house(int house_id)
+        {
+
+            HouseholdManagement_DBManager dbManager = new HouseholdManagement_DBManager();
+            Debug.WriteLine("HouseholdManagement_pre_house_DBManager");
+            var house_string = "0";
+            if (house_id > 2) 
+            {
+                house_string = (house_id-1).ToString();
+            }
+            
+            List<HouseholdMember> infos = await dbManager.getHousehold(house_string);
+
+            List<ChangeHousehold> b_infos = await Changehousehold(infos); // 合成一個func 讓大家使用
+            b_infos.Reverse();
+            if (b_infos?.Any() == true)
+            {
+                return Json(new { info = b_infos, message = "成功", success = true });
+            }
+            return Json(new { message = "失敗", success = false }); 
+        }
+
+        // 下一戶
+        public async Task<IActionResult> next_house(int house_id)
+        {
+            List<HouseholdMember> infos;
+            HouseholdManagement_DBManager dbManager = new HouseholdManagement_DBManager();
+            Debug.WriteLine("HouseholdManagement_pre_house_DBManager");
+            var house_string = "";
+            house_string = (house_id + 1).ToString();
+
+  
+            infos = await dbManager.getHousehold(house_string);
+            Debug.WriteLine($"下一戶:{JsonSerializer.Serialize(infos)}");
+
+            List<ChangeHousehold> b_infos = await Changehousehold(infos); // 合成一個func 讓大家使用
+            b_infos.Reverse();
+            if (b_infos?.Any() == true)
+            {
+                return Json(new { info = b_infos, message = "成功", success = true });
+            }
+            return Json(new { message = "失敗", success = false }); 
+        }
+
         // 姓名查詢
+        public async Task<IActionResult> search_name(string name)
+        {
+            List<BasicInfo> infos;
+            List<List<ChangeHousehold>> fianl_infos = new List<List<ChangeHousehold>>();
+            BasicInfo_DBManager dbManager = new BasicInfo_DBManager();
+            List<int> repeated_house_id = new List<int>();
+            HouseholdManagement_DBManager dgr = new HouseholdManagement_DBManager();
+            Debug.WriteLine("-----------------------search_name----------------------");
+
+
+            infos = await dbManager.search_name(name);
+            Debug.WriteLine($"search_name:{JsonSerializer.Serialize(infos)}");
+
+            // 篩選出，以houseID為group 的組合               
+            foreach (BasicInfo info in infos) {
+                List<HouseholdMember> householdMembers = await dgr.getHousehold_by_basicinfo(info);
+                if (!repeated_house_id.Contains(householdMembers[0].House_ID))
+                {
+                    Debug.WriteLine("In repeated flow");
+                    repeated_house_id.Add(householdMembers[0].House_ID);
+                    List < ChangeHousehold > bb_infos = new List<ChangeHousehold>();
+                    List<ChangeHousehold> b_infos = await Changehousehold(householdMembers);
+
+                    fianl_infos.Add(b_infos);
+                }   
+            }
+
+            //b_infos.Reverse();
+            if (fianl_infos?.Any() == true)
+            {
+                return Json(new { info = fianl_infos, message = "成功", success = true });
+            }
+            return Json(new { message = "查無此人", success = false });
+        }
     }
 
     

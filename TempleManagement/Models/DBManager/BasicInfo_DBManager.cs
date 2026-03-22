@@ -22,7 +22,7 @@ namespace TempleManagement.Models.DBManager
     {
         private readonly string connStr = "Data Source=(localdb)\\MSSQLLocalDB;Database=templeManagement;User ID=Jerry;Password=lccJerry1;Trusted_Connection=True";
         private readonly string connectionString_postgresql ="Host=localhost;Port=5432;Username=postgres;Password=2026fafafa;Database=templemanagement";
-        
+
         /*------------------------------------*/
         //目前改用 postgresql，但某些MSSQL函式不會刪。
         //原由:想用mssql express ，因為tcp連接，然而，我電腦無法啟用。
@@ -31,7 +31,7 @@ namespace TempleManagement.Models.DBManager
         /*---------------------------------------------------------------------------------------*/
         /*
          Create: newBasicInfo()
-         Read: getBasicInfo()、
+         Read: getBasicInfo()、search_name()
          Update: AddAge()
          Delete:
         */
@@ -196,6 +196,78 @@ namespace TempleManagement.Models.DBManager
 
         }
 
+        // 姓名查詢
+        public async Task<List<BasicInfo>> search_name(string name)
+        {
+            using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            NpgsqlCommand cmd;
+            List<BasicInfo> Infos = new List<BasicInfo>();
+
+
+
+            cmd = new NpgsqlCommand(
+                $"SELECT * FROM BasicInfo where name ilike @name ",
+                conn);
+
+            cmd.Parameters.AddWithValue("@name", "%" + name + "%");
+
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                int ordinal_MID = reader.GetOrdinal("MID");
+                int ordinal_Name = reader.GetOrdinal("Name");
+                int ordinal_Sex = reader.GetOrdinal("Sex");
+                int ordinal_Zodiac = reader.GetOrdinal("Zodiac");
+                int ordinal_Age = reader.GetOrdinal("Age");
+
+                int ordinal_Home_num = reader.GetOrdinal("Home_num");
+                int ordinal_phone = reader.GetOrdinal("Phone");
+                int ordinal_job = reader.GetOrdinal("Job");
+                int ordinal_Character_type = reader.GetOrdinal("Character_type");
+                int ordinal_Identical_num = reader.GetOrdinal("Identical_num");
+                int ordinal_Household_address = reader.GetOrdinal("Household_address");
+                int ordinal_Current_address = reader.GetOrdinal("Current_address");
+                int ordinal_Postal_code_cur = reader.GetOrdinal("Postal_code_cur");
+                int ordinal_Postal_code_household = reader.GetOrdinal("Postal_code_household");
+                int ordinal_Note = reader.GetOrdinal("Note");
+
+                while (await reader.ReadAsync())
+                {
+                    BasicInfo Info = new BasicInfo
+                    {
+
+                        MID = reader.IsDBNull(ordinal_MID) ? 0 : reader.GetInt32(ordinal_MID),
+                        Name = reader.IsDBNull(ordinal_Name) ? "" : reader.GetString(ordinal_Name),
+                        Sex = reader.IsDBNull(ordinal_Sex) ? false : reader.GetBoolean(ordinal_Sex),
+                        Zodiac = reader.IsDBNull(ordinal_Zodiac) ? "" : reader.GetString(ordinal_Zodiac),
+                        Age = reader.IsDBNull(ordinal_Age) ? 0 : reader.GetInt32(ordinal_Age),
+
+                        Home_num = reader.IsDBNull(ordinal_Home_num) ? "" : reader.GetString(ordinal_Home_num),
+                        Phone = reader.IsDBNull(ordinal_phone) ? "" : reader.GetString(ordinal_phone),
+                        Job = reader.IsDBNull(ordinal_job) ? "" : reader.GetString(ordinal_job),
+                        Character_type = reader.IsDBNull(ordinal_Character_type) ? "" : reader.GetString(ordinal_Character_type),
+                        Lunar_birthday = reader.IsDBNull(reader.GetOrdinal("Lunar_birthday")) ? null : reader.GetDateTime(reader.GetOrdinal("Lunar_birthday")),
+                        Birthday = reader.IsDBNull(reader.GetOrdinal("Birthday")) ? null : reader.GetDateTime(reader.GetOrdinal("Birthday")),
+
+                        ID_num = reader.IsDBNull(ordinal_Identical_num) ? "" : reader.GetString(ordinal_Identical_num),
+                        Household_address = reader.IsDBNull(ordinal_Household_address) ? "" : reader.GetString(ordinal_Household_address),
+                        Current_address = reader.IsDBNull(ordinal_Current_address) ? "" : reader.GetString(ordinal_Current_address),
+                        Postal_code_cur = reader.IsDBNull(ordinal_Postal_code_cur) ? "" : reader.GetString(ordinal_Postal_code_cur),
+                        Postal_code_household = reader.IsDBNull(ordinal_Postal_code_household) ? "" : reader.GetString(ordinal_Postal_code_household),
+                        Note = reader.IsDBNull(ordinal_Note) ? "" : reader.GetString(ordinal_Note)
+                    };
+                    Infos.Add(Info);
+                }
+                ;
+            }
+
+
+            Debug.WriteLine($"check return back to controller{JsonSerializer.Serialize(Infos)}");
+
+            return Infos;
+
+        }
 
 
 
@@ -217,6 +289,7 @@ namespace TempleManagement.Models.DBManager
         private static string column_for_create_value_HouseholdMember = "@" + string.Join(",  @", column_array_HouseholdMember.Skip(1));
 
         // 取得HouseholdMember 資料表 資料 
+        // 固定取得的已定義邏輯
         public async Task<List<HouseholdMember>> getHouseholdMember(string type = "default")
         {
             List<HouseholdMember> Infos = new List<HouseholdMember>();
@@ -235,7 +308,14 @@ namespace TempleManagement.Models.DBManager
             }else if (type == "get_head")
             {
                 cmd = new NpgsqlCommand(
-                    $"select {column_HouseholdMember} from householdmember where member_no=1 order by memberid desc limit 1;",
+                    $"select {column_HouseholdMember} from householdmember where is_head=true order by memberid desc;",
+                    conn
+                 );
+            }
+            else if (type == "get_houseid_member_no")
+            {
+                cmd = new NpgsqlCommand(
+                    $"select {column_HouseholdMember} from householdmember order by memberid desc limit 1;",
                     conn
                  );
             }
