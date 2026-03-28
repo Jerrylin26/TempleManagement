@@ -17,67 +17,247 @@
             戶(為單位)
         </button>
         <ul class="dropdown-menu" aria-labelledby="DonationTypeButton">
-            <li><a class="dropdown-item" href="#">個人(為單位)</a></li>
-            <li><a class="dropdown-item" href="#">戶(為單位)</a></li>
+            <li><button class="dropdown-item">個人(為單位)</button></li>
+            <li><button class="dropdown-item">戶(為單位)</button></li>
             
         </ul>
 
-        <table class="w3-table-all w3-xlarge fixed-table">
-            <colgroup>
-                <col style="width: 30%;">
-                <col style="width: 30%;">
-                <col style="width: 40%;">
-            </colgroup>
+        <span id="btn_1">
+            <button class="button-24" id="save_button" role="button" style="display:none"> 確定儲存</button>
+        </span>
+        <span id="btn_2">
+            <button class="button-25" id="modify_button" role="button"> 修改</button>
+        </span>
+        
+        <form id="modify_type" method="POST">
+            <table class="w3-table-all w3-xlarge fixed-table">
+                <colgroup>
+                    <col style="width: 30%;">
+                    <col style="width: 30%;">
+                    <col style="width: 40%;">
+                </colgroup>
 
-            <tr>
-                <th>類別</th>
-                <th>價格</th>
-                <th>備註</th>
-            </tr>
-
-            @foreach (var info in Model)
-            {
-                <tr data-id="@info.ID"> 
-                    <td>
-                        <input type="text" class="cell-edit-input" maxlength="10" value="@info.Name_chinese">
-                    </td>
-                    <td>
-                        <input type="text" class="cell-edit-input" maxlength="10" value="@info.Price">
-                    </td>
-                    <td>
-                        <textarea class="cell-edit-textarea">@info.Note</textarea>
-                    </td>
+                <tr>
+                    <th>類別</th>
+                    <th>價格</th>
+                    <th>備註</th>
                 </tr>
-                    
-            }
-                
 
-            
-        </table>
+                <tbody id="search_change">
+                        @{
+                            var count = 0; //拿來全局使用
+                        }
+                        @foreach (var info in Model)
+                        {
+                            <tr data-id="@info.ID">
+                                <td>
+                                    <input type="text" class="cell-edit-input" name="donateTypes[@count].Name_chinese" maxlength="10" value="@info.Name_chinese" disabled>
+                                </td>
+                                <td>
+                                    <input type="text" class="cell-edit-input" name="donateTypes[@count].Price" maxlength="10" value="@info.Price" disabled>
+                                </td>
+                                <td>
+                                    <textarea class="cell-edit-textarea" name="donateTypes[@count].Note" disabled>@info.Note</textarea>
+                                </td>
+                            </tr>
+                            count++;
+                        }
+                    @{
+                        
+                    }
+    
+                </tbody>    
+                <tbody id="add_type_tr">
+
+                </tbody>
+            </table>
+        </form>
 
     </div>
     <br />
     <br />
     <br />
     <!-- HTML !-->
-    <button class="button-4" role="button"> 新增類別</button>
+    <span id="btn_3">
+        <button class="button-4" role="button" id="Add_type" style="display:none"> 新增類別</button>
+    </span>
     <br />
     <br />
-    <br />
-    <!-- HTML !-->
-    <button class="button-24" role="button"> 確定儲存</button>
     <br />
     <br />
     <br />
     <br />
 
-    <div>***若不使用該類別，請自行備註棄用，或是直接覆蓋遺棄類別!!! 無提供刪除類別功能</div>
-    <br />
-    <br />
-    <br />
-    <br />
+    
+    <script src="~/js/ChangeHousehold/jquery-3.3.1.min.js"></script>
+
+    <!--新增type button-->
+    <script>
+        let counter = 9999;
+        $(document).on('click', '#Add_type', function () {
+                         
+            let html = "";
+
+            html += `
+                
+               <tr data-id="${counter}">
+                        
+                        
+                    <td style="display:flex; gap:20px;">
+                        <input name="donateTypes[${count}].ID" value="${counter}" hidden> 
+
+                        <button class="keycap delete_button" data-id="${count}" type="button">
+                            <aside class="letter">刪除</aside>
+                        </button>
+                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Name_chinese" maxlength="10" required>
+                    </td>
+                    <td>
+                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Price" maxlength="10" required>
+                    </td>
+                    <td>
+                        <textarea class="cell-edit-textarea" name="donateTypes[${count}].Note" placeholder="(備註可以不填)"></textarea>
+                    </td>
+                </tr>
+            `
+            $('#add_type_tr').append(html);
+            counter++;
+            count++;
+        });
+    </script>
+
+    <!--修改type button-->
+    <script>
+        $(document).on('click', '#modify_button', function () {
+
+
+
+            $.ajax({
+                type: "POST",
+                url: "/DonateType/Modify_page",
+
+
+
+                success: function (result) {
+                    if (result.success) {
+                        // alert(result.message);
+
+                        let html = "";
+                        count = 0;
+
+                            result.infos.forEach(function (info) {
+
+                            html += `
+                                
+                                <tr data-id="${info.id}">                                        
+                                    
+                                    
+                                    <td style="display:flex; gap:20px;">
+                                        <input name="donateTypes[${count}].ID" value="${info.id}" hidden>
+
+                                        <button class="keycap delete_button" data-id="${count}" type="button">
+                                          <aside class="letter">刪除</aside>
+                                        </button>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Name_chinese" maxlength="10" value="${info.name_chinese}" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Price" maxlength="10" value="${info.price}" required>
+                                    </td>
+                                    <td>
+                                        <textarea class="cell-edit-textarea" name="donateTypes[${count}].Note">${info.note}</textarea>
+                                    </td>
+                                </tr>
+                            `;
+                            count++;
+
+                            });
+
+                            $('#search_change').html(html);
+
+
+                            let html_save = "";
+                            let html_modify = "";
+                            let html_add = "";
+
+                            html_save += `
+                                <button class="button-24" id="save_button" role="button"> 確定儲存</button>
+                                <button class="button-24" id="leave_button" role="button"> 返回</button>
+                            `
+                            html_modify += `
+                                <button class="button-25" id="modify_button" role="button" style="display:none"> 修改</button>
+                            `
+
+                            html_add += `
+                                <button class="button-4" role="button" id="Add_type"> 新增類別</button>
+                            `
+
+
+                            $('#btn_2').html(html_modify);
+                            $('#btn_1').html(html_save);
+                            $('#btn_3').html(html_add);
+
+                    }
+                     else {
+                        alert(result.message + " : 沒東西！");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    </script>
+
+    <!--確認儲存button-->
+    <script>
+        $(document).on('click', '#save_button', function () {
+
+
+            let formData = $('#modify_type').serialize();
+            // alert(formData);
+            $.ajax({
+                type: "POST",
+                url: "/DonateType/Modify_type",
+                data: formData,
+
+
+                success: function (result) {
+                    if (result.success) {
+                        location.reload();
+                        alert(result.message);
+
+                    }
+                     else {
+                        alert(result.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    </script>
+
+    <!--刪除button-->
+    <script>
+        $(document).on('click', '.delete_button', function () {
+
+
+            $(this).closest('tr').css('display', 'none');
+            
+            let $tr = $(this).closest('tr');
+            $tr.find('input[name*="Name_chinese"]').val('刪除'); // 把Name_chinese清空，藉此在controller判斷是要刪除的。(因為List<>格式不能斷了 donateTypes[${count}].Name_chinese )
+            $tr.find('input[name*="Price"]').val('111');
+        });
+    </script>
     
 
+    <!--返回button-->
+    <script>
+        $(document).on('click', '#leave_button', function () {
 
+            location.reload();
 
+        });
+    </script>
 </body>
+

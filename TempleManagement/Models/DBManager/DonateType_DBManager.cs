@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TempleManagement.Exceptions;
 
 namespace TempleManagement.Models.DBManager
 {
@@ -35,12 +36,16 @@ namespace TempleManagement.Models.DBManager
          Read: get_donatetype()
          Update: update_donatetype()
          Delete: delete_donatetype()
+         特殊函式: modify_donatetype()
         */
 
 
         /*
             DB : donation_household
          */
+
+
+        
 
         // 順序很重要，在create時，會mapping
         private static string[] column_array = { "dh_id", "houseid", "is_dipper", "is_taisui", "is_peacelight", "dipper_big", "dipper_small", "note" };
@@ -125,22 +130,137 @@ namespace TempleManagement.Models.DBManager
         // update: 頁面上 id 在 DB
         // insert: 頁面上 id 不在 DB
         // delete: DB id 不在 頁面上
-        public async Task modify_donatetype(int mid, int houseid)
+        public async Task modify_donatetype(List<DonateType> info)
+        {
+   
+            if (info.Any(x => x.Name_chinese == null))
+            {
+                throw new NeedNameChineseException("防呆! 避免無類別名稱Name_chinese");
+            }
+            if (info.Any(x => x.Price == null))
+            {
+                throw new NeedPriceException("防呆! 避免無類別名稱Price");
+            }
+
+
+
+            DonateType_DBManager dBManager = new DonateType_DBManager();
+            Dictionary<int, DonateType> dict_info = info.ToDictionary(x => x.ID);
+            List<int> not_to_insert = new List<int>();
+
+            // 取得DB資料
+            List<DonateType> donateTypes = await dBManager.get_donatetype();
+
+            // 進行比對 foreach
+            foreach (var donateType in donateTypes) {
+                int DB_id = donateType.ID;
+                not_to_insert.Add(DB_id);
+
+                if (dict_info.TryGetValue(DB_id, out var data))
+                {
+                    if (data.Name_chinese == "刪除" && data.Price == 111 )
+                    {
+                        // delete
+                        Debug.WriteLine("刪已存在的資料，要刪除的");
+                        await dBManager.delete_donatetype(donateType); //刪已存在的資料，要刪除的
+                    }
+                    else 
+                    {
+                        // id == DB.id update
+                        donateType.Price = data.Price;
+                        donateType.Note = data.Note;
+                        donateType.Name = data.Name;
+                        donateType.Name_chinese = data.Name_chinese;
+
+                        await dBManager.update_donatetype(donateType);
+                    }
+                        
+                }
+                
+                    
+            }
+
+            // DB.id迴圈結束 id不存在DB insert
+            foreach (var d in info)
+            {
+                if (! not_to_insert.Contains(d.ID))
+                {
+                    if (d.Name_chinese == "刪除" && d.Price == 111) //刪新增，又刪除的
+                    {
+                        // delete
+                        Debug.WriteLine("刪新增，又刪除的");
+                        await dBManager.delete_donatetype(d);
+                    }
+                    else
+                    {
+                        await dBManager.create_donatetype(d);
+                    }
+                        
+                }
+            }
+
+            Debug.WriteLine("modify_donatetype done!!!");
+
+        }
+
+        // insert: 頁面上 id 不在 DB
+        public async Task create_donatetype(DonateType user)
+        {
+            Debug.WriteLine("start insert");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donatetype(name, name_chinese, price, note) VALUES(@name, @name_chinese, @price, @note)", conn);
+
+
+            cmd.Parameters.AddWithValue("@name", user.Name == null ? DBNull.Value : user.Name);
+            cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
+            cmd.Parameters.AddWithValue("@price", user.Price);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+
+            Debug.WriteLine("完成insert");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
+        // update: 頁面上 id 在 DB
+        public async Task update_donatetype(DonateType user)
         {
             Debug.WriteLine("start update");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"UPDATE householdmember SET  is_head = false where house_id = @house_id; UPDATE householdmember SET  is_head = true where memberid = @mid;", conn);
+            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET  name_chinese=@name_chinese, price=@price,  note=@note  where id = @id", conn);
 
-            cmd.Parameters.AddWithValue("@house_id", houseid);
-            cmd.Parameters.AddWithValue("@mid", mid);
+            cmd.Parameters.AddWithValue("@id", user.ID);
+            cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
+            cmd.Parameters.AddWithValue("@price", user.Price);
+;
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
 
             Debug.WriteLine("完成update");
 
             await cmd.ExecuteNonQueryAsync();
 
+        }
+
+        // delete: DB id 不在 頁面上
+        public async Task delete_donatetype(DonateType user)
+        {
+            Debug.WriteLine("start delete");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"DELETE FROM donatetype where id = @id", conn);
+
+            cmd.Parameters.AddWithValue("@id", user.ID);
+
+
+            Debug.WriteLine("完成delete");
+
+            await cmd.ExecuteNonQueryAsync();
 
         }
 

@@ -79,9 +79,9 @@ namespace TempleManagement.Models
     public class DonateType
     {
         public int ID { get; set; } // primary key 
-        public string Name { get; set; }
-        public string Name_chinese { get; set; }
-        public int Price { get; set; } 
+        public string? Name { get; set; }
+        public string? Name_chinese { get; set; }
+        public int? Price { get; set; } 
         public string? Note { get; set; }
         public DateTime? ModifyDate { get; set; }
 
