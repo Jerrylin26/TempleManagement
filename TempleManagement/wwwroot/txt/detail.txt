@@ -77,7 +77,7 @@
 			大斗 Dipper_big 4800 (一戶)
 			小斗 Dipper_small 500 *同上
 			安太歲 Is_Taisui (一戶) 500
-			平安燈 Is_PeaceLight (一戶) 200
+			平安燈 Is_PeaceLight (一戶) 200  (前提為安斗) 燈都要安斗
 			備註 Note
 
 
@@ -99,8 +99,8 @@
 		DB [Donation_Operation] 捐獻作業
 
 			[Primary Key : DonationID]  捐獻單號
-			PID => 對應BasicInfo 的 PersonID
-			捐獻類別 Donation_Type
+			MID => 對應BasicInfo 的 MemberID
+			捐獻類別 Donation_Type (以戶為單位的只加入戶長帳下)
 			日期 Date
 			金額 Price
 			備註 Note

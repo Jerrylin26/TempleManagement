@@ -64,7 +64,7 @@ namespace TempleManagement.Models
     public class ChangeHousehold
     {
         public int HouseholdID { get; set; } // primary key 1
-        public int MemberID { get; set; } // primary key 2
+        public int MemberID { get; set; } 
         public int Member_no { get; set; }
         public int House_ID { get; set; }
         public bool Is_head { get; set; }
@@ -87,4 +87,15 @@ namespace TempleManagement.Models
 
     }
 
+    public class DonateOperation
+    {
+        public int DonationID { get; set; } // primary key 
+        public int MID { get; set; } //與 basicInfo primary key對應
+        public DateTime? Date { get; set; }
+        public int Price { get; set; }
+        public string? Donation_type { get; set; }
+
+        public string? Note { get; set; }
+
+    }
 }

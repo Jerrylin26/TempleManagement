@@ -66,5 +66,86 @@
     }
 
 
+.button-25 {
+    background: #01814A;
+    border: 1px solid #01814A;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 16px;
+    min-height: 40px;
+    outline: 0;
+    padding: 12px 14px;
+    text-align: center;
+    text-rendering: geometricprecision;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+}
+
+    .button-25:hover,
+    .button-25:active {
+        background-color: initial;
+        background-position: 0 0;
+        color: #01814A;
+    }
+
+    .button-25:active {
+        opacity: .5;
+    }
+
+/* From Uiverse.io by ke1221 */
+.check_dipper {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    appearance: none;
+    background-color: #bbb;
+}
+
+    .check_dipper::before {
+        content: '';
+        position: absolute;
+        border: solid #fff;
+        display: block;
+        width: .3em;
+        height: .6em;
+        border-width: 0 .2em .2em 0;
+        z-index: 1;
+        opacity: 0;
+        right: calc(50% - .2em);
+        top: calc(50% - .4em);
+        transform: rotate(0deg);
+    }
+
+    .check_dipper:checked {
+        background-color: rgb(120, 190, 120);
+    }
+
+        .check_dipper:checked::before {
+            opacity: 1;
+            transform: rotate(405deg);
+        }
+
+
+.no_check_dipper {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    appearance: none;
+    background-color: #bbb;
+    transition: all .3s;
+}
+
 
 
