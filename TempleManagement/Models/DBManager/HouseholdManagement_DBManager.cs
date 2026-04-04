@@ -32,7 +32,7 @@ namespace TempleManagement.Models.DBManager
         /*---------------------------------------------------------------------------------------*/
         /*
          Create: 
-         Read: getHousehold()、getHousehold_by_basicinfo()
+         Read: getHousehold()、getHousehold_by_basicinfo()、getHousehold_all()
          Update: changeHead()
          Delete:
         */
@@ -45,7 +45,63 @@ namespace TempleManagement.Models.DBManager
         private static string column_for_create = string.Join(",", column_array.Skip(1));
         private static string column_for_create_value = "@" + string.Join(",  @", column_array.Skip(1));
 
-        // 取得HouseholdMember資料表 資料 
+
+        // 取得HouseholdMember資料表 
+        public async Task<List<HouseholdMember>> getHousehold_all()
+        {
+            using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            NpgsqlCommand cmd;
+            List<HouseholdMember> Infos = new List<HouseholdMember>();
+
+
+
+            cmd = new NpgsqlCommand(
+                $"SELECT * FROM HouseholdMember; ",
+                conn);
+
+
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                int ordinal_householdid = reader.GetOrdinal("householdid");
+                int ordinal_memberid = reader.GetOrdinal("memberid");
+                int ordinal_member_no = reader.GetOrdinal("member_no");
+                int ordinal_house_id = reader.GetOrdinal("house_id");
+                int ordinal_is_head = reader.GetOrdinal("is_head");
+                int ordinal_start_date = reader.GetOrdinal("start_date");
+                int ordinal_end_date = reader.GetOrdinal("end_date");
+
+
+                while (await reader.ReadAsync())
+                {
+                    HouseholdMember Info = new HouseholdMember
+                    {
+
+                        HouseholdID = reader.IsDBNull(ordinal_householdid) ? 0 : reader.GetInt32(ordinal_householdid),
+                        MemberID = reader.IsDBNull(ordinal_memberid) ? 0 : reader.GetInt32(ordinal_memberid),
+                        Member_no = reader.IsDBNull(ordinal_member_no) ? 0 : reader.GetInt32(ordinal_member_no),
+                        House_ID = reader.IsDBNull(ordinal_house_id) ? 0 : reader.GetInt32(ordinal_house_id),
+                        Is_head = reader.IsDBNull(ordinal_is_head) ? false : reader.GetBoolean(ordinal_is_head),
+                        Start_date = reader.IsDBNull(ordinal_start_date) ? null : reader.GetDateTime(ordinal_start_date),
+                        End_date = reader.IsDBNull(ordinal_end_date) ? null : reader.GetDateTime(ordinal_end_date),
+
+                    };
+
+                    Infos.Add(Info);
+
+                }
+                ;
+
+            }
+            Debug.WriteLine($"check return back to controller: getHousehold_all{JsonSerializer.Serialize(Infos)}");
+
+            return Infos;
+
+        }
+
+
+        // 取得HouseholdMember資料表 依據house_id
         public async Task<List<HouseholdMember>> getHousehold(string house_id)
         {
             using var conn = new NpgsqlConnection(connectionString_postgresql);

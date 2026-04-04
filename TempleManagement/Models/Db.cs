@@ -42,7 +42,7 @@ namespace TempleManagement.Models
 
 
         public int HouseholdID { get; set; } // primary key 1
-        public int MemberID { get; set; } // primary key 2
+        public int MemberID { get; set; } 
         public int Member_no { get; set; }
         public int House_ID { get; set; }
         public bool Is_head { get; set; } 
@@ -87,6 +87,7 @@ namespace TempleManagement.Models
 
     }
 
+    // 用來記錄歷史單據，而非現狀捐獻情況
     public class DonateOperation
     {
         public int DonationID { get; set; } // primary key 
@@ -95,6 +96,53 @@ namespace TempleManagement.Models
         public int Price { get; set; }
         public string? Donation_type { get; set; }
 
+        public string? Note { get; set; }
+
+    }
+
+    // DonateHousehold + DonateIndividual 紀錄當前狀態
+    public class DonateIndividual
+    {
+        public int DI_ID { get; set; } // primary key 
+        public int MID { get; set; } //與 basicInfo primary key對應
+        public bool Blessinglight600 { get; set; }
+        public bool Blessinglight700 { get; set; }
+        public bool Blessinglight800 { get; set; }
+        public bool Blessinglight1000 { get; set; }
+
+        public string? Note { get; set; }
+
+    }
+
+    public class DonateHousehold
+    {
+        public int DH_ID { get; set; } // primary key 
+        public int HouseID { get; set; } //與 basicInfo primary key對應
+        public bool Is_dipper { get; set; }
+        public bool Is_taisui { get; set; }
+        public bool Is_peacelight { get; set; }
+        public bool Dipper_big { get; set; }
+        public bool Dipper_small { get; set; }
+
+        public string? Note { get; set; }
+
+    }
+
+    // 顯示Donate查詢 顯示資料
+    public class DonateQuery
+    {
+        public int MID { get; set; } //MemberId
+        public int HouseID { get; set; } 
+        public bool Is_dipper { get; set; }
+        public bool Is_taisui { get; set; }
+        public bool Is_peacelight { get; set; }
+        public string? Dipper { get; set; }
+        public string? Peacelight { get; set; }
+        public string? Blessinglight { get; set; }
+
+        public int Member_no { get; set; }
+        public bool Is_head { get; set; }
+        public string Name { get; set; }
         public string? Note { get; set; }
 
     }

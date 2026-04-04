@@ -30,14 +30,7 @@ namespace TempleManagement.Models.DBManager
         //原由:想用mssql express ，因為tcp連接，然而，我電腦無法啟用。
 
 
-        /*---------------------------------------------------------------------------------------*/
-        /*
-         Create: create_donateOperation()
-         Read: get_donateOperation()
-         Update: update_donateOperation()
-         Delete: delete_donateOperation()
-         特殊函式: show_record_donateOperation()
-        */
+        
 
 
 
@@ -98,16 +91,23 @@ namespace TempleManagement.Models.DBManager
 
 
 
-
+        /*---------------------------------------------------------------------------------------*/
+        /*
+         Create: create_donateOperation()
+         Read: get_donateOperation()
+         Update: update_donateOperation()
+         Delete: delete_donateOperation()
+         特殊函式: show_record_donateOperation()
+        */
 
         // 取得donation_operation資料表
-        public async Task<List<DonateType>> get_donation_operation()
+        public async Task<List<DonateOperation>> get_donateOperation()
         {
             using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
             NpgsqlCommand cmd;
-            List<DonateType> Infos = new List<DonateType>();
+            List<DonateOperation> Infos = new List<DonateOperation>();
 
 
 
@@ -151,8 +151,130 @@ namespace TempleManagement.Models.DBManager
             return Infos;
 
         }
+        /*---------------------------------------------------------------------------------------*/
+
+        /*
+         Create: create_donation_individual()
+         Read: get_donation_individual()
+         Update: update_donation_individual()
+         Delete: delete_donation_individual()
+        */
+        // 取得donation_individual資料表
+        public async Task<List<DonateIndividual>> get_donation_individual()
+        {
+            using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            NpgsqlCommand cmd;
+            List<DonateIndividual> Infos = new List<DonateIndividual>();
 
 
+
+            cmd = new NpgsqlCommand(
+                $"SELECT * FROM donation_individual ",
+                conn);
+
+
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                int ordinal_di_id = reader.GetOrdinal("di_id");
+                int ordinal_mid = reader.GetOrdinal("mid");
+                int ordinal_blessinglight600 = reader.GetOrdinal("blessinglight600");
+                int ordinal_blessinglight700 = reader.GetOrdinal("blessinglight700");
+                int ordinal_blessinglight800 = reader.GetOrdinal("blessinglight800");
+                int ordinal_blessinglight1000 = reader.GetOrdinal("blessinglight1000");
+                int ordinal_note = reader.GetOrdinal("note");
+
+
+                while (await reader.ReadAsync())
+                {
+                    DonateIndividual Info = new DonateIndividual
+                    {
+
+                        DI_ID = reader.IsDBNull(ordinal_di_id) ? 0 : reader.GetInt32(ordinal_di_id),
+                        MID = reader.IsDBNull(ordinal_mid) ? 0 : reader.GetInt32(ordinal_mid),
+                        Blessinglight1000 = reader.IsDBNull(ordinal_blessinglight1000) ? false : reader.GetBoolean(ordinal_blessinglight1000),
+                        Blessinglight800 = reader.IsDBNull(ordinal_blessinglight800) ? false : reader.GetBoolean(ordinal_blessinglight800),
+                        Blessinglight700 = reader.IsDBNull(ordinal_blessinglight700) ? false : reader.GetBoolean(ordinal_blessinglight700),
+                        Blessinglight600 = reader.IsDBNull(ordinal_blessinglight600) ? false : reader.GetBoolean(ordinal_blessinglight600),
+                        Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
+
+                    };
+
+                    Infos.Add(Info);
+
+                }
+                ;
+
+            }
+            Debug.WriteLine($"check return back to controller: get_donation_individual => {JsonSerializer.Serialize(Infos)}");
+
+            return Infos;
+
+        }
+        /*---------------------------------------------------------------------------------------*/
+
+        /*
+         Create: create_donation_household()
+         Read: get_donation_household()
+         Update: update_donation_household()
+         Delete: delete_donation_household()
+        */
+        // 取得donation_household資料表
+        public async Task<List<DonateHousehold>> get_donation_household()
+        {
+            using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            NpgsqlCommand cmd;
+            List<DonateHousehold> Infos = new List<DonateHousehold>();
+
+
+
+            cmd = new NpgsqlCommand(
+                $"SELECT * FROM donation_household ",
+                conn);
+
+
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                int ordinal_dh_id = reader.GetOrdinal("dh_id");
+                int ordinal_houseid = reader.GetOrdinal("houseid");
+                int ordinal_is_dipper = reader.GetOrdinal("is_dipper");
+                int ordinal_is_taisui = reader.GetOrdinal("is_taisui");
+                int ordinal_is_peacelight = reader.GetOrdinal("is_peacelight");
+                int ordinal_dipper_big = reader.GetOrdinal("dipper_big");
+                int ordinal_dipper_small = reader.GetOrdinal("dipper_small");
+                int ordinal_note = reader.GetOrdinal("note");
+
+
+                while (await reader.ReadAsync())
+                {
+                    DonateHousehold Info = new DonateHousehold
+                    {
+
+                        DH_ID = reader.IsDBNull(ordinal_dh_id) ? 0 : reader.GetInt32(ordinal_dh_id),
+                        HouseID = reader.IsDBNull(ordinal_houseid) ? 0 : reader.GetInt32(ordinal_houseid),
+                        Is_dipper = reader.IsDBNull(ordinal_is_dipper) ? false : reader.GetBoolean(ordinal_is_dipper),
+                        Is_peacelight = reader.IsDBNull(ordinal_is_peacelight) ? false : reader.GetBoolean(ordinal_is_peacelight),
+                        Is_taisui = reader.IsDBNull(ordinal_is_taisui) ? false : reader.GetBoolean(ordinal_is_taisui),
+                        Dipper_big = reader.IsDBNull(ordinal_dipper_big) ? false : reader.GetBoolean(ordinal_dipper_big),
+                        Dipper_small = reader.IsDBNull(ordinal_dipper_small) ? false : reader.GetBoolean(ordinal_dipper_small),
+                        Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
+
+                    };
+
+                    Infos.Add(Info);
+
+                }
+                ;
+
+            }
+            Debug.WriteLine($"check return back to controller: get_donation_household => {JsonSerializer.Serialize(Infos)}");
+
+            return Infos;
+
+        }
 
 
         /********************************************************************************************************************************/
