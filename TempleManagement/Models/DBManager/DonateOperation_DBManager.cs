@@ -179,10 +179,8 @@ namespace TempleManagement.Models.DBManager
             {
                 int ordinal_di_id = reader.GetOrdinal("di_id");
                 int ordinal_mid = reader.GetOrdinal("mid");
-                int ordinal_blessinglight600 = reader.GetOrdinal("blessinglight600");
-                int ordinal_blessinglight700 = reader.GetOrdinal("blessinglight700");
-                int ordinal_blessinglight800 = reader.GetOrdinal("blessinglight800");
-                int ordinal_blessinglight1000 = reader.GetOrdinal("blessinglight1000");
+                int ordinal_blessinglight = reader.GetOrdinal("blessinglight");
+
                 int ordinal_note = reader.GetOrdinal("note");
 
 
@@ -193,10 +191,8 @@ namespace TempleManagement.Models.DBManager
 
                         DI_ID = reader.IsDBNull(ordinal_di_id) ? 0 : reader.GetInt32(ordinal_di_id),
                         MID = reader.IsDBNull(ordinal_mid) ? 0 : reader.GetInt32(ordinal_mid),
-                        Blessinglight1000 = reader.IsDBNull(ordinal_blessinglight1000) ? false : reader.GetBoolean(ordinal_blessinglight1000),
-                        Blessinglight800 = reader.IsDBNull(ordinal_blessinglight800) ? false : reader.GetBoolean(ordinal_blessinglight800),
-                        Blessinglight700 = reader.IsDBNull(ordinal_blessinglight700) ? false : reader.GetBoolean(ordinal_blessinglight700),
-                        Blessinglight600 = reader.IsDBNull(ordinal_blessinglight600) ? false : reader.GetBoolean(ordinal_blessinglight600),
+                        Blessinglight = reader.IsDBNull(ordinal_blessinglight) ? "" : reader.GetString(ordinal_blessinglight),
+
                         Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
 
                     };

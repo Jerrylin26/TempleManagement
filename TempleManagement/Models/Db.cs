@@ -79,9 +79,9 @@ namespace TempleManagement.Models
     public class DonateType
     {
         public int ID { get; set; } // primary key 
-        public string? Name { get; set; }
+        public string? Name { get; set; } //需要必須存在，不讓管理者動這欄位，給開發者調用資訊使用
         public string? Name_chinese { get; set; }
-        public int? Price { get; set; } 
+        public int Price { get; set; } 
         public string? Note { get; set; }
         public DateTime? ModifyDate { get; set; }
 
@@ -105,10 +105,8 @@ namespace TempleManagement.Models
     {
         public int DI_ID { get; set; } // primary key 
         public int MID { get; set; } //與 basicInfo primary key對應
-        public bool Blessinglight600 { get; set; }
-        public bool Blessinglight700 { get; set; }
-        public bool Blessinglight800 { get; set; }
-        public bool Blessinglight1000 { get; set; }
+        public string? Blessinglight { get; set; }
+
 
         public string? Note { get; set; }
 
@@ -132,17 +130,21 @@ namespace TempleManagement.Models
     public class DonateQuery
     {
         public int MID { get; set; } //MemberId
-        public int HouseID { get; set; } 
+        public int HouseID { get; set; }
+        public string Name { get; set; }
+        public string? Member_number { get; set; }
+        public bool Is_head { get; set; }
+
         public bool Is_dipper { get; set; }
         public bool Is_taisui { get; set; }
         public bool Is_peacelight { get; set; }
-        public string? Dipper { get; set; }
-        public string? Peacelight { get; set; }
-        public string? Blessinglight { get; set; }
 
-        public int Member_no { get; set; }
-        public bool Is_head { get; set; }
-        public string Name { get; set; }
+        public string? Dipper_name { get; set; }
+        public int Dipper_price { get; set; }
+        public int Peacelight_price { get; set; }
+        public int Blessinglight_price { get; set; }
+        public int Taisui_price { get; set; }
+        
         public string? Note { get; set; }
 
     }

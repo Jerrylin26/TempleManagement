@@ -15,7 +15,7 @@ namespace TempleManagement.Controllers
         }
 
         // 新增 BasicInfo
-        public async Task<IActionResult> NewBasicInfo(BasicInfo info)
+        public async Task<IActionResult> NewBasicInfo(BasicInfo info) //之後要，寫入Donate_individual Donate_household
         {
             if (!ModelState.IsValid) //驗證 Post 來的資料
             

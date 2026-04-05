@@ -1,0 +1,153 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    // <link rel="stylesheet" href="https:www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="~/css/DonateOperation/Index.css">
+    <link rel="stylesheet" href="~/css/DonateOperation/w3.css"> //此為自行下載後的.css (w3css/5/w3.css)
+}
+@model List<List<DonateQuery>>;
+
+<div class="button_wrapper">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="DonateButton" data-bs-toggle="dropdown" aria-expanded="false">
+            捐獻類別(戶)
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="DonateButton">
+            <li><a class="dropdown-item" href="#">大斗</a></li>
+            <li><a class="dropdown-item" href="#">小斗</a></li>
+            <li><a class="dropdown-item" href="#">平安燈</a></li>
+            <li><a class="dropdown-item" href="#">安太歲</a></li>
+        </ul>
+    </div>
+
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="DonateButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            捐獻類別(個人)
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="DonateButton1">
+            <li><a class="dropdown-item" href="#">光明燈(一) 600</a></li>
+            <li><a class="dropdown-item" href="#">光明燈(二) 700</a></li>
+            <li><a class="dropdown-item" href="#">光明燈(三) 800</a></li>
+            <li><a class="dropdown-item" href="#">光明燈(四) 1000</a></li>
+        </ul>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<span id="btn_2">
+    <button class="button-25" id="modify_button" role="button"> 新增捐獻</button>
+</span>
+
+<br />
+<br />
+<br />
+<br />
+
+@foreach (var household in Model)
+{
+    <div style="font-size:30px;background-color:darksalmon">戶號: <span style="font-weight:bold;">@household.First().HouseID</span></div>
+    
+    <table class="w3-table-all w3-xlarge fixed-table">
+        <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 15%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 15%;">
+            <col style="width: 15%;">
+        </colgroup>
+
+
+        <tr>
+            <th>安斗</th>
+            <th>個人編號</th>
+            <th>姓名</th>
+            <th>光明燈類型</th>
+            <th>平安燈</th>
+            <th>安太歲</th>
+            <th>總捐獻(價格)</th>
+            <th>備註</th>
+        </tr>
+
+        @foreach (var member in household) 
+        {
+            <tr>
+                <td>
+                    @if (member.Is_dipper)
+                    {
+                        <input checked="" class="check_dipper" type="checkbox" disabled>
+                        <span>@member.Dipper_name</span>
+                    }
+                    else
+                    {
+                        <input class="no_check_dipper" type="checkbox">
+                        <span>無</span>
+                    }
+
+                    
+                    
+                </td>
+                <td>
+                    <div>@member.Member_number</div>
+                </td>
+                <td>
+                    <div>@member.Name</div>
+                    @if (member.Is_head)
+                    {
+                        <div style="background-color:aquamarine">戶長</div>
+                    }
+                </td>
+                <td>
+                    <div>@member.Blessinglight_price</div>
+                </td>
+                <td>
+                    <div>@member.Peacelight_price</div>
+                </td>
+                <td>
+                    <div>@member.Taisui_price</div>
+                </td>
+                <td>
+                    @if (member.Is_head)
+                    {
+                        <div>@(member.Taisui_price+member.Blessinglight_price+member.Dipper_price+member.Peacelight_price)</div>
+                        if (member.Is_dipper)
+                        {
+                            <div>(@member.Dipper_name :@member.Dipper_price)</div>
+                        }
+                        
+                        
+                    }
+                    else
+                    {
+                        <div>@(member.Taisui_price+member.Blessinglight_price+member.Peacelight_price)</div>
+                    }
+                    
+                </td>
+                <td>
+                    <textarea class="cell-edit-textarea">@member.Note</textarea>
+                </td>
+
+            </tr>
+        }
+    </table>
+    
+    <br />
+
+    
+}
+
+
+
+<br /><br /><br />
+
+<button class="button-24" role="button"> 確定送出</button>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
