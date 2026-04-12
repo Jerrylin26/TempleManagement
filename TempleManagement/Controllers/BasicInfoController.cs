@@ -15,7 +15,7 @@ namespace TempleManagement.Controllers
         }
 
         // 新增 BasicInfo
-        public async Task<IActionResult> NewBasicInfo(BasicInfo info) //之後要，寫入Donate_individual Donate_household
+        public async Task<IActionResult> NewBasicInfo(BasicInfo info) 
         {
             if (!ModelState.IsValid) //驗證 Post 來的資料
             
@@ -40,8 +40,33 @@ namespace TempleManagement.Controllers
                 Debug.WriteLine("BDManager_newBasicInfo");
                 await dbManager.newBasicInfo(info);
 
+                
                 Debug.WriteLine("BDManager_newHouseholdMember");
                 await dbManager.newHouseholdMember(info);
+
+                //之後要，寫入Donate_individual Donate_household
+                DonateOperation_DBManager donateOperation_dbManager = new DonateOperation_DBManager();
+                Debug.WriteLine("BDManager_newDonate_individual");
+                await donateOperation_dbManager.create_donation_individual(new DonateIndividual
+                {
+                    //MID = info.MID, 有更正寫在此函式庫裡，抓的MID
+                    Blessinglight = null,
+                    Note = null
+                });
+
+                // 只有戶長才需要
+                if (info.Is_head)
+                {
+                    Debug.WriteLine("BDManager_newDonate_household");
+
+                    HouseholdManagement_DBManager householdManagement_dbManager = new HouseholdManagement_DBManager();
+                    List<HouseholdMember> house_info = await householdManagement_dbManager.getHousehold_by_basicinfo(info); //實際上info沒作用，特地抓MID
+
+                    await donateOperation_dbManager.create_donation_household(new DonateHousehold
+                    {
+                        HouseID = house_info[0].House_ID,
+                    });
+                }
                 
 
                 return Json(new { success = true, name = info.Name });

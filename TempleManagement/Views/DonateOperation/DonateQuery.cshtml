@@ -151,3 +151,50 @@
 <br />
 <br />
 <br />
+
+
+<div id="updateModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">新增捐獻</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="modalBody">
+                <!--  PartialView 會塞進來 -->
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit"
+                        form="post_selected_option"
+                        class="btn btn-primary">
+                    確定
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $('#modify_button').on('click', function () {
+
+        $.get('/DonateOperation/ShowOption', function (html) {
+
+            // 把 PartialView 塞進 Modal
+            $('#modalBody').html(html);
+
+            // 開啟 Modal
+            var modal = new bootstrap.Modal(document.getElementById('updateModal'));
+            modal.show();
+        });
+
+    });
+</script>
+    

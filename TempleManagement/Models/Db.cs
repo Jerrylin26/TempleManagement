@@ -148,4 +148,17 @@ namespace TempleManagement.Models
         public string? Note { get; set; }
 
     }
+
+    // 顯示Donate查詢 顯示資料
+    public class Donate_Insert_query
+    {
+        public int MID { get; set; } //MemberId
+        public int HouseID { get; set; }
+        public string? Name { get; set; }
+        public string? Member_number { get; set; }
+        public bool? Is_head { get; set; }
+        public bool Is_checked { get; set; } // 判斷此人是否要新增
+
+
+    }
 }

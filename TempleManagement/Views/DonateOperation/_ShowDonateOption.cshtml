@@ -1,0 +1,184 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    <link rel="stylesheet" href="~/css/DonateOperation/ShowDonateOption.css">
+}
+
+@model List<List<Donate_Insert_query>>;
+
+<div style="display:flex; gap:15px;">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="DonateButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            篩選
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="DonateButton1">
+            <li><a class="dropdown-item menu-household" data-dropdown="household" >戶號</a></li>
+            <li><a class="dropdown-item menu-all" data-dropdown="all" >全部</a></li>
+            <li><a class="dropdown-item menu-household-reverse" data-dropdown="household-reverse" >戶號(倒序)</a></li>
+            <li><a class="dropdown-item menu-all-reverse" data-dropdown="all-reverse" >全部(倒序)</a></li>
+
+        </ul>
+    </div>
+    <form method="POST" id="search_household">
+        <input type="text" class="input-household" maxlength="7" placeholder="輸入戶號" name="household_id" />
+        <button id="btn_search" type="submit">
+            查詢
+        </button>
+    </form>
+
+    
+
+    
+</div>
+
+
+<form method="POST" id="post_selected_option">
+    <table class="w3-table-all w3-xlarge fixed-table" id="household_table">
+        <colgroup>
+            <col style="width: 20%;">
+            <col style="width: 40%;">
+            <col style="width: 40%;">
+
+        </colgroup>
+
+
+        <tr>
+            <th>選取</th>
+            <th>個人編號</th>
+            <th>姓名</th>
+
+        </tr>
+
+    
+        @{
+            var count = 0;
+        }
+        @foreach (var household in Model)
+        {
+    
+            @foreach (var member in household)
+            {
+                    <tr>
+                        <td>
+                            <!-- check 要改-->
+                            <input type="checkbox" name="donateOperations[@count].Is_checked" value="false" style="transform: scale(1.5); margin: 5px;" />
+                            <input type="hidden" name="donateOperations[@count].MID" value="@member.MID" />
+                            <input type="hidden" name="donateOperations[@count].HouseID" value="@member.HouseID" />
+                        </td>
+                        <td>
+                            <div>@member.Member_number</div>
+
+                        </td>
+                        <td>
+                            <span>@member.Name</span>
+                            @if (member.Is_head == true)
+                            {
+                                <span style="background-color:aquamarine">戶長</span>
+                            }
+                        </td>
+                
+
+                    </tr>
+
+                    count++; //計數器
+                }
+
+    
+        }   
+    
+    </table>
+</form>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+<!-- 以戶號查詢 -->
+<script>
+    $(document).ready(function (){
+        $('#search_household').submit(function(e) {
+            e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+            
+
+
+            // 序列化 form 內的資料
+            var formData = $(this).serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "/DonateOperation/search_household",
+                data: formData,
+
+                success: function (result) {
+                    
+                    if (result.message == "失敗"){
+                        alert(`無此戶號: ${result.houseid}`);
+                    }
+                    
+
+                    $('#household_table').html(result);
+
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>
+
+
+<!-- 篩選 不同方式顯示人選 -->
+<script>
+    $(document).ready(function (){
+        $('.dropdown-item').click(function(e) {
+            e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+
+
+            let option = $(this).data('dropdown');
+
+            $.ajax({
+                type: "POST",
+                url: "/DonateOperation/dropdown_insert_query",
+                data: {option: option},
+
+                success: function (result) {
+
+                    if (result.message == "失敗"){
+                        alert(`無此戶號: ${result.houseid}`);
+                    }
+
+
+                    $('#modalBody').html(result);
+
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>
+
+<!-- 提交新增 選定人選 準備進入新增表單 -->
+<script>
+    $('#post_selected_option').submit(function (e) {
+        e.preventDefault(); // ❗ 阻止傳統 submit（不跳頁）
+
+        let formData = $(this).serialize(); // 取得 form 所有欄位
+        alert(formData);
+        $.ajax({
+            type: "POST",
+            url: "/DonateOperation/post_selected_option",
+            data: formData,
+            success: function (result) {
+                console.log(result);
+            },
+            error: function (xhr) {
+                alert("發生錯誤");
+            }
+        });
+    });
+</script>

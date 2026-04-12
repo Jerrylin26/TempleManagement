@@ -179,6 +179,7 @@ namespace TempleManagement.Models.DBManager
         }
 
         // 取得HouseholdMember資料表 資料 by BasicInfo info
+        // 實際上info 沒作用
         public async Task<List<HouseholdMember>> getHousehold_by_basicinfo(BasicInfo info)
         {
             using var conn = new NpgsqlConnection(connectionString_postgresql);
@@ -188,13 +189,17 @@ namespace TempleManagement.Models.DBManager
             List<HouseholdMember> Infos = new List<HouseholdMember>();
 
 
+            // 抓取最新MID ，也就是剛建好的
+            BasicInfo_DBManager basicInfo_DBManager = new BasicInfo_DBManager();
+            List<BasicInfo> basicInfo = await basicInfo_DBManager.getBasicInfo(latest_MID: true);
+
 
             cmd = new NpgsqlCommand(
                 $"SELECT * FROM HouseholdMember where house_id=(select house_id from HouseholdMember where memberid= @memberid) ",
                 conn);
 
-            cmd.Parameters.AddWithValue("@memberid", info.MID);
-            Debug.WriteLine($"{info.MID}");
+            cmd.Parameters.AddWithValue("@memberid", basicInfo[0].MID);
+            Debug.WriteLine($"{basicInfo[0].MID}");
             Debug.WriteLine($"{cmd.CommandText}");
 
 

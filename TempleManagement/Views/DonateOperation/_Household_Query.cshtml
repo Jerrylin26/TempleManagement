@@ -1,0 +1,78 @@
+﻿@{
+    // 篩選後的 partialView ，其實可以與_ShowDonateOption放一起
+}
+@model List<Donate_Insert_query>;
+
+@{
+    var count = 0;
+}
+
+
+<colgroup>
+    <col style="width: 25%;">
+    <col style="width: 30%;">
+    <col style="width: 40%;">
+
+</colgroup>
+
+
+<tr>
+    <th>選取</th>
+    <th>個人編號</th>
+    <th>姓名</th>
+
+</tr>
+<tr>
+    <td>
+        <input type="checkbox" id="select-all-button" style="transform: scale(1.5); margin: 5px;" />全選
+
+    </td>
+    <td>
+
+    </td>
+    <td>
+
+    </td>
+    
+
+
+</tr>
+
+<form method="POST" >
+    @foreach (var member in Model)
+    {
+        <tr>
+            <td>
+                <!-- check 要改 同時 _ShowDonateOption-->
+                <input type="checkbox" name="donateOperations[@count].Is_checked" value="false" style="transform: scale(1.5); margin: 5px;" />
+                <input type="hidden" name="donateOperations[@count].MID" value="@member.MID" />
+                <input type="hidden" name="donateOperations[@count].HouseID" value="@member.HouseID" />
+            </td>
+            <td>
+                <div>@member.Member_number</div>
+
+            </td>
+            <td>
+                <span>@member.Name</span>
+                @if (member.Is_head == true)
+                {
+                    <span style="background-color:aquamarine">戶長</span>
+                }
+            </td>
+
+
+        </tr>
+
+        count++; //計數器
+    }
+</form>
+
+<script>
+    $(document).on('click', '#select-all-button', function () {
+
+        // 點擊全選button時，就是checked 。所以帶給isChecked = true
+        let isChecked = $(this).prop('checked');
+
+        $('#household_table input[type="checkbox"]').prop('checked', isChecked);
+    });
+</script>

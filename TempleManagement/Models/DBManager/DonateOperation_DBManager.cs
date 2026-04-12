@@ -208,13 +208,41 @@ namespace TempleManagement.Models.DBManager
             return Infos;
 
         }
+
+        // create donation_individual
+        public async Task create_donation_individual(DonateIndividual user)
+        {
+            Debug.WriteLine("start insert");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_individual(mid, blessinglight, note) VALUES(@mid, @blessinglight, @note)", conn);
+
+            // 抓取最新MID ，也就是剛建好的
+            BasicInfo_DBManager basicInfo_DBManager = new BasicInfo_DBManager();
+            List<BasicInfo> basicInfo = await basicInfo_DBManager.getBasicInfo(latest_MID : true);
+
+            Debug.WriteLine("檢查create_donation_individual的basicinfo");
+            Debug.WriteLine(JsonSerializer.Serialize(basicInfo));
+
+            cmd.Parameters.AddWithValue("@mid", basicInfo[0].MID == null ? DBNull.Value : basicInfo[0].MID);
+            cmd.Parameters.AddWithValue("@blessinglight", user.Blessinglight == null ? DBNull.Value : user.Blessinglight);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+
+
+            Debug.WriteLine("完成insert");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
         /*---------------------------------------------------------------------------------------*/
 
         /*
          Create: create_donation_household()
          Read: get_donation_household()
-         Update: update_donation_household()
-         Delete: delete_donation_household()
+         Update: 
+         Delete: 
         */
         // 取得donation_household資料表
         public async Task<List<DonateHousehold>> get_donation_household()
@@ -272,207 +300,31 @@ namespace TempleManagement.Models.DBManager
 
         }
 
-
-        /********************************************************************************************************************************/
-
-
-        // 決定把新增、修改、刪除 包成一起
-        // update: 頁面上 id 在 DB
-        // insert: 頁面上 id 不在 DB
-        // delete: DB id 不在 頁面上
-        public async Task modify_donatetype(List<DonateType> info)
+        // create donation_household
+        public async Task create_donation_household(DonateHousehold user)
         {
-
-            if (info.Any(x => x.Name_chinese == null))
-            {
-                throw new NeedNameChineseException("防呆! 避免無類別名稱Name_chinese");
-            }
-            if (info.Any(x => x.Price == null))
-            {
-                throw new NeedPriceException("防呆! 避免無類別名稱Price");
-            }
-
-
-
-            DonateType_DBManager dBManager = new DonateType_DBManager();
-            Dictionary<int, DonateType> dict_info = info.ToDictionary(x => x.ID);
-            List<int> not_to_insert = new List<int>();
-
-            // 取得DB資料
-            List<DonateType> donateTypes = await dBManager.get_donatetype();
-
-            // 進行比對 foreach
-            foreach (var donateType in donateTypes)
-            {
-                int DB_id = donateType.ID;
-                not_to_insert.Add(DB_id);
-
-                if (dict_info.TryGetValue(DB_id, out var data))
-                {
-                    if (data.Name_chinese == "刪除" && data.Price == 111)
-                    {
-                        // delete
-                        Debug.WriteLine("刪已存在的資料，要刪除的");
-                        await dBManager.delete_donatetype(donateType); //刪已存在的資料，要刪除的
-                    }
-                    else
-                    {
-                        // id == DB.id update
-                        donateType.Price = data.Price;
-                        donateType.Note = data.Note;
-                        donateType.Name = data.Name;
-                        donateType.Name_chinese = data.Name_chinese;
-
-                        await dBManager.update_donatetype(donateType);
-                    }
-
-                }
-
-
-            }
-
-            // DB.id迴圈結束 id不存在DB insert
-            foreach (var d in info)
-            {
-                if (!not_to_insert.Contains(d.ID))
-                {
-                    if (d.Name_chinese == "刪除" && d.Price == 111) //刪新增，又刪除的
-                    {
-                        // delete
-                        Debug.WriteLine("刪新增，又刪除的");
-                        await dBManager.delete_donatetype(d);
-                    }
-                    else
-                    {
-                        await dBManager.create_donatetype(d);
-                    }
-
-                }
-            }
-
-            Debug.WriteLine("modify_donatetype done!!!");
-
-        }
-
-        // insert: 頁面上 id 不在 DB
-        public async Task create_donatetype(DonateType user)
-        {
-            Debug.WriteLine("start insert");
+            Debug.WriteLine("start insert create_donation_household");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donatetype(name, name_chinese, price, note) VALUES(@name, @name_chinese, @price, @note)", conn);
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_household(houseid, is_dipper, is_taisui, is_peacelight, dipper_big, dipper_small, note) VALUES(@houseid, @is_dipper, @is_taisui, @is_peacelight, @dipper_big, @dipper_small, @note)", conn);
 
 
-            cmd.Parameters.AddWithValue("@name", user.Name == null ? DBNull.Value : user.Name);
-            cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
-            cmd.Parameters.AddWithValue("@price", user.Price);
+            cmd.Parameters.AddWithValue("@houseid", user.HouseID == null ? DBNull.Value : user.HouseID);
+            cmd.Parameters.AddWithValue("@is_dipper", user.Is_dipper == null ? DBNull.Value : user.Is_dipper);
+            cmd.Parameters.AddWithValue("@is_taisui", user.Is_taisui == null ? DBNull.Value : user.Is_taisui);
+            cmd.Parameters.AddWithValue("@is_peacelight", user.Is_peacelight == null ? DBNull.Value : user.Is_peacelight);
+            cmd.Parameters.AddWithValue("@dipper_big", user.Dipper_big == null ? DBNull.Value : user.Dipper_big);
+            cmd.Parameters.AddWithValue("@dipper_small", user.Dipper_small == null ? DBNull.Value : user.Dipper_small);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
-            Debug.WriteLine("完成insert");
+            Debug.WriteLine("完成insert create_donation_household");
 
             await cmd.ExecuteNonQueryAsync();
 
         }
 
-        // update: 頁面上 id 在 DB
-        public async Task update_donatetype(DonateType user)
-        {
-            Debug.WriteLine("start update");
-            await using var conn = new NpgsqlConnection(connectionString_postgresql);
-            await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET  name_chinese=@name_chinese, price=@price,  note=@note  where id = @id", conn);
-
-            cmd.Parameters.AddWithValue("@id", user.ID);
-            cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
-            cmd.Parameters.AddWithValue("@price", user.Price);
-            ;
-            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
-
-
-            Debug.WriteLine("完成update");
-
-            await cmd.ExecuteNonQueryAsync();
-
-        }
-
-        // delete: DB id 不在 頁面上
-        public async Task delete_donatetype(DonateType user)
-        {
-            Debug.WriteLine("start delete");
-            await using var conn = new NpgsqlConnection(connectionString_postgresql);
-            await conn.OpenAsync();
-
-            await using var cmd = new NpgsqlCommand(@$"DELETE FROM donatetype where id = @id", conn);
-
-            cmd.Parameters.AddWithValue("@id", user.ID);
-
-
-            Debug.WriteLine("完成delete");
-
-            await cmd.ExecuteNonQueryAsync();
-
-        }
-
-        /*
-        // 取得HouseholdMember資料表 資料 by BasicInfo info
-        public async Task<List<HouseholdMember>> getHousehold_by_basicinfo(BasicInfo info)
-        {
-            using var conn = new NpgsqlConnection(connectionString_postgresql);
-            await conn.OpenAsync();
-
-            NpgsqlCommand cmd;
-            List<HouseholdMember> Infos = new List<HouseholdMember>();
-
-
-
-            cmd = new NpgsqlCommand(
-                $"SELECT * FROM HouseholdMember where house_id=(select house_id from HouseholdMember where memberid= @memberid) ",
-                conn);
-
-            cmd.Parameters.AddWithValue("@memberid", info.MID);
-            Debug.WriteLine($"{info.MID}");
-            Debug.WriteLine($"{cmd.CommandText}");
-
-
-            await using (var reader = await cmd.ExecuteReaderAsync())
-            {
-                int ordinal_householdid = reader.GetOrdinal("householdid");
-                int ordinal_memberid = reader.GetOrdinal("memberid");
-                int ordinal_member_no = reader.GetOrdinal("member_no");
-                int ordinal_house_id = reader.GetOrdinal("house_id");
-                int ordinal_is_head = reader.GetOrdinal("is_head");
-                int ordinal_start_date = reader.GetOrdinal("start_date");
-                int ordinal_end_date = reader.GetOrdinal("end_date");
-
-
-                while (await reader.ReadAsync())
-                {
-                    HouseholdMember Info = new HouseholdMember
-                    {
-
-                        HouseholdID = reader.IsDBNull(ordinal_householdid) ? 0 : reader.GetInt32(ordinal_householdid),
-                        MemberID = reader.IsDBNull(ordinal_memberid) ? 0 : reader.GetInt32(ordinal_memberid),
-                        Member_no = reader.IsDBNull(ordinal_member_no) ? 0 : reader.GetInt32(ordinal_member_no),
-                        House_ID = reader.IsDBNull(ordinal_house_id) ? 0 : reader.GetInt32(ordinal_house_id),
-                        Is_head = reader.IsDBNull(ordinal_is_head) ? false : reader.GetBoolean(ordinal_is_head),
-                        Start_date = reader.IsDBNull(ordinal_start_date) ? null : reader.GetDateTime(ordinal_start_date),
-                        End_date = reader.IsDBNull(ordinal_end_date) ? null : reader.GetDateTime(ordinal_end_date),
-
-                    };
-
-                    Infos.Add(Info);
-                    Debug.WriteLine($"getHousehold_by_basicinfo: info {JsonSerializer.Serialize(Info)}");
-                }
-                ;
-
-            }
-            Debug.WriteLine($"getHousehold_by_basicinfo: check return back to controller{JsonSerializer.Serialize(Infos)}");
-
-            return Infos;
-
-        }
-        */
+        
     }
 }
