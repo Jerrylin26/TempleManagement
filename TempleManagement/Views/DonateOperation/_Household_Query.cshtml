@@ -38,34 +38,43 @@
 
 </tr>
 
-<form method="POST" >
-    @foreach (var member in Model)
-    {
-        <tr>
-            <td>
-                <!-- check 要改 同時 _ShowDonateOption-->
-                <input type="checkbox" name="donateOperations[@count].Is_checked" value="false" style="transform: scale(1.5); margin: 5px;" />
-                <input type="hidden" name="donateOperations[@count].MID" value="@member.MID" />
-                <input type="hidden" name="donateOperations[@count].HouseID" value="@member.HouseID" />
-            </td>
-            <td>
-                <div>@member.Member_number</div>
 
-            </td>
-            <td>
-                <span>@member.Name</span>
-                @if (member.Is_head == true)
-                {
-                    <span style="background-color:aquamarine">戶長</span>
-                }
-            </td>
+@foreach (var member in Model)
+{
+    <tr>
+        <td>
+            <!-- check 要改 同時 _ShowDonateOption--> <!--最後使用Dummy_Is_checked 判斷string=on來解 -->
+            <label style="cursor:pointer;">
+
+                <input type="checkbox"
+                        name="donateOperations[@count].Dummy_Is_checked"
+                        style="transform: scale(1.5); margin: 5px;" />
+            </label>
+
+            <input type="hidden" name="donateOperations[@count].MID" value="@member.MID" />
+            <input type="hidden" name="donateOperations[@count].HouseID" value="@member.HouseID" />
+            <input type="hidden" name="donateOperations[@count].Name" value="@member.Name" />
+            <input type="hidden" name="donateOperations[@count].Member_number" value="@member.Member_number" />
+            <input type="hidden" name="donateOperations[@count].Is_head" value="@(member.Is_head == true ? "true" : "false")" />
+        </td>
+        <td>
+            <div>@member.Member_number</div>
+
+        </td>
+        <td>
+            <span>@member.Name</span>
+            @if (member.Is_head == true)
+            {
+                <span style="background-color:aquamarine">戶長</span>
+            }
+        </td>
 
 
-        </tr>
+    </tr>
 
-        count++; //計數器
-    }
-</form>
+    count++; //計數器
+}
+
 
 <script>
     $(document).on('click', '#select-all-button', function () {

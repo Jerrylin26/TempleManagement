@@ -1,0 +1,3 @@
+﻿1. DonateType 新增的欄位只能沒法是英文的Name，而是中文Name_chinese
+2. DonateType新增的欄位還沒與DonateOperation表單對齊
+3. DonateType 的 NeedDipper 要加入業務邏輯判斷

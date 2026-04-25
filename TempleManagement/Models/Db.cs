@@ -75,7 +75,7 @@ namespace TempleManagement.Models
         public string Name { get; set; }
     }
 
-
+    // Donate 選項
     public class DonateType
     {
         public int ID { get; set; } // primary key 
@@ -84,6 +84,10 @@ namespace TempleManagement.Models
         public int Price { get; set; } 
         public string? Note { get; set; }
         public DateTime? ModifyDate { get; set; }
+
+        public int Prototype { get; set; } // DB: DonateType_Prototype 拿來分類所屬類別
+        public string Prototype_name { get; set; } 
+        public bool NeedDipper { get; set; } // 標記需要Dipper(有安斗的項目) *大小斗我都設false
 
     }
 
@@ -107,8 +111,9 @@ namespace TempleManagement.Models
         public int MID { get; set; } //與 basicInfo primary key對應
         public string? Blessinglight { get; set; }
 
-
         public string? Note { get; set; }
+
+        // 
 
     }
 
@@ -133,7 +138,7 @@ namespace TempleManagement.Models
         public int HouseID { get; set; }
         public string Name { get; set; }
         public string? Member_number { get; set; }
-        public bool Is_head { get; set; }
+        public bool? Is_head { get; set; }
 
         public bool Is_dipper { get; set; }
         public bool Is_taisui { get; set; }
@@ -144,8 +149,23 @@ namespace TempleManagement.Models
         public int Peacelight_price { get; set; }
         public int Blessinglight_price { get; set; }
         public int Taisui_price { get; set; }
-        
+
+        // 即將把DonateItem 整合一起 
+        public List<DonationItem>? Donate_item { get; set; }
+
         public string? Note { get; set; }
+
+    }
+
+    // 加入至DonateQuery的類型List
+    public class DonationItem
+    {
+        public int DonateTypeId { get; set; } // 用DonateTypeId來 group ，以便在下拉式選單加入 
+        public string Name_chinese { get; set; } // 自己捐贈名稱
+        public string Prototype_name { get; set; } //類別名稱
+
+        public int SelectedPrice { get; set; }
+
 
     }
 
@@ -157,8 +177,14 @@ namespace TempleManagement.Models
         public string? Name { get; set; }
         public string? Member_number { get; set; }
         public bool? Is_head { get; set; }
-        public bool Is_checked { get; set; } // 判斷此人是否要新增
+        public bool? Is_checked { get; set; } // 判斷此人是否要新增
+        public string? Dummy_Is_checked { get; set; } // 因為javascript接收是on 就用這個變數接收吧
+    }
 
-
+    // 在 Create_Donation 需要 DonateQuery + DonateType
+    public class DonationViewModel
+    {
+        public List<DonateQuery> DonateQuery { get; set; }
+        public List<DonateType> DonateType { get; set; }
     }
 }

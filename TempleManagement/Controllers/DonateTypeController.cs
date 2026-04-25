@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using TempleManagement.Exceptions;
@@ -13,8 +14,9 @@ namespace TempleManagement.Controllers
         {
             DonateType_DBManager dbmanager = new DonateType_DBManager();
             List<DonateType> infos = await dbmanager.get_donatetype();
+            List<List<DonateType>> modify_infos = infos.GroupBy(x => x.Prototype).Select(g => g.OrderBy(x => x.Price).ToList()).ToList();
 
-            return View(infos);
+            return View(modify_infos);
         }
 
         public async Task<IActionResult> Modify_page()

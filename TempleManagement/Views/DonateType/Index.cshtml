@@ -5,7 +5,7 @@
 }
 
 @* <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css"> *@
-@model List<DonateType>
+@model List<List<DonateType>>
 
 <link rel="stylesheet" href="~/css/DonateType/Index.css">
 <link rel="stylesheet" href="~/css/DonateType/w3.css">
@@ -23,6 +23,7 @@
             
         </ul>
 
+
         <span id="btn_1">
             <button class="button-24" id="save_button" role="button" style="display:none"> 確定儲存</button>
         </span>
@@ -33,24 +34,35 @@
         <form id="modify_type" method="POST">
             <table class="w3-table-all w3-xlarge fixed-table">
                 <colgroup>
+                    <col style="width: 15%;">
+                    <col style="width: 15%;">
                     <col style="width: 30%;">
                     <col style="width: 30%;">
-                    <col style="width: 40%;">
                 </colgroup>
 
                 <tr>
                     <th>類別</th>
+                    <th>選項</th>
                     <th>價格</th>
                     <th>備註</th>
                 </tr>
+                
 
                 <tbody id="search_change">
                         @{
                             var count = 0; //拿來全局使用
                         }
-                        @foreach (var info in Model)
+                        @foreach (var infos in Model)
                         {
+                            <tr>
+                                <th>@infos.First().Prototype_name</th>
+                            </tr>
+                            @foreach (var info in infos)
+                            {
                             <tr data-id="@info.ID">
+                                <td>
+                                    <input type="text" class="cell-edit-input" name="donateTypes[@count].Prototype" maxlength="10" value="@info.Prototype" hidden>
+                                </td>
                                 <td>
                                     <input type="text" class="cell-edit-input" name="donateTypes[@count].Name_chinese" maxlength="10" value="@info.Name_chinese" disabled>
                                 </td>
@@ -62,6 +74,7 @@
                                 </td>
                             </tr>
                             count++;
+                            }
                         }
                     @{
                         
@@ -81,6 +94,7 @@
     <!-- HTML !-->
     <span id="btn_3">
         <button class="button-4" role="button" id="Add_type" style="display:none"> 新增類別</button>
+        <button class="button-4" role="button" id="Add_option" style="display:none"> 新增選項</button>
     </span>
     <br />
     <br />
@@ -189,6 +203,7 @@
 
                             html_add += `
                                 <button class="button-4" role="button" id="Add_type"> 新增類別</button>
+                                <button class="button-4" role="button" id="Add_option"> 新增選項</button>
                             `
 
 

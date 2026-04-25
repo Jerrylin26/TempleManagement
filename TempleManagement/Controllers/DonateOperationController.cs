@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using TempleManagement.Models;
@@ -19,9 +20,14 @@ namespace TempleManagement.Controllers
     public class DonateOperationController : Controller
     {
 
-        // 提交新增 選定人選 準備進入新增表單
-        public IActionResult post_selected_option(List<Donate_Insert_query> donateOperations)
+        // 提交新增 選定人選 準備進入新增表單 
+        public async Task<IActionResult> Post_selected_option(List<Donate_Insert_query> donateOperations) 
         {
+
+            Debug.WriteLine("start post_selected_option()");
+
+            Debug.WriteLine(JsonSerializer.Serialize(donateOperations));
+
             if (!ModelState.IsValid) //驗證 Post 來的資料
 
             {
@@ -38,10 +44,39 @@ namespace TempleManagement.Controllers
                 return Json(new { success = false, message = "資料驗證失敗" });
             }
 
-            Debug.WriteLine("start post_selected_option()");
-            
-            Debug.WriteLine(JsonSerializer.Serialize(donateOperations));
-            return Json(new { message = "yes" });
+
+            //改成DonateQuery
+            //List<DonateQuery> Go_To_Insert_Donation = new List<DonateQuery>();
+
+            //傳給前端的，分成以戶為單位
+            List<List<DonateQuery>> donateQuery = await IDonateQuery();
+            var donateQuery_dict = donateQuery.Where(x => x.Any()).ToDictionary(x => x.First().HouseID);
+            // 使用DonationViewModel 拿大資料
+            DonationViewModel merge_info = new DonationViewModel();
+            var info_donateQuery = new List<DonateQuery>();
+
+
+            // DonateQuery
+            foreach (var info in donateOperations)
+            {
+                if (info.Dummy_Is_checked == "on") // 有勾選的
+                {
+                    DonateQuery don = new DonateQuery();
+                    //Debug.WriteLine("yes");
+                    info_donateQuery = donateQuery_dict[info.HouseID];
+                }
+            }
+
+            // DonateType
+            DonateType_DBManager dBManager = new DonateType_DBManager();
+            List<DonateType> info_donatetype = await dBManager.get_donatetype();
+            info_donatetype = info_donatetype.OrderBy(g => g.Price).ToList();
+
+            merge_info.DonateType = info_donatetype;
+            merge_info.DonateQuery = info_donateQuery;
+
+
+            return PartialView("_Create_Donation", merge_info);
 
         }
 
@@ -49,22 +84,25 @@ namespace TempleManagement.Controllers
         // 篩選button 不同方式顯示人選 (新增捐獻)
         public async Task<IActionResult> dropdown_insert_query(string option)
         {
+            /*
+             * all 跟 all-reverse移除，因為只讓管理者選取戶長(戶號)，進去再去選擇人員
+             */
             switch (option)
             {
                 case "household":
 
                     return await ShowOption("not-reverse",true);
 
-                case "all":
-                    return await ShowOption("not-reverse",false); //基本顯示方式
+                //case "all":
+                //    return await ShowOption("not-reverse",false); //基本顯示方式
                     
 
                 case "household-reverse":
 
                     return await ShowOption("reverse",true);
 
-                case "all-reverse":
-                    return await ShowOption("reverse",false);
+                //case "all-reverse":
+                //    return await ShowOption("reverse",false);
 
                 default:
                     return await ShowOption();
@@ -126,7 +164,7 @@ namespace TempleManagement.Controllers
 
         // 按下新增捐獻 顯示列表 (為初始導入)
         // 後，把篩選的option加入此函式，擴建多樣性
-        public async Task<IActionResult> ShowOption(string type="not-reverse",bool is_head=false)
+        public async Task<IActionResult> ShowOption(string type="not-reverse",bool is_head=true)
         {
             HouseholdManagement_DBManager HM_DBmgr = new HouseholdManagement_DBManager();
             List<HouseholdMember> householdmember = await HM_DBmgr.getHousehold_all();
@@ -223,6 +261,28 @@ namespace TempleManagement.Controllers
             // DB: donation_operation !!!!可能不需要，為歷史單據
             // DB: DonateType
 
+            //傳給前端的，分成以戶為單位
+            List<List<DonateQuery>> donateQuery = await IDonateQuery();
+
+            return View(donateQuery);
+
+        }
+
+        // 做成 Interface給 DonateQuery()
+        public async Task<List<List<DonateQuery>>> IDonateQuery()
+        {
+            // DB: householdmember 
+            // DB: donation_individual 
+            // DB: donation_household
+            // DB: BasicInfo
+            // DB: DonateType
+            // DB: donation_operation !!!!可能不需要，為歷史單據
+            // DB: DonateType
+
+            //傳給前端的，分成以戶為單位
+            List<List<DonateQuery>> donateQuery = new List<List<DonateQuery>>();
+
+
             HouseholdManagement_DBManager HM_DBmgr = new HouseholdManagement_DBManager();
             BasicInfo_DBManager B_DBmgr = new BasicInfo_DBManager();
             DonateOperation_DBManager DO_DBmgr = new DonateOperation_DBManager();
@@ -245,11 +305,10 @@ namespace TempleManagement.Controllers
 
             var householdmember_houseid = householdmember.OrderBy(x => x.House_ID).GroupBy(x => x.House_ID); //依照 house_id區分，並先按house_id排列
 
-            //傳給前端的，分成以戶為單位
-            List<List<DonateQuery>> donateQuery = new List<List<DonateQuery>>();
+
 
             // 用戶號遞迴，依序列出每名成員
-            foreach(var householdmembers in householdmember_houseid)
+            foreach (var householdmembers in householdmember_houseid)
             {
                 List<DonateQuery> don_list = new List<DonateQuery>();
 
@@ -268,12 +327,16 @@ namespace TempleManagement.Controllers
                     don.Name = basicinfo_m.Name;
                     don.Note = donateIndividuals_m.Note; //從Donate_Individual抓取
 
+                    // 用來放捐獻資訊 未來移轉至這
+                    List<DonationItem> donateitem = new List<DonationItem>();
+
                     //判斷戶長與否
                     if (member.Is_head)
                     {
                         don.Is_head = true;
                     }
 
+                    
                     //判斷安斗
                     if (donateHouseholds_m.Is_dipper)
                     {
@@ -284,17 +347,57 @@ namespace TempleManagement.Controllers
                         {
                             don.Dipper_price = donateTypes_dict["Dipper_big"].Price; //未來開放新增修改donatetype有問題
                             don.Dipper_name = donateTypes_dict["Dipper_big"].Name_chinese;
+
+                            donateitem.Add(new DonationItem
+                            {
+                                DonateTypeId = donateTypes_dict["Dipper_big"].ID,
+                                Name_chinese = donateTypes_dict["Dipper_big"].Name_chinese,
+                                SelectedPrice = donateTypes_dict["Dipper_big"].Price,
+                                Prototype_name = donateTypes_dict["Dipper_big"].Prototype_name,
+                            });
+                            
                         }
                         else if (donateHouseholds_m.Dipper_small)
                         {
                             don.Dipper_price = donateTypes_dict["Dipper_small"].Price;
                             don.Dipper_name = donateTypes_dict["Dipper_small"].Name_chinese;
+
+                            donateitem.Add(new DonationItem
+                            {
+                                DonateTypeId = donateTypes_dict["Dipper_small"].ID,
+                                Name_chinese = donateTypes_dict["Dipper_small"].Name_chinese,
+                                SelectedPrice = donateTypes_dict["Dipper_small"].Price,
+                                Prototype_name = donateTypes_dict["Dipper_small"].Prototype_name,
+                            });
                         }
 
+                        /*
+                         * 把這邏輯改成 NeedDipper = true 
+                         */
+                        //foreach(var dipper_case in donateTypes.Where(x=> x.NeedDipper==true).GroupBy(g=>g.NeedDipper==true))
+                        //{
+                        //    don.Blessinglight_price = donateTypes_dict[donateIndividuals_m.Blessinglight].Price; //未來 donateIndividual 存入的必須是 donateType名稱
+                        //    donateitem.Add(new DonationItem
+                        //    {
+                        //        DonateTypeId = donateTypes_dict[donateIndividuals_m.Blessinglight].ID,
+                        //        Name_chinese = donateTypes_dict[donateIndividuals_m.Blessinglight].Name_chinese,
+                        //        SelectedPrice = donateTypes_dict[donateIndividuals_m.Blessinglight].Price,
+                        //        Prototype_name = donateTypes_dict[donateIndividuals_m.Blessinglight].Prototype_name,
+                        //    });
+                        //}
+
+
                         // 判斷光明燈價位
-                        if ((donateHouseholds_m.Dipper_big || donateHouseholds_m.Dipper_small)&&(donateIndividuals_m.Blessinglight!=null || donateIndividuals_m.Blessinglight!=""))
+                        if ((donateHouseholds_m.Dipper_big || donateHouseholds_m.Dipper_small) && (donateIndividuals_m.Blessinglight != null || donateIndividuals_m.Blessinglight != ""))
                         {
                             don.Blessinglight_price = donateTypes_dict[donateIndividuals_m.Blessinglight].Price; //未來 donateIndividual 存入的必須是 donateType名稱
+                            donateitem.Add(new DonationItem
+                            {
+                                DonateTypeId = donateTypes_dict[donateIndividuals_m.Blessinglight].ID,
+                                Name_chinese = donateTypes_dict[donateIndividuals_m.Blessinglight].Name_chinese,
+                                SelectedPrice = donateTypes_dict[donateIndividuals_m.Blessinglight].Price,
+                                Prototype_name = donateTypes_dict[donateIndividuals_m.Blessinglight].Prototype_name,
+                            });
                         }
 
                         //才能點燈 平安燈
@@ -302,15 +405,32 @@ namespace TempleManagement.Controllers
                         {
                             don.Peacelight_price = donateTypes_dict["PeaceLight"].Price;
                             don.Is_peacelight = true;
+
+                            donateitem.Add(new DonationItem
+                            {
+                                DonateTypeId = donateTypes_dict["PeaceLight"].ID,
+                                Name_chinese = donateTypes_dict["PeaceLight"].Name_chinese,
+                                SelectedPrice = donateTypes_dict["PeaceLight"].Price,
+                                Prototype_name = donateTypes_dict["PeaceLight"].Prototype_name,
+                            });
                         }
                     }
-                    
+
                     if (donateHouseholds_m.Is_taisui) //判斷安太歲
                     {
                         don.Is_taisui = true;
                         don.Taisui_price = donateTypes_dict["Taisui"].Price;
+
+                        donateitem.Add(new DonationItem
+                        {
+                            DonateTypeId = donateTypes_dict["Taisui"].ID,
+                            Name_chinese = donateTypes_dict["Taisui"].Name_chinese,
+                            SelectedPrice = donateTypes_dict["Taisui"].Price,
+                            Prototype_name = donateTypes_dict["Taisui"].Prototype_name,
+                        });
                         Debug.WriteLine("有太歲");
                     }
+                    don.Donate_item = donateitem;
 
                     don_list.Add(don);
                 }
@@ -324,7 +444,7 @@ namespace TempleManagement.Controllers
                 donateQuery.Add(don_list);
             }
             Debug.WriteLine($"donateQuery check: {JsonSerializer.Serialize(donateQuery)}");
-            return View(donateQuery);
+            return donateQuery;
 
         }
 

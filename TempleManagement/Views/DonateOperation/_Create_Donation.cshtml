@@ -1,0 +1,153 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    // <link rel="stylesheet" href="https:www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="~/css/DonateOperation/Index.css">
+    <link rel="stylesheet" href="~/css/DonateOperation/w3.css">
+    //此為自行下載後的.css (w3css/5/w3.css)
+}
+@model DonationViewModel ;
+
+<div>目前狀態</div>
+<div style="font-size:30px;background-color:darksalmon">戶號: <span style="font-weight:bold;">@Model.DonateQuery.First().HouseID</span></div>
+
+<table class="w3-table-all w3-xlarge fixed-table">
+    <colgroup>
+        <col style="width: 10%;">
+        <col style="width: 10%;">
+        <col style="width: 10%;">
+        <col style="width: 15%;">
+        <col style="width: 10%;">
+        <col style="width: 10%;">
+        <col style="width: 15%;">
+        <col style="width: 15%;">
+    </colgroup>
+
+
+    <tr>
+        <th>安斗</th>
+        <th>個人編號</th>
+        <th>姓名</th>
+        @foreach(var item in Model.DonateType.GroupBy(x =>x.Prototype).Where(x => x.Key!=1))
+        {
+            <th>@item.First().Prototype_name</th>
+        }
+        <th>總捐獻(價格)</th>
+        <th>備註</th>
+    </tr>
+
+    @foreach (var member in Model.DonateQuery)
+    {
+        <tr>
+            <td>
+                @if (member.Is_dipper)
+                {
+                    <input checked="" class="check_dipper" type="checkbox" disabled>
+                    <span>@member.Dipper_name</span>
+                }
+                else
+                {
+                    <input class="no_check_dipper" type="checkbox">
+                    <span>無</span>
+                }
+
+
+
+            </td>
+            <td>
+                <div>@member.Member_number</div>
+            </td>
+            <td>
+                <div>@member.Name</div>
+                @if (member.Is_head == true)
+                {
+                    <div style="background-color:aquamarine">戶長</div>
+                }
+            </td>
+
+            @foreach (var type in Model.DonateType.GroupBy(g=>g.Prototype).Where(x=>x.Key!=1))
+            {
+                <td>
+                    <div>@type.First().Prototype_name</div>
+                    <select name="category">
+                        <option value="0">無</option>
+                        @foreach (var item in type)
+                        {
+                            @if (member.Donate_item.Any(x => x.DonateTypeId == item.ID))
+                            {
+                                <option value="@item.Price" selected>
+                                    @item.Price
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@item.Price">
+                                    @item.Price
+                                </option>
+                            }
+                        }
+                        
+                    </select>
+                </td>
+            }
+            
+
+            <td>
+                @if (member.Is_head == true)
+                {
+                    <div>@(member.Taisui_price + member.Blessinglight_price + member.Dipper_price + member.Peacelight_price)</div>
+                    if (member.Is_dipper)
+                    {
+                        <div>(@member.Dipper_name :@member.Dipper_price)</div>
+                    }
+
+
+                }
+                else
+                {
+                    <div>@(member.Taisui_price + member.Blessinglight_price + member.Peacelight_price)</div>
+                }
+
+            </td>
+            <td>
+                <textarea class="cell-edit-textarea">@member.Note</textarea>
+            </td>
+
+        </tr>
+    }
+</table>
+
+<br />
+
+
+
+
+<br />
+<br />
+<br />
+
+
+
+
+
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+@* <script>
+    $('#modify_button').on('click', function () {
+
+        $.get('/DonateOperation/ShowOption', function (html) {
+
+            // 把 PartialView 塞進 Modal
+            $('#modalBody').html(html);
+
+            // 開啟 Modal
+            var modal = new bootstrap.Modal(document.getElementById('updateModal'));
+            modal.show();
+        });
+
+    });
+</script> *@
+

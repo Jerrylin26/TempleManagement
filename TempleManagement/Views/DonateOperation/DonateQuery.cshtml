@@ -45,100 +45,103 @@
 <br />
 <br />
 
-@foreach (var household in Model)
-{
-    <div style="font-size:30px;background-color:darksalmon">戶號: <span style="font-weight:bold;">@household.First().HouseID</span></div>
-    
-    <table class="w3-table-all w3-xlarge fixed-table">
-        <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 15%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 15%;">
-            <col style="width: 15%;">
-        </colgroup>
+<div id="Change_to_Donation_create">
+    @foreach (var household in Model)
+    {
+        <div style="font-size:30px;background-color:darksalmon">戶號: <span style="font-weight:bold;">@household.First().HouseID</span></div>
+
+        <table class="w3-table-all w3-xlarge fixed-table">
+            <colgroup>
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 15%;">
+            </colgroup>
 
 
-        <tr>
-            <th>安斗</th>
-            <th>個人編號</th>
-            <th>姓名</th>
-            <th>光明燈類型</th>
-            <th>平安燈</th>
-            <th>安太歲</th>
-            <th>總捐獻(價格)</th>
-            <th>備註</th>
-        </tr>
-
-        @foreach (var member in household) 
-        {
             <tr>
-                <td>
-                    @if (member.Is_dipper)
-                    {
-                        <input checked="" class="check_dipper" type="checkbox" disabled>
-                        <span>@member.Dipper_name</span>
-                    }
-                    else
-                    {
-                        <input class="no_check_dipper" type="checkbox">
-                        <span>無</span>
-                    }
-
-                    
-                    
-                </td>
-                <td>
-                    <div>@member.Member_number</div>
-                </td>
-                <td>
-                    <div>@member.Name</div>
-                    @if (member.Is_head)
-                    {
-                        <div style="background-color:aquamarine">戶長</div>
-                    }
-                </td>
-                <td>
-                    <div>@member.Blessinglight_price</div>
-                </td>
-                <td>
-                    <div>@member.Peacelight_price</div>
-                </td>
-                <td>
-                    <div>@member.Taisui_price</div>
-                </td>
-                <td>
-                    @if (member.Is_head)
-                    {
-                        <div>@(member.Taisui_price+member.Blessinglight_price+member.Dipper_price+member.Peacelight_price)</div>
-                        if (member.Is_dipper)
-                        {
-                            <div>(@member.Dipper_name :@member.Dipper_price)</div>
-                        }
-                        
-                        
-                    }
-                    else
-                    {
-                        <div>@(member.Taisui_price+member.Blessinglight_price+member.Peacelight_price)</div>
-                    }
-                    
-                </td>
-                <td>
-                    <textarea class="cell-edit-textarea">@member.Note</textarea>
-                </td>
-
+                <th>安斗</th>
+                <th>個人編號</th>
+                <th>姓名</th>
+                <th>光明燈類型</th>
+                <th>平安燈</th>
+                <th>安太歲</th>
+                <th>總捐獻(價格)</th>
+                <th>備註</th>
             </tr>
-        }
-    </table>
-    
-    <br />
 
-    
-}
+            @foreach (var member in household)
+            {
+                <tr>
+                    <td>
+                        @if (member.Is_dipper)
+                        {
+                            <input checked="" class="check_dipper" type="checkbox" disabled>
+                            <span>@member.Dipper_name</span>
+                        }
+                        else
+                        {
+                            <input class="no_check_dipper" type="checkbox">
+                            <span>無</span>
+                        }
+
+
+
+                    </td>
+                    <td>
+                        <div>@member.Member_number</div>
+                    </td>
+                    <td>
+                        <div>@member.Name</div>
+                        @if (member.Is_head == true)
+                        {
+                            <div style="background-color:aquamarine">戶長</div>
+                        }
+                    </td>
+                    <td>
+                        <div>@member.Blessinglight_price</div>
+                    </td>
+                    <td>
+                        <div>@member.Peacelight_price</div>
+                    </td>
+                    <td>
+                        <div>@member.Taisui_price</div>
+                    </td>
+                    <td>
+                        @if (member.Is_head == true)
+                        {
+                            <div>@(member.Taisui_price + member.Blessinglight_price + member.Dipper_price + member.Peacelight_price)</div>
+                            if (member.Is_dipper)
+                            {
+                                <div>(@member.Dipper_name :@member.Dipper_price)</div>
+                            }
+
+
+                        }
+                        else
+                        {
+                            <div>@(member.Taisui_price + member.Blessinglight_price + member.Peacelight_price)</div>
+                        }
+
+                    </td>
+                    <td>
+                        <textarea class="cell-edit-textarea">@member.Note</textarea>
+                    </td>
+
+                </tr>
+            }
+        </table>
+
+        <br />
+
+
+    }
+</div>
+
 
 
 
@@ -168,9 +171,11 @@
 
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="submit"
-                        form="post_selected_option"
-                        class="btn btn-primary">
+                <!-- 解決poast2次問題-->
+                <button type="button"
+                        class="btn btn-primary"
+                        id="btn_post">
+                        
                     確定
                 </button>
             </div>

@@ -54,7 +54,7 @@ namespace TempleManagement.Models.DBManager
          */
 
         // 順序很重要，在create時，會mapping
-        private static string[] column_array_donatetype = { "id", "name", "name_chinese", "price", "note", "modifydate" };
+        private static string[] column_array_donatetype = { "id", "name", "name_chinese", "price","prototype", "note", "modifydate" };
         private static string column_donatetype = string.Join(",", column_array_donatetype);
 
         // donatetype

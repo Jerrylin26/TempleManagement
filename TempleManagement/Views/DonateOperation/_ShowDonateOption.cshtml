@@ -14,9 +14,8 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="DonateButton1">
             <li><a class="dropdown-item menu-household" data-dropdown="household" >戶號</a></li>
-            <li><a class="dropdown-item menu-all" data-dropdown="all" >全部</a></li>
             <li><a class="dropdown-item menu-household-reverse" data-dropdown="household-reverse" >戶號(倒序)</a></li>
-            <li><a class="dropdown-item menu-all-reverse" data-dropdown="all-reverse" >全部(倒序)</a></li>
+            
 
         </ul>
     </div>
@@ -61,10 +60,18 @@
             {
                     <tr>
                         <td>
-                            <!-- check 要改-->
-                            <input type="checkbox" name="donateOperations[@count].Is_checked" value="false" style="transform: scale(1.5); margin: 5px;" />
+                        <!-- check 要改 同時 _household_Query--> <!--最後使用Dummy_Is_checked 判斷string=on來解 -->
+                            <label style="cursor:pointer;">
+
+                                <input type="checkbox"
+                                       name="donateOperations[@count].Dummy_Is_checked"
+                                       style="transform: scale(1.5); margin: 5px;" />
+                            </label>
                             <input type="hidden" name="donateOperations[@count].MID" value="@member.MID" />
                             <input type="hidden" name="donateOperations[@count].HouseID" value="@member.HouseID" />
+                            <input type="hidden" name="donateOperations[@count].Name" value="@member.Name" />
+                            <input type="hidden" name="donateOperations[@count].Member_number" value="@member.Member_number" />
+                            <input type="hidden" name="donateOperations[@count].Is_head" value="@(member.Is_head == true ? "true" : "false")" />
                         </td>
                         <td>
                             <div>@member.Member_number</div>
@@ -164,19 +171,24 @@
 
 <!-- 提交新增 選定人選 準備進入新增表單 -->
 <script>
-    $('#post_selected_option').submit(function (e) {
-        e.preventDefault(); // ❗ 阻止傳統 submit（不跳頁）
+    $(document).on('click', '#btn_post', function (e) {
+        e.preventDefault();
 
-        let formData = $(this).serialize(); // 取得 form 所有欄位
-        alert(formData);
+        let formData = $('#post_selected_option').serialize();
+
         $.ajax({
             type: "POST",
-            url: "/DonateOperation/post_selected_option",
+            url: "/DonateOperation/Post_selected_option",
             data: formData,
             success: function (result) {
-                console.log(result);
+
+                var modalEl = document.getElementById('updateModal');
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+
+                $('#Change_to_Donation_create').html(result);
             },
-            error: function (xhr) {
+            error: function () {
                 alert("發生錯誤");
             }
         });
