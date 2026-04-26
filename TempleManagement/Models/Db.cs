@@ -109,11 +109,12 @@ namespace TempleManagement.Models
     {
         public int DI_ID { get; set; } // primary key 
         public int MID { get; set; } //與 basicInfo primary key對應
-        public string? Blessinglight { get; set; }
+        //public string? Blessinglight { get; set; }
 
         public string? Note { get; set; }
 
-        // 
+        // V1 改資料表結構 : 會動到系統運作
+        public List<DonationItem> DonateItem_idv { get; set; }
 
     }
 
@@ -163,6 +164,7 @@ namespace TempleManagement.Models
         public int DonateTypeId { get; set; } // 用DonateTypeId來 group ，以便在下拉式選單加入 
         public string Name_chinese { get; set; } // 自己捐贈名稱
         public string Prototype_name { get; set; } //類別名稱
+        public int Prototype { get; set; } //類別名稱
 
         public int SelectedPrice { get; set; }
 

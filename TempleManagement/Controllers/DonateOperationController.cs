@@ -301,7 +301,7 @@ namespace TempleManagement.Controllers
             var basicinfo_dict = basicinfo.ToDictionary(x => x.MID);
             var donateIndividuals_dict = donateIndividuals.ToDictionary(x => x.MID);
             var donateHouseholds_dict = donateHouseholds.ToDictionary(x => x.HouseID);
-            var donateTypes_dict = donateTypes.ToDictionary(x => x.Name); //使用管理者不可去變動的Name
+            var donateTypes_dict = donateTypes.ToDictionary(x => x.ID); // 更改為ＩＤ
 
             var householdmember_houseid = householdmember.OrderBy(x => x.House_ID).GroupBy(x => x.House_ID); //依照 house_id區分，並先按house_id排列
 
@@ -345,91 +345,121 @@ namespace TempleManagement.Controllers
                         //才能點燈 大小斗
                         if (donateHouseholds_m.Dipper_big)
                         {
-                            don.Dipper_price = donateTypes_dict["Dipper_big"].Price; //未來開放新增修改donatetype有問題
-                            don.Dipper_name = donateTypes_dict["Dipper_big"].Name_chinese;
+                            don.Dipper_price = donateTypes_dict[1].Price; //未來開放新增修改donatetype有問題
+                            don.Dipper_name = donateTypes_dict[1].Name_chinese;
 
                             donateitem.Add(new DonationItem
                             {
-                                DonateTypeId = donateTypes_dict["Dipper_big"].ID,
-                                Name_chinese = donateTypes_dict["Dipper_big"].Name_chinese,
-                                SelectedPrice = donateTypes_dict["Dipper_big"].Price,
-                                Prototype_name = donateTypes_dict["Dipper_big"].Prototype_name,
+                                DonateTypeId = donateTypes_dict[1].ID,
+                                Name_chinese = donateTypes_dict[1].Name_chinese,
+                                SelectedPrice = donateTypes_dict[1].Price,
+                                Prototype_name = donateTypes_dict[1].Prototype_name,
                             });
                             
                         }
                         else if (donateHouseholds_m.Dipper_small)
                         {
-                            don.Dipper_price = donateTypes_dict["Dipper_small"].Price;
-                            don.Dipper_name = donateTypes_dict["Dipper_small"].Name_chinese;
+                            don.Dipper_price = donateTypes_dict[2].Price;
+                            don.Dipper_name = donateTypes_dict[2].Name_chinese;
 
                             donateitem.Add(new DonationItem
                             {
-                                DonateTypeId = donateTypes_dict["Dipper_small"].ID,
-                                Name_chinese = donateTypes_dict["Dipper_small"].Name_chinese,
-                                SelectedPrice = donateTypes_dict["Dipper_small"].Price,
-                                Prototype_name = donateTypes_dict["Dipper_small"].Prototype_name,
+                                DonateTypeId = donateTypes_dict[2].ID,
+                                Name_chinese = donateTypes_dict[2].Name_chinese,
+                                SelectedPrice = donateTypes_dict[2].Price,
+                                Prototype_name = donateTypes_dict[2].Prototype_name,
                             });
                         }
 
                         /*
                          * 把這邏輯改成 NeedDipper = true 
+                         * 以開發階段，為光明燈、平安燈
                          */
-                        //foreach(var dipper_case in donateTypes.Where(x=> x.NeedDipper==true).GroupBy(g=>g.NeedDipper==true))
+
+                        foreach (var dipper_case in donateTypes.Where(x => x.NeedDipper == true))
+                        {
+                            var selected = donateTypes_dict[dipper_case.ID];
+
+                            donateitem.Add(new DonationItem
+                            {
+                                DonateTypeId = selected.ID,
+                                Name_chinese = selected.Name_chinese,
+                                SelectedPrice = selected.Price,
+                                Prototype_name = selected.Prototype_name,
+                            });
+                        }
+
+                        /*
+                         * 舊的SQL設計版本
+                         * 光明燈、平安燈
+                         */
+                        // 判斷光明燈價位
+                        //if ((donateHouseholds_m.Dipper_big || donateHouseholds_m.Dipper_small) && (donateIndividuals_m.DonateItem_idv.Any(x=>x.DonateTypeId>=5 && x.DonateTypeId <=8)))
                         //{
-                        //    don.Blessinglight_price = donateTypes_dict[donateIndividuals_m.Blessinglight].Price; //未來 donateIndividual 存入的必須是 donateType名稱
+                        //    var selected = donateTypes_dict[donateIndividuals_m.DonateItem_idv.FirstOrDefault(x => x.DonateTypeId >= 5 && x.DonateTypeId <= 8).DonateTypeId];
+
+                        //    don.Blessinglight_price = selected.Price; //未來 donateIndividual 存入的必須是 donateType名稱
                         //    donateitem.Add(new DonationItem
                         //    {
-                        //        DonateTypeId = donateTypes_dict[donateIndividuals_m.Blessinglight].ID,
-                        //        Name_chinese = donateTypes_dict[donateIndividuals_m.Blessinglight].Name_chinese,
-                        //        SelectedPrice = donateTypes_dict[donateIndividuals_m.Blessinglight].Price,
-                        //        Prototype_name = donateTypes_dict[donateIndividuals_m.Blessinglight].Prototype_name,
+                        //        DonateTypeId = selected.ID,
+                        //        Name_chinese = selected.Name_chinese,
+                        //        SelectedPrice = selected.Price,
+                        //        Prototype_name = selected.Prototype_name,
                         //    });
                         //}
 
+                        ////才能點燈 平安燈
+                        //if (donateHouseholds_m.Is_peacelight)
+                        //{
+                        //    don.Peacelight_price = donateTypes_dict[4].Price;
+                        //    don.Is_peacelight = true;
 
-                        // 判斷光明燈價位
-                        if ((donateHouseholds_m.Dipper_big || donateHouseholds_m.Dipper_small) && (donateIndividuals_m.Blessinglight != null || donateIndividuals_m.Blessinglight != ""))
-                        {
-                            don.Blessinglight_price = donateTypes_dict[donateIndividuals_m.Blessinglight].Price; //未來 donateIndividual 存入的必須是 donateType名稱
-                            donateitem.Add(new DonationItem
-                            {
-                                DonateTypeId = donateTypes_dict[donateIndividuals_m.Blessinglight].ID,
-                                Name_chinese = donateTypes_dict[donateIndividuals_m.Blessinglight].Name_chinese,
-                                SelectedPrice = donateTypes_dict[donateIndividuals_m.Blessinglight].Price,
-                                Prototype_name = donateTypes_dict[donateIndividuals_m.Blessinglight].Prototype_name,
-                            });
-                        }
-
-                        //才能點燈 平安燈
-                        if (donateHouseholds_m.Is_peacelight)
-                        {
-                            don.Peacelight_price = donateTypes_dict["PeaceLight"].Price;
-                            don.Is_peacelight = true;
-
-                            donateitem.Add(new DonationItem
-                            {
-                                DonateTypeId = donateTypes_dict["PeaceLight"].ID,
-                                Name_chinese = donateTypes_dict["PeaceLight"].Name_chinese,
-                                SelectedPrice = donateTypes_dict["PeaceLight"].Price,
-                                Prototype_name = donateTypes_dict["PeaceLight"].Prototype_name,
-                            });
-                        }
+                        //    donateitem.Add(new DonationItem
+                        //    {
+                        //        DonateTypeId = donateTypes_dict[4].ID,
+                        //        Name_chinese = donateTypes_dict[4].Name_chinese,
+                        //        SelectedPrice = donateTypes_dict[4].Price,
+                        //        Prototype_name = donateTypes_dict[4].Prototype_name,
+                        //    });
+                        //}
                     }
 
-                    if (donateHouseholds_m.Is_taisui) //判斷安太歲
+                    /*
+                    * 把這邏輯改成 NeedDipper = true 
+                    * 以開發階段，為光明燈、平安燈
+                    */
+                    foreach (var dipper_case in donateTypes.Where(x => x.NeedDipper == false && x.ID>2)) // ID >2 為安斗除外
                     {
-                        don.Is_taisui = true;
-                        don.Taisui_price = donateTypes_dict["Taisui"].Price;
+                        var selected = donateTypes_dict[dipper_case.ID];
 
                         donateitem.Add(new DonationItem
                         {
-                            DonateTypeId = donateTypes_dict["Taisui"].ID,
-                            Name_chinese = donateTypes_dict["Taisui"].Name_chinese,
-                            SelectedPrice = donateTypes_dict["Taisui"].Price,
-                            Prototype_name = donateTypes_dict["Taisui"].Prototype_name,
+                            DonateTypeId = selected.ID,
+                            Name_chinese = selected.Name_chinese,
+                            SelectedPrice = selected.Price,
+                            Prototype_name = selected.Prototype_name,
                         });
-                        Debug.WriteLine("有太歲");
                     }
+
+                    /*
+                    * 舊的SQL設計版本
+                    * 光明燈、平安燈
+                    */
+                    //if (donateHouseholds_m.Is_taisui) //判斷安太歲
+                    //{
+                    //    don.Is_taisui = true;
+                    //    don.Taisui_price = donateTypes_dict[3].Price;
+
+                    //    donateitem.Add(new DonationItem
+                    //    {
+                    //        DonateTypeId = donateTypes_dict[3].ID,
+                    //        Name_chinese = donateTypes_dict[3].Name_chinese,
+                    //        SelectedPrice = donateTypes_dict[3].Price,
+                    //        Prototype_name = donateTypes_dict[3].Prototype_name,
+                    //    });
+                    //    Debug.WriteLine("有太歲");
+                    //}
+
                     don.Donate_item = donateitem;
 
                     don_list.Add(don);

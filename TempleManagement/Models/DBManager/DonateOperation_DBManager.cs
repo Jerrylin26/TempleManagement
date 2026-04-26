@@ -68,7 +68,7 @@ namespace TempleManagement.Models.DBManager
          */
 
         // 順序很重要，在create時，會mapping
-        private static string[] column_array_donation_individual = { "di_id", "mid", "blessinglight600", "blessinglight700", "blessinglight800", "blessinglight1000" };
+        private static string[] column_array_donation_individual = { "di_id", "mid", "donatetypeid" };
         private static string column_donation_individual = string.Join(",", column_array_donation_individual);
 
         // donation_individual
@@ -156,8 +156,8 @@ namespace TempleManagement.Models.DBManager
         /*
          Create: create_donation_individual()
          Read: get_donation_individual()
-         Update: update_donation_individual()
-         Delete: delete_donation_individual()
+         Update: 
+         Delete: 
         */
         // 取得donation_individual資料表
         public async Task<List<DonateIndividual>> get_donation_individual()
@@ -166,43 +166,83 @@ namespace TempleManagement.Models.DBManager
             await conn.OpenAsync();
 
             NpgsqlCommand cmd;
-            List<DonateIndividual> Infos = new List<DonateIndividual>();
-
-
 
             cmd = new NpgsqlCommand(
-                $"SELECT * FROM donation_individual ",
+                """
+                SELECT
+                    di.di_id,
+                    di.mid,
+                    di.note AS individual_note,
+
+                    dt.id AS donate_type_id,
+                    dt.name,
+                    dt.name_chinese,
+                    dt.price,
+                    dt.note AS donate_type_note,
+                    dt.needdipper,
+
+                    dp.id AS prototype_id,
+                    dp.prototype_name
+                FROM donation_individual di
+                JOIN donatetype dt
+                    ON di.donatetypeid = dt.id
+                JOIN donatetype_prototype dp
+                    ON dt.prototype = dp.id;
+
+                """,
                 conn);
 
+            // 使用dict 一筆筆蒐集，以MID當作key
+            var donateDict = new Dictionary<int, DonateIndividual>();
 
             await using (var reader = await cmd.ExecuteReaderAsync())
             {
                 int ordinal_di_id = reader.GetOrdinal("di_id");
                 int ordinal_mid = reader.GetOrdinal("mid");
-                int ordinal_blessinglight = reader.GetOrdinal("blessinglight");
+                int ordinal_prototype_name = reader.GetOrdinal("prototype_name");
+                int ordinal_prototype_id = reader.GetOrdinal("prototype_id");
+                int ordinal_price = reader.GetOrdinal("price");
+                int ordinal_name_chinese = reader.GetOrdinal("name_chinese");
+                int ordinal_note = reader.GetOrdinal("donate_type_note");
+                int ordinal_donate_type_id = reader.GetOrdinal("donate_type_id");
 
-                int ordinal_note = reader.GetOrdinal("note");
-
-
+                
                 while (await reader.ReadAsync())
                 {
-                    DonateIndividual Info = new DonateIndividual
+                    int mid = reader.IsDBNull(ordinal_mid) ? 0 : reader.GetInt32(ordinal_mid);
+
+                    if (!donateDict.ContainsKey(mid))
                     {
+                        donateDict[mid] = new DonateIndividual
+                        {
+                            DI_ID = reader.IsDBNull(ordinal_di_id) ? 0 : reader.GetInt32(ordinal_di_id),
 
-                        DI_ID = reader.IsDBNull(ordinal_di_id) ? 0 : reader.GetInt32(ordinal_di_id),
-                        MID = reader.IsDBNull(ordinal_mid) ? 0 : reader.GetInt32(ordinal_mid),
-                        Blessinglight = reader.IsDBNull(ordinal_blessinglight) ? "" : reader.GetString(ordinal_blessinglight),
+                            MID = mid,
 
-                        Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
+                            Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
 
-                    };
+                            DonateItem_idv = new List<DonationItem>()
+                        };
+                    }
 
-                    Infos.Add(Info);
+                    donateDict[mid].DonateItem_idv.Add(
+                        new DonationItem
+                        {
+                            DonateTypeId = reader.IsDBNull(ordinal_donate_type_id) ? 0 : reader.GetInt32(ordinal_donate_type_id),
 
+                            Name_chinese = reader.IsDBNull(ordinal_name_chinese) ? null : reader.GetString(ordinal_name_chinese),
+
+                            Prototype_name = reader.IsDBNull(ordinal_prototype_name) ? null : reader.GetString(ordinal_prototype_name),
+
+                            Prototype = reader.IsDBNull(ordinal_prototype_id) ? 0 : reader.GetInt32(ordinal_prototype_id),
+
+                            SelectedPrice = reader.IsDBNull(ordinal_price) ? 0 : reader.GetInt32(ordinal_price)
+                        }
+                    );
                 }
-                ;
-
             }
+            var Infos = donateDict.Values.ToList();
+
             Debug.WriteLine($"check return back to controller: get_donation_individual => {JsonSerializer.Serialize(Infos)}");
 
             return Infos;
@@ -210,13 +250,14 @@ namespace TempleManagement.Models.DBManager
         }
 
         // create donation_individual
+        // 設計成一次一筆DonateType，而非一起insert
         public async Task create_donation_individual(DonateIndividual user)
         {
             Debug.WriteLine("start insert");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_individual(mid, blessinglight, note) VALUES(@mid, @blessinglight, @note)", conn);
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_individual(mid, donatetypeid, note) VALUES(@mid, @donatetypeid, @note)", conn);
 
             // 抓取最新MID ，也就是剛建好的
             BasicInfo_DBManager basicInfo_DBManager = new BasicInfo_DBManager();
@@ -226,7 +267,8 @@ namespace TempleManagement.Models.DBManager
             Debug.WriteLine(JsonSerializer.Serialize(basicInfo));
 
             cmd.Parameters.AddWithValue("@mid", basicInfo[0].MID == null ? DBNull.Value : basicInfo[0].MID);
-            cmd.Parameters.AddWithValue("@blessinglight", user.Blessinglight == null ? DBNull.Value : user.Blessinglight);
+            // 每次呼叫此函式，只會傳送一筆 donatetypeid
+            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateItem_idv.First().DonateTypeId == null ? DBNull.Value : user.DonateItem_idv.First().DonateTypeId);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
 

@@ -50,7 +50,7 @@ namespace TempleManagement.Controllers
                 await donateOperation_dbManager.create_donation_individual(new DonateIndividual
                 {
                     //MID = info.MID, 有更正寫在此函式庫裡，抓的MID
-                    Blessinglight = null,
+                    DonateItem_idv = new List<DonationItem>(),
                     Note = null
                 });
 
