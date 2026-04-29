@@ -61,7 +61,7 @@ namespace TempleManagement.Models.DBManager
          */
 
         // 順序很重要，在create時，會mapping
-        private static string[] column_array_donatetype = { "id", "name", "name_chinese", "price","prototype", "needdipper", "note", "modifydate" };
+        private static string[] column_array_donatetype = { "id", "name", "name_chinese", "price","prototype", "needdipper","category", "note", "modifydate" };
         private static string column_donatetype = string.Join(",", column_array_donatetype);
 
         // donatetype
@@ -82,7 +82,7 @@ namespace TempleManagement.Models.DBManager
 
 
             cmd = new NpgsqlCommand(
-                $"SELECT * FROM donatetype JOIN donatetype_prototype ON donatetype.prototype=donatetype_prototype.id",
+                $"SELECT * FROM donatetype JOIN donatetype_prototype ON donatetype.prototype=donatetype_prototype.id JOIN DonateType_Category ON DonateType_Category.id=donatetype.category",
                 conn);
 
 
@@ -94,6 +94,8 @@ namespace TempleManagement.Models.DBManager
                 int ordinal_price = reader.GetOrdinal("price");
                 int ordinal_prototype = reader.GetOrdinal("prototype");
                 int ordinal_prototype_name = reader.GetOrdinal("prototype_name");
+                int ordinal_category = reader.GetOrdinal("category");
+                int ordinal_category_name = reader.GetOrdinal("category_name");
                 int ordinal_note = reader.GetOrdinal("note");
                 int ordinal_needdipper = reader.GetOrdinal("needdipper");
                 int ordinal_modifydate = reader.GetOrdinal("modifydate");
@@ -113,6 +115,8 @@ namespace TempleManagement.Models.DBManager
                         Prototype_name = reader.IsDBNull(ordinal_prototype_name) ? "" : reader.GetString(ordinal_prototype_name),
                         Note = reader.IsDBNull(ordinal_note) ? "" : reader.GetString(ordinal_note),
                         ModifyDate = reader.IsDBNull(ordinal_modifydate) ? null : reader.GetDateTime(ordinal_modifydate),
+                        Category = reader.IsDBNull(ordinal_category) ? 0 : reader.GetInt32(ordinal_category),
+                        Category_name = reader.IsDBNull(ordinal_category_name) ? "" : reader.GetString(ordinal_category_name),
 
                     };
 
@@ -175,7 +179,7 @@ namespace TempleManagement.Models.DBManager
                         donateType.Note = data.Note;
                         donateType.Name = data.Name;
                         donateType.Name_chinese = data.Name_chinese;
-                        donateType.Prototype = data.Prototype;
+                        donateType.Prototype = data.Prototype; // 這與Category其實不能讓管理者update
 
                         await dBManager.update_donatetype(donateType);
                     }
@@ -215,7 +219,7 @@ namespace TempleManagement.Models.DBManager
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donatetype(name, name_chinese, price, note, prototype) VALUES(@name, @name_chinese, @price, @note, @prototype)", conn);
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donatetype(name, name_chinese, price, note, prototype, needdipper, category) VALUES(@name, @name_chinese, @price, @note, @prototype, @needdipper, @category)", conn);
 
 
             cmd.Parameters.AddWithValue("@name", user.Name == null ? DBNull.Value : user.Name);
@@ -223,6 +227,8 @@ namespace TempleManagement.Models.DBManager
             cmd.Parameters.AddWithValue("@price", user.Price);
             cmd.Parameters.AddWithValue("@prototype", user.Prototype);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+            cmd.Parameters.AddWithValue("@needdipper", user.NeedDipper);
+            cmd.Parameters.AddWithValue("@category", user.Category);
 
             Debug.WriteLine("完成insert");
 
@@ -237,12 +243,12 @@ namespace TempleManagement.Models.DBManager
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET  name_chinese=@name_chinese, price=@price,  note=@note, prototype=@protot  where id = @id", conn);
+            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET  name_chinese=@name_chinese, price=@price,  note=@note where id = @id", conn);
 
             cmd.Parameters.AddWithValue("@id", user.ID);
             cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
             cmd.Parameters.AddWithValue("@price", user.Price);
-            cmd.Parameters.AddWithValue("@prototype", user.Prototype);
+            //cmd.Parameters.AddWithValue("@prototype", user.Prototype);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
 

@@ -35,13 +35,17 @@
             <table class="w3-table-all w3-xlarge fixed-table">
                 <colgroup>
                     <col style="width: 15%;">
+                    <col style="width: 10%;">
+                    <col style="width: 10%;">
                     <col style="width: 15%;">
-                    <col style="width: 30%;">
+                    <col style="width: 15%;">
                     <col style="width: 30%;">
                 </colgroup>
 
                 <tr>
                     <th>類別</th>
+                    <th>是否需安斗</th>
+                    <th>種類</th>
                     <th>選項</th>
                     <th>價格</th>
                     <th>備註</th>
@@ -56,13 +60,29 @@
                         {
                             <tr>
                                 <th>@infos.First().Prototype_name</th>
+                                <td>
+                                    @if (infos.First().NeedDipper || infos.First().ID<=2)
+                                    {
+                                        <input checked="" class="check_dipper" type="checkbox" disabled>
+                                    }
+                                    else
+                                    {
+                                        <input checked="" class="no_check_dipper" type="checkbox" disabled>
+                                    }
+
+                                </td>
+                                <td>@infos.First().Category_name</td>
                             </tr>
+                            
                             @foreach (var info in infos)
                             {
                             <tr data-id="@info.ID">
                                 <td>
                                     <input type="text" class="cell-edit-input" name="donateTypes[@count].Prototype" maxlength="10" value="@info.Prototype" hidden>
                                 </td>
+                                <td></td>
+                                <td></td>
+                                
                                 <td>
                                     <input type="text" class="cell-edit-input" name="donateTypes[@count].Name_chinese" maxlength="10" value="@info.Name_chinese" disabled>
                                 </td>

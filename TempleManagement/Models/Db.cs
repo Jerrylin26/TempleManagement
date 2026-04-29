@@ -86,8 +86,12 @@ namespace TempleManagement.Models
         public DateTime? ModifyDate { get; set; }
 
         public int Prototype { get; set; } // DB: DonateType_Prototype 拿來分類所屬類別
-        public string Prototype_name { get; set; } 
-        public bool NeedDipper { get; set; } // 標記需要Dipper(有安斗的項目) *大小斗我都設false
+        public string? Prototype_name { get; set; }
+
+        public int Category { get; set; } // 分類 (戶、個人) 區別
+        public string? Category_name { get; set; }
+
+        public bool NeedDipper { get; set; } // 標記需要Dipper(有安斗的項目) *大小斗我都設false (故意的)
 
     }
 
@@ -118,17 +122,23 @@ namespace TempleManagement.Models
 
     }
 
+    // 下一步 從這裡改SQL結構
     public class DonateHousehold
     {
         public int DH_ID { get; set; } // primary key 
         public int HouseID { get; set; } //與 basicInfo primary key對應
-        public bool Is_dipper { get; set; }
-        public bool Is_taisui { get; set; }
-        public bool Is_peacelight { get; set; }
-        public bool Dipper_big { get; set; }
-        public bool Dipper_small { get; set; }
+
+        // V1更改SQL結構
+        //public bool Is_dipper { get; set; }
+        //public bool Is_taisui { get; set; }
+        //public bool Is_peacelight { get; set; }
+        //public bool Dipper_big { get; set; }
+        //public bool Dipper_small { get; set; }
 
         public string? Note { get; set; }
+
+        // V1 改資料表結構 : 會動到系統運作
+        public List<DonationItem> DonateItem_idv { get; set; } //把Donate 放入這class
 
     }
 
@@ -145,11 +155,12 @@ namespace TempleManagement.Models
         public bool Is_taisui { get; set; }
         public bool Is_peacelight { get; set; }
 
-        public string? Dipper_name { get; set; }
-        public int Dipper_price { get; set; }
-        public int Peacelight_price { get; set; }
-        public int Blessinglight_price { get; set; }
-        public int Taisui_price { get; set; }
+        // V1更改SQL結構
+        //public string? Dipper_name { get; set; }
+        //public int Dipper_price { get; set; }
+        //public int Peacelight_price { get; set; }
+        //public int Blessinglight_price { get; set; }
+        //public int Taisui_price { get; set; }
 
         // 即將把DonateItem 整合一起 
         public List<DonationItem>? Donate_item { get; set; }
@@ -165,6 +176,8 @@ namespace TempleManagement.Models
         public string Name_chinese { get; set; } // 自己捐贈名稱
         public string Prototype_name { get; set; } //類別名稱
         public int Prototype { get; set; } //類別名稱
+        public string Category_name { get; set; } //種類名稱
+        public int Category { get; set; } //種類名稱
 
         public int SelectedPrice { get; set; }
 
@@ -187,6 +200,13 @@ namespace TempleManagement.Models
     public class DonationViewModel
     {
         public List<DonateQuery> DonateQuery { get; set; }
+        public List<DonateType> DonateType { get; set; }
+    }
+
+    // 在 DonateQuery 需要 DonateQuery + DonateType
+    public class DonationViewModel_DonateQuery
+    {
+        public List<List<DonateQuery>> DonateQuery { get; set; }
         public List<DonateType> DonateType { get; set; }
     }
 }

@@ -43,8 +43,8 @@
             <td>
                 @if (member.Is_dipper)
                 {
-                    <input checked="" class="check_dipper" type="checkbox" disabled>
-                    <span>@member.Dipper_name</span>
+                    <input checked="" class="check_dipper" type="checkbox" >
+                    <span>@member.Donate_item.Where(x=>x.DonateTypeId<=2).FirstOrDefault()?.Name_chinese</span>
                 }
                 else
                 {
@@ -66,6 +66,8 @@
                 }
             </td>
 
+
+            <!-- 下次調這裡即時 更新價格-->
             @foreach (var type in Model.DonateType.GroupBy(g=>g.Prototype).Where(x=>x.Key!=1))
             {
                 <td>
@@ -96,17 +98,18 @@
             <td>
                 @if (member.Is_head == true)
                 {
-                    <div>@(member.Taisui_price + member.Blessinglight_price + member.Dipper_price + member.Peacelight_price)</div>
+                    <div>@(member.Donate_item?.Sum(x => x.SelectedPrice) ?? 0)</div>
+
                     if (member.Is_dipper)
                     {
-                        <div>(@member.Dipper_name :@member.Dipper_price)</div>
+                        <div>(@member.Donate_item.Where(x => x.DonateTypeId <= 2).First().Name_chinese :@member.Donate_item.Where(x => x.DonateTypeId <= 2).First().SelectedPrice)</div>
                     }
 
 
                 }
                 else
                 {
-                    <div>@(member.Taisui_price + member.Blessinglight_price + member.Peacelight_price)</div>
+                    <div>@(member.Donate_item.Where(x => x.DonateTypeId > 2).Sum(x => x.SelectedPrice))</div>
                 }
 
             </td>

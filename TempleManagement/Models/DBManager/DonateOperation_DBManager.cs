@@ -39,7 +39,7 @@ namespace TempleManagement.Models.DBManager
          */
 
         // 順序很重要，在create時，會mapping
-        private static string[] column_array = { "dh_id", "houseid", "is_dipper", "is_taisui", "is_peacelight", "dipper_big", "dipper_small", "note" };
+        private static string[] column_array = { "dh_id", "houseid", "donatetype_id", "note" };
         private static string column = string.Join(",", column_array);
 
         // donation_household
@@ -54,7 +54,7 @@ namespace TempleManagement.Models.DBManager
          */
 
         // 順序很重要，在create時，會mapping
-        private static string[] column_array_donatetype = { "id", "name", "name_chinese", "price","prototype", "note", "modifydate" };
+        private static string[] column_array_donatetype = { "id", "name", "name_chinese", "price","prototype", "note", "modifydate", "needdipper", "category" };
         private static string column_donatetype = string.Join(",", column_array_donatetype);
 
         // donatetype
@@ -182,12 +182,17 @@ namespace TempleManagement.Models.DBManager
                     dt.needdipper,
 
                     dp.id AS prototype_id,
-                    dp.prototype_name
+                    dp.prototype_name,
+
+                    dc.id AS category_id,
+                    dc.category_name
                 FROM donation_individual di
                 JOIN donatetype dt
                     ON di.donatetypeid = dt.id
                 JOIN donatetype_prototype dp
-                    ON dt.prototype = dp.id;
+                    ON dt.prototype = dp.id
+                JOIN donatetype_category dc
+                    ON dc.id = dt.category;
 
                 """,
                 conn);
@@ -201,6 +206,8 @@ namespace TempleManagement.Models.DBManager
                 int ordinal_mid = reader.GetOrdinal("mid");
                 int ordinal_prototype_name = reader.GetOrdinal("prototype_name");
                 int ordinal_prototype_id = reader.GetOrdinal("prototype_id");
+                int ordinal_category_name = reader.GetOrdinal("category_name");
+                int ordinal_category_id = reader.GetOrdinal("category_id");
                 int ordinal_price = reader.GetOrdinal("price");
                 int ordinal_name_chinese = reader.GetOrdinal("name_chinese");
                 int ordinal_note = reader.GetOrdinal("donate_type_note");
@@ -235,6 +242,10 @@ namespace TempleManagement.Models.DBManager
                             Prototype_name = reader.IsDBNull(ordinal_prototype_name) ? null : reader.GetString(ordinal_prototype_name),
 
                             Prototype = reader.IsDBNull(ordinal_prototype_id) ? 0 : reader.GetInt32(ordinal_prototype_id),
+
+                            Category_name= reader.IsDBNull(ordinal_category_name) ? null : reader.GetString(ordinal_category_name),
+
+                            Category = reader.IsDBNull(ordinal_category_id) ? 0 : reader.GetInt32(ordinal_category_id),
 
                             SelectedPrice = reader.IsDBNull(ordinal_price) ? 0 : reader.GetInt32(ordinal_price)
                         }
@@ -293,49 +304,93 @@ namespace TempleManagement.Models.DBManager
             await conn.OpenAsync();
 
             NpgsqlCommand cmd;
-            List<DonateHousehold> Infos = new List<DonateHousehold>();
-
-
 
             cmd = new NpgsqlCommand(
-                $"SELECT * FROM donation_household ",
+                """
+                SELECT
+                    dh.dh_id,
+                    dh.houseid,
+
+                    dt.id AS donate_type_id,
+                    dt.name,
+                    dt.name_chinese,
+                    dt.price,
+                    dt.note AS donate_type_note,
+                    dt.needdipper,
+
+                    dp.id AS prototype_id,
+                    dp.prototype_name,
+
+                    dc.id AS category_id,
+                    dc.category_name
+                FROM donation_household dh
+                JOIN donatetype dt
+                    ON dh.donatetype_id = dt.id
+                JOIN donatetype_prototype dp
+                    ON dt.prototype = dp.id
+                JOIN donatetype_category dc
+                    ON dc.id = dt.category;
+
+                """,
                 conn);
 
+            // 使用dict 一筆筆蒐集，以houseid當作key
+            var donateDict = new Dictionary<int, DonateHousehold>();
 
             await using (var reader = await cmd.ExecuteReaderAsync())
             {
                 int ordinal_dh_id = reader.GetOrdinal("dh_id");
                 int ordinal_houseid = reader.GetOrdinal("houseid");
-                int ordinal_is_dipper = reader.GetOrdinal("is_dipper");
-                int ordinal_is_taisui = reader.GetOrdinal("is_taisui");
-                int ordinal_is_peacelight = reader.GetOrdinal("is_peacelight");
-                int ordinal_dipper_big = reader.GetOrdinal("dipper_big");
-                int ordinal_dipper_small = reader.GetOrdinal("dipper_small");
-                int ordinal_note = reader.GetOrdinal("note");
+                int ordinal_prototype_name = reader.GetOrdinal("prototype_name");
+                int ordinal_prototype_id = reader.GetOrdinal("prototype_id");
+                int ordinal_category_name = reader.GetOrdinal("category_name");
+                int ordinal_category_id = reader.GetOrdinal("category_id");
+                int ordinal_price = reader.GetOrdinal("price");
+                int ordinal_name_chinese = reader.GetOrdinal("name_chinese");
+                int ordinal_note = reader.GetOrdinal("donate_type_note");
+                int ordinal_donate_type_id = reader.GetOrdinal("donate_type_id");
 
 
                 while (await reader.ReadAsync())
                 {
-                    DonateHousehold Info = new DonateHousehold
+                    int houseid = reader.IsDBNull(ordinal_houseid) ? 0 : reader.GetInt32(ordinal_houseid);
+
+                    if (!donateDict.ContainsKey(houseid))
                     {
+                        donateDict[houseid] = new DonateHousehold
+                        {
+                            DH_ID = reader.IsDBNull(ordinal_dh_id) ? 0 : reader.GetInt32(ordinal_dh_id),
 
-                        DH_ID = reader.IsDBNull(ordinal_dh_id) ? 0 : reader.GetInt32(ordinal_dh_id),
-                        HouseID = reader.IsDBNull(ordinal_houseid) ? 0 : reader.GetInt32(ordinal_houseid),
-                        Is_dipper = reader.IsDBNull(ordinal_is_dipper) ? false : reader.GetBoolean(ordinal_is_dipper),
-                        Is_peacelight = reader.IsDBNull(ordinal_is_peacelight) ? false : reader.GetBoolean(ordinal_is_peacelight),
-                        Is_taisui = reader.IsDBNull(ordinal_is_taisui) ? false : reader.GetBoolean(ordinal_is_taisui),
-                        Dipper_big = reader.IsDBNull(ordinal_dipper_big) ? false : reader.GetBoolean(ordinal_dipper_big),
-                        Dipper_small = reader.IsDBNull(ordinal_dipper_small) ? false : reader.GetBoolean(ordinal_dipper_small),
-                        Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
+                            HouseID = reader.IsDBNull(ordinal_houseid) ? 0 : reader.GetInt32(ordinal_houseid),
 
-                    };
+                            Note = reader.IsDBNull(ordinal_note) ? null : reader.GetString(ordinal_note),
 
-                    Infos.Add(Info);
+                            DonateItem_idv = new List<DonationItem>()
+                        };
+                    }
+
+                    donateDict[houseid].DonateItem_idv.Add(
+                        new DonationItem
+                        {
+                            DonateTypeId = reader.IsDBNull(ordinal_donate_type_id) ? 0 : reader.GetInt32(ordinal_donate_type_id),
+
+                            Name_chinese = reader.IsDBNull(ordinal_name_chinese) ? null : reader.GetString(ordinal_name_chinese),
+
+                            Prototype_name = reader.IsDBNull(ordinal_prototype_name) ? null : reader.GetString(ordinal_prototype_name),
+
+                            Prototype = reader.IsDBNull(ordinal_prototype_id) ? 0 : reader.GetInt32(ordinal_prototype_id),
+
+                            Category_name = reader.IsDBNull(ordinal_category_name) ? null : reader.GetString(ordinal_category_name),
+
+                            Category = reader.IsDBNull(ordinal_category_id) ? 0 : reader.GetInt32(ordinal_category_id),
+
+                            SelectedPrice = reader.IsDBNull(ordinal_price) ? 0 : reader.GetInt32(ordinal_price)
+                        }
+                    );
 
                 }
-                ;
-
             }
+            var Infos = donateDict.Values.ToList();
             Debug.WriteLine($"check return back to controller: get_donation_household => {JsonSerializer.Serialize(Infos)}");
 
             return Infos;
@@ -349,15 +404,11 @@ namespace TempleManagement.Models.DBManager
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_household(houseid, is_dipper, is_taisui, is_peacelight, dipper_big, dipper_small, note) VALUES(@houseid, @is_dipper, @is_taisui, @is_peacelight, @dipper_big, @dipper_small, @note)", conn);
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_household(houseid, donatetype_id, note) VALUES(@houseid, @donatetype_id, @note)", conn);
 
 
             cmd.Parameters.AddWithValue("@houseid", user.HouseID == null ? DBNull.Value : user.HouseID);
-            cmd.Parameters.AddWithValue("@is_dipper", user.Is_dipper == null ? DBNull.Value : user.Is_dipper);
-            cmd.Parameters.AddWithValue("@is_taisui", user.Is_taisui == null ? DBNull.Value : user.Is_taisui);
-            cmd.Parameters.AddWithValue("@is_peacelight", user.Is_peacelight == null ? DBNull.Value : user.Is_peacelight);
-            cmd.Parameters.AddWithValue("@dipper_big", user.Dipper_big == null ? DBNull.Value : user.Dipper_big);
-            cmd.Parameters.AddWithValue("@dipper_small", user.Dipper_small == null ? DBNull.Value : user.Dipper_small);
+            cmd.Parameters.AddWithValue("@donatetype_id", user.DonateItem_idv.First().DonateTypeId == null ? DBNull.Value : user.DonateItem_idv.First().DonateTypeId);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
             Debug.WriteLine("完成insert create_donation_household");

@@ -264,7 +264,18 @@ namespace TempleManagement.Controllers
             //傳給前端的，分成以戶為單位
             List<List<DonateQuery>> donateQuery = await IDonateQuery();
 
-            return View(donateQuery);
+            DonationViewModel_DonateQuery merge_info = new DonationViewModel_DonateQuery();
+
+
+            // DonateType
+            DonateType_DBManager dBManager = new DonateType_DBManager();
+            List<DonateType> info_donatetype = await dBManager.get_donatetype();
+            info_donatetype = info_donatetype.OrderBy(g => g.Price).ToList();
+
+            merge_info.DonateType = info_donatetype;
+            merge_info.DonateQuery = donateQuery;
+
+            return View(merge_info);
 
         }
 
@@ -305,7 +316,7 @@ namespace TempleManagement.Controllers
 
             var householdmember_houseid = householdmember.OrderBy(x => x.House_ID).GroupBy(x => x.House_ID); //依照 house_id區分，並先按house_id排列
 
-
+            Debug.WriteLine($"{JsonSerializer.Serialize(donateIndividuals)}");
 
             // 用戶號遞迴，依序列出每名成員
             foreach (var householdmembers in householdmember_houseid)
@@ -314,6 +325,7 @@ namespace TempleManagement.Controllers
 
                 foreach (var member in householdmembers) // 排序按照申請先後順序 (也等同編號)
                 {
+                    Debug.WriteLine($"memberid: {member.MemberID}");
                     var basicinfo_m = basicinfo_dict[member.MemberID];
                     var donateIndividuals_m = donateIndividuals_dict[member.MemberID];
                     var donateHouseholds_m = donateHouseholds_dict[member.House_ID];
@@ -338,15 +350,13 @@ namespace TempleManagement.Controllers
 
                     
                     //判斷安斗
-                    if (donateHouseholds_m.Is_dipper)
+                    if (donateHouseholds_m.DonateItem_idv.Any(x=>x.DonateTypeId <= 2)) // 小斗:2    大斗:1
                     {
                         don.Is_dipper = true;
 
                         //才能點燈 大小斗
-                        if (donateHouseholds_m.Dipper_big)
+                        if (donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId == 1))
                         {
-                            don.Dipper_price = donateTypes_dict[1].Price; //未來開放新增修改donatetype有問題
-                            don.Dipper_name = donateTypes_dict[1].Name_chinese;
 
                             donateitem.Add(new DonationItem
                             {
@@ -354,13 +364,14 @@ namespace TempleManagement.Controllers
                                 Name_chinese = donateTypes_dict[1].Name_chinese,
                                 SelectedPrice = donateTypes_dict[1].Price,
                                 Prototype_name = donateTypes_dict[1].Prototype_name,
+                                Prototype = donateTypes_dict[1].Prototype,
+                                Category = donateTypes_dict[1].Category,
+                                Category_name = donateTypes_dict[1].Category_name,
                             });
                             
                         }
-                        else if (donateHouseholds_m.Dipper_small)
+                        else if (donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId == 2))
                         {
-                            don.Dipper_price = donateTypes_dict[2].Price;
-                            don.Dipper_name = donateTypes_dict[2].Name_chinese;
 
                             donateitem.Add(new DonationItem
                             {
@@ -368,6 +379,9 @@ namespace TempleManagement.Controllers
                                 Name_chinese = donateTypes_dict[2].Name_chinese,
                                 SelectedPrice = donateTypes_dict[2].Price,
                                 Prototype_name = donateTypes_dict[2].Prototype_name,
+                                Prototype = donateTypes_dict[2].Prototype,
+                                Category = donateTypes_dict[2].Category,
+                                Category_name = donateTypes_dict[2].Category_name,
                             });
                         }
 
@@ -375,18 +389,25 @@ namespace TempleManagement.Controllers
                          * 把這邏輯改成 NeedDipper = true 
                          * 以開發階段，為光明燈、平安燈
                          */
-
+                        
                         foreach (var dipper_case in donateTypes.Where(x => x.NeedDipper == true))
                         {
-                            var selected = donateTypes_dict[dipper_case.ID];
-
-                            donateitem.Add(new DonationItem
+                            if (donateIndividuals_m.DonateItem_idv.Any(x => x.DonateTypeId == dipper_case.ID) || donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId == dipper_case.ID))
                             {
-                                DonateTypeId = selected.ID,
-                                Name_chinese = selected.Name_chinese,
-                                SelectedPrice = selected.Price,
-                                Prototype_name = selected.Prototype_name,
-                            });
+                                var selected = donateTypes_dict[dipper_case.ID];
+
+                                donateitem.Add(new DonationItem
+                                {
+                                    DonateTypeId = selected.ID,
+                                    Name_chinese = selected.Name_chinese,
+                                    SelectedPrice = selected.Price,
+                                    Prototype_name = selected.Prototype_name,
+                                    Prototype = selected.Prototype,
+                                    Category = selected.Category,
+                                    Category_name = selected.Category_name,
+                                });
+                            }
+                            
                         }
 
                         /*
@@ -430,15 +451,21 @@ namespace TempleManagement.Controllers
                     */
                     foreach (var dipper_case in donateTypes.Where(x => x.NeedDipper == false && x.ID>2)) // ID >2 為安斗除外
                     {
-                        var selected = donateTypes_dict[dipper_case.ID];
-
-                        donateitem.Add(new DonationItem
+                        if (donateIndividuals_m.DonateItem_idv.Any(x => x.DonateTypeId == dipper_case.ID) || donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId == dipper_case.ID))
                         {
-                            DonateTypeId = selected.ID,
-                            Name_chinese = selected.Name_chinese,
-                            SelectedPrice = selected.Price,
-                            Prototype_name = selected.Prototype_name,
-                        });
+                            var selected = donateTypes_dict[dipper_case.ID];
+
+                            donateitem.Add(new DonationItem
+                            {
+                                DonateTypeId = selected.ID,
+                                Name_chinese = selected.Name_chinese,
+                                SelectedPrice = selected.Price,
+                                Prototype_name = selected.Prototype_name,
+                                Prototype = selected.Prototype,
+                                Category = selected.Category,
+                                Category_name = selected.Category_name,
+                            });
+                        }
                     }
 
                     /*
@@ -461,6 +488,7 @@ namespace TempleManagement.Controllers
                     //}
 
                     don.Donate_item = donateitem;
+                    Debug.WriteLine($"檢查donateitem{JsonSerializer.Serialize(donateitem)}");
 
                     don_list.Add(don);
                 }
