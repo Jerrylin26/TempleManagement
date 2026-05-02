@@ -155,12 +155,6 @@ namespace TempleManagement.Models
         public bool Is_taisui { get; set; }
         public bool Is_peacelight { get; set; }
 
-        // V1更改SQL結構
-        //public string? Dipper_name { get; set; }
-        //public int Dipper_price { get; set; }
-        //public int Peacelight_price { get; set; }
-        //public int Blessinglight_price { get; set; }
-        //public int Taisui_price { get; set; }
 
         // 即將把DonateItem 整合一起 
         public List<DonationItem>? Donate_item { get; set; }
@@ -177,9 +171,20 @@ namespace TempleManagement.Models
         public string Prototype_name { get; set; } //類別名稱
         public int Prototype { get; set; } //類別名稱
         public string Category_name { get; set; } //種類名稱
-        public int Category { get; set; } //種類名稱
+        public int Category { get; set; } //種類
 
         public int SelectedPrice { get; set; }
+
+
+    }
+
+    // 選好捐贈項目，post出去
+    public class DonationSubmit
+    {
+        public int DonateTypeId { get; set; } 
+        public int MID { get; set; }
+        public int HouseId { get; set; }
+        public string? Note { get; set; }
 
 
     }

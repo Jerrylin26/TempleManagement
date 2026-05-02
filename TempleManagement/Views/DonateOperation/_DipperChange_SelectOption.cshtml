@@ -74,8 +74,7 @@
                         }
 
                     </select>
-                    <div style="font:10px; color:indianred">*先選安斗</div>
-                    
+
 
                     <!-- 為了給出DonateTypeId -->
                     <input type="hidden" name="DonationSubmit[@index].HouseId" value="@member.HouseID" />
@@ -109,7 +108,7 @@
 
                                 @* <div>@type.First().Prototype_name</div> *@
                                 <select name="DonationSubmit[@index].DonateTypeId" data-index="@count" class="category">
-                                    <option value="998" class="price_ajax" data-value="0">無</option>
+                                    <option value="999" class="price_ajax" data-value="0">無</option>
 
                                 </select>
 
@@ -119,7 +118,7 @@
                             {
                                 @* <div>@type.First().Prototype_name</div> *@
                                 <select name="DonationSubmit[@index].DonateTypeId" data-index="@count" class="category">
-                                    <option value="997" class="price_ajax" data-value="0">無</option>
+                                    <option value="999" class="price_ajax" data-value="0">無</option>
                                     @foreach (var item in type)
                                     {
                                         @if (member.Donate_item.Any(x => x.DonateTypeId == item.ID))
@@ -138,7 +137,7 @@
 
                                 </select>
                             }
-                            
+
 
                             <!-- 為了給出MID -->
                             <!-- 想一下怎麼對應到正確的MID -->
@@ -254,7 +253,7 @@
 
                                 </select>
                             }
-                            
+
 
                             <!-- 為了給出DonateTypeId -->
                             <input type="hidden" name="DonationSubmit[@index].MID" value="@member.MID" />
@@ -303,12 +302,12 @@
         let index = $(this).data('index');
 
         let total = 0;
-  
+
         // ⭐ 只抓同一列
         $(`select[data-index="${index}"]`).each(function () {
             let selectedOption = $(this).find('option:selected');
             let val = parseInt(selectedOption.data('value')) || 0;
-    
+
             total += val;
         });
         $(`.total_price_${index}`).text(total);
@@ -319,7 +318,7 @@
 
 <!-- 即時更新大小斗 -->
 <script>
-    $('#donation_submit').on('change', '.category_dipper', function () {
+    $(document).on('change', '.category_dipper', function () {
 
         let index = $(this).data('index');
         let selected = $(this).find('option:selected');
@@ -332,8 +331,9 @@
 
         // 抓 安斗名稱
         let dipper = selected.data('dipper');
-      
+
         html = `${dipper} :${price}`;
+
 
 
         let formData = $('#donation_submit').serialize();
@@ -346,7 +346,6 @@
             success: function (result) {
 
                 $('#Change_to_Donation_create').html(result);
-                $('#donation_submit')[0].reset();
 
             },
             error: function (xhr, status, error) {
@@ -370,7 +369,7 @@
             url: "/DonateOperation/Donation_Submit",
             data: formData,
 
-          
+
         });
     });
 </script>
