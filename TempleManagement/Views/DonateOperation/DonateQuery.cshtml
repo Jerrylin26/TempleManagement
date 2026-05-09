@@ -39,8 +39,8 @@
 <span id="btn_2">
     <button class="button-25" id="modify_button" role="button"> 新增捐獻</button>
 </span>
-<span>
-    <button class="button-24" id="donation_submit_btn" role="button"> 確定送出</button>
+<span id="submit_donation">
+    <button class="button-24" id="donation_submit_btn" role="button" hidden> 確定送出</button>
 </span>
 
 <br />
@@ -58,7 +58,7 @@
                 <col style="width: 10%;">
                 <col style="width: 10%;">
                 <col style="width: 10%;">
-                <col style="width: 15%;">
+                <col style="width: 10%;">
                 <col style="width: 10%;">
                 <col style="width: 10%;">
                 <col style="width: 15%;">
@@ -110,7 +110,7 @@
                     @foreach (var type in Model.DonateType.GroupBy(g => g.Prototype).Where(x => x.Key != 1))
                     {
                         <td>
-                            <div>@type.First().Prototype_name</div>
+                            @* <div>@type.First().Prototype_name</div> *@
                             
                             @foreach (var item in type)
                             {
@@ -144,7 +144,7 @@
 
                     </td>
                     <td>
-                        <textarea class="cell-edit-textarea">@member.Note</textarea>
+                        <textarea class="cell-edit-textarea" disabled>@member.Note</textarea>
                     </td>
 
                 </tr>

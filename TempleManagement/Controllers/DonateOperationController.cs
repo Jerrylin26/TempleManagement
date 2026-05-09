@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
 using TempleManagement.Models;
 using TempleManagement.Models.DBManager;
@@ -49,39 +50,41 @@ namespace TempleManagement.Controllers
             //傳給前端的，分成以戶為單位
 
             // 當安斗從 無 -> 大/小斗， 抓取DB資訊 (考量到管理者亂按，遺失上次資訊，而未需修改)
-            bool Is_getDB = DonationSubmit.Any(x => x.DonateTypeId == 999);
+            bool Is_get_DonationSubmit = DonationSubmit.Any(x => x.DonateTypeId == 999);
             DonationSubmit = DonationSubmit.Where(x=>x.DonateTypeId!=999).ToList(); // 刻意設 DonateTypeId=999 為 選項[無] ，把它移掉
 
             
             List<DonateQuery> donateQuery;
             // 判斷回傳到html 資料模式
-            if(Is_getDB)
+            if(Is_get_DonationSubmit)
             {
-                Debug.WriteLine("NA_Is_getDB");
+                Debug.WriteLine("Is_get_DonationSubmit");
                 donateQuery = await IDonateQuery_basedOn_DonationSubmit(DonationSubmit);
             }
-            else // 無 -> 安斗
+            else // ? -> 安斗
             {
                 int Dipper = 0;
-                if (DonationSubmit.Any(x => x.DonateTypeId <= 2))
+                if (DonationSubmit.Any(x => x.DonateTypeId <= 2 && x.DonateTypeId>0))
                 {
-                    Dipper = DonationSubmit.FirstOrDefault(x => x.DonateTypeId <= 2).DonateTypeId;
+                    Dipper = DonationSubmit.FirstOrDefault(x => x.DonateTypeId <= 2 && x.DonateTypeId > 0).DonateTypeId;
                 }
 
                 if(Dipper == 0) { throw new Exception("錯誤 安斗"); }
 
-                Debug.WriteLine("Is_getDB");
-                List<List<DonateQuery>> donateQuery_all = await IDonateQuery(true, Dipper); // 加入true 解決還原當初DB資料 但是安斗會改變
-                var houseId = DonationSubmit.FirstOrDefault()?.HouseId;
+                var houseId = DonationSubmit.FirstOrDefault().HouseId;
+                Debug.WriteLine($"NA_Is_get_DonationSubmit: {Dipper}");
+                List<List<DonateQuery>> donateQuery_all = await IDonateQuery(true, Dipper, houseId); // 加入true 解決還原當初DB資料 但是安斗會改變
+                
 
                 donateQuery = donateQuery_all
                     .FirstOrDefault(x => x.Any() && x.First().HouseID == houseId)
                     ?? new List<DonateQuery>();
             }
 
+            Debug.WriteLine($"donateQuery: {JsonSerializer.Serialize(donateQuery)}");
 
-                // 使用DonationViewModel 拿大資料
-                DonationViewModel merge_info = new DonationViewModel();
+            // 使用DonationViewModel 拿大資料
+            DonationViewModel merge_info = new DonationViewModel();
 
 
             // DonateType
@@ -107,7 +110,7 @@ namespace TempleManagement.Controllers
         public async Task<IActionResult> Donation_Submit(List<DonationSubmit> DonationSubmit)
         {
 
-            Debug.WriteLine("start post_selected_option()");
+            Debug.WriteLine("start Donation_Submit()");
 
             Debug.WriteLine(JsonSerializer.Serialize(DonationSubmit));
 
@@ -127,6 +130,168 @@ namespace TempleManagement.Controllers
                 return Json(new { success = false, message = "資料驗證失敗" });
             }
 
+            // DB資料
+            DonateOperation_DBManager db_manager = new DonateOperation_DBManager();
+            List<DonateHousehold> household_info = await db_manager.get_donation_household();
+            var household_dict = household_info.ToDictionary(d=> d.HouseID);
+
+            // 判斷用的 donatetype
+            DonateType_DBManager donateType_DBManager = new DonateType_DBManager();
+
+
+            // groupid : 這一批以household 為單位 的更動
+            Guid updateId = Guid.NewGuid();
+
+            // household 級別 donation
+            // DonateTypeId = 0 納入 
+            foreach (var household in DonationSubmit.Where(x => x.HouseId != 0 ).GroupBy(x => x.HouseId))
+            {
+                // 同個 houseid 判斷誰沒被選到，為 DB 有 submit 沒有, delete
+                List<DonateType> donatetype = await donateType_DBManager.get_donatetype();
+                var donatetype_check = donatetype.Where(x=>x.Category==1).ToList();
+
+                foreach (var item in household) // category = 1
+                {
+
+                    // 如果有對應donatetypeid
+                    // DB == submit, 更新 (update note)
+                    // DB 有 submit 沒有, delete
+                    // DB 沒有 submit 有, insert
+                    
+                    if (household_info.Any(g=>g.HouseID==household.FirstOrDefault()?.HouseId && g.DonateItem_idv.Any(x=>x.DonateTypeId == item.DonateTypeId) ))
+                    {
+                        // 更新 donate_household DB (更新自己)
+                        await db_manager.update_donation_household(item);
+                    }
+                    else
+                    {
+                        // 判斷是不是同prototype 如小斗換大斗
+                        if (household_info.Any(g => g.HouseID == household.FirstOrDefault()?.HouseId && g.DonateItem_idv.Any(x=>x.Prototype == donatetype_check.FirstOrDefault(x => x.ID == item.DonateTypeId)?.Prototype)))
+                        {
+                            // 更新 donate_household DB (更新同prototype)
+                            await db_manager.update_prototype_donation_household(item);
+                        }
+                        else
+                        {
+                            if (item.DonateTypeId == 0 || item.DonateTypeId == 999)
+                            {
+                                // 刪除 delete donation_household
+                                await db_manager.delete_donation_household(item);
+                            }
+                            else
+                            {
+                                // 新增 insert (之前DB沒有)
+                                await db_manager.create_donation_household(item);
+                            }
+                                
+                        }
+
+                            
+                    }
+
+
+
+                    // 更新 donate_operation DB
+                    // 要記錄每次儲存 完整Donatetype 狀態
+                    if (item.DonateTypeId !=0)
+                    {
+                        Debug.WriteLine($"{donatetype.FirstOrDefault(x => x.ID == item.DonateTypeId)?.Name_chinese}");
+
+                        DonateOperation donateOperation = new DonateOperation
+                        {
+                            DonateTypeId = item.DonateTypeId,
+                            HouseID = item.HouseId,
+                            Note = item.Note,
+                            Price = donatetype.FirstOrDefault(g => g.ID == item.DonateTypeId)?.Price,
+
+                        };
+
+                        await db_manager.create_donateOperation(donateOperation, updateId);
+                    }
+                    
+                }
+
+
+            
+            }
+
+
+            // DB資料
+            List<DonateIndividual> individual_info = await db_manager.get_donation_individual();
+            var individual_dict = individual_info.ToDictionary(d => d.MID);
+
+            // individual 級別 donation
+            foreach (var members in DonationSubmit.Where(x => x.MID != 0 ).GroupBy(x => x.MID))
+            {
+                // 同個 mid 判斷誰沒被選到，為 DB 有 submit 沒有, delete
+                List<DonateType> donatetype = await donateType_DBManager.get_donatetype();
+                var donatetype_check = donatetype.Where(x => x.Category == 2).ToList();
+
+                foreach (var member in members)
+                {
+                    Debug.WriteLine($"{member.MID}");
+                    // 如果有對應donatetypeid
+                    // DB == submit, 更新 (update note)
+                    // DB 有 submit 沒有, delete
+                    // DB 沒有 submit 有, insert
+
+                    Debug.WriteLine($"{donatetype.FirstOrDefault(x => x.ID == member.DonateTypeId)?.Name_chinese}");
+
+
+                    // 這行錯 因為本來上一輪沒有儲存 這次卻拿MID=18
+                    if (individual_info.Any(g => g.MID == members.FirstOrDefault()?.MID && g.DonateItem_idv.Any(x => x.DonateTypeId == member.DonateTypeId)))
+                    {
+                        // 更新 donate_individual DB
+                        await db_manager.update_donation_individual(member);
+                    }
+                    else
+                    {
+                        // 判斷是不是同prototype 如光明二 換 光明四
+                        if (individual_info.Any(g => g.MID == members.FirstOrDefault()?.MID && g.DonateItem_idv.Any(x => x.Prototype == donatetype_check.FirstOrDefault(x => x.ID == member.DonateTypeId)?.Prototype)))
+                        {
+                            // 更新 donate_individual DB for prototype
+                            await db_manager.update_prototype_donation_individual(member);
+                        }
+                        else
+                        {
+                            if (member.DonateTypeId == 0)
+                            {
+                                // 刪除 delete donation_individual
+                                await db_manager.delete_donation_individual(member);
+                            }
+                            else
+                            {
+                                // 新增 insert
+                                await db_manager.create_donation_individual(member);
+                            }
+                                
+                        }
+                            
+                    }
+
+
+
+                    // 更新 donate_operation DB
+
+                    if (member.DonateTypeId != 0)
+                    {
+                        DonateOperation donateOperation = new DonateOperation
+                        {
+                            DonateTypeId = member.DonateTypeId,
+                            MID = member.MID,
+                            Note = member.Note,
+                            Price = donatetype.FirstOrDefault(g => g.ID == member.DonateTypeId)?.Price,
+
+                        };
+
+                        await db_manager.create_donateOperation(donateOperation, updateId);
+                    }
+                    ;
+
+                    
+                }
+
+            }
 
 
             return Json(new {success = true });
@@ -408,7 +573,7 @@ namespace TempleManagement.Controllers
         }
 
         // 做成 Interface給 DonateQuery()
-        public async Task<List<List<DonateQuery>>> IDonateQuery(bool Is_NoDipper = false, int Dipper=1)
+        public async Task<List<List<DonateQuery>>> IDonateQuery(bool Is_NoDipper = false, int Dipper=1, int houseid=1)
         {
             // DB: householdmember 
             // DB: donation_individual 
@@ -444,7 +609,7 @@ namespace TempleManagement.Controllers
 
             var householdmember_houseid = householdmember.OrderBy(x => x.House_ID).GroupBy(x => x.House_ID); //依照 house_id區分，並先按house_id排列
 
-            Debug.WriteLine($"{JsonSerializer.Serialize(donateIndividuals)}");
+            Debug.WriteLine($"donateHouseholds_dict: {JsonSerializer.Serialize(donateHouseholds_dict)}");
 
             // 用戶號遞迴，依序列出每名成員
             foreach (var householdmembers in householdmember_houseid)
@@ -463,7 +628,10 @@ namespace TempleManagement.Controllers
                         {
                             DonateItem_idv = new List<DonationItem>()
                         };
-                    var donateHouseholds_m = donateHouseholds_dict[member.House_ID];
+                    var donateHouseholds_m = donateHouseholds.FirstOrDefault(x=>x.HouseID == member.House_ID) ?? new DonateHousehold
+                    {
+                        DonateItem_idv = new List<DonationItem>()
+                    };
 
                     DonateQuery don = new DonateQuery();
 
@@ -483,21 +651,47 @@ namespace TempleManagement.Controllers
                         don.Is_head = true;
                     }
 
+
+
                     // 加入判斷 無 -> 安斗 復原DB資料 但Dipper有變更
-                    if (Is_NoDipper)
+                    /*
+                     * 情況1:原本有安斗，只是要變更安斗(包含需要/不需要變更)
+                     * 情況2:原本沒有安斗，需要加入安斗
+                     */
+                    if (Is_NoDipper && houseid==member.House_ID) // 只修改特定houseid
                     {
-                        foreach (var item in donateHouseholds_m.DonateItem_idv.Where(x => x.DonateTypeId <= 2))
+                        // 情況2
+                        if (!donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId <= 2 && x.DonateTypeId > 0))
+                        {
+                            donateHouseholds_m.DonateItem_idv.Add(new DonationItem
+                            {
+                                DonateTypeId = Dipper,
+                                Name_chinese = donateTypes_dict[Dipper].Name_chinese,
+                                SelectedPrice = donateTypes_dict[Dipper].Price,
+                                Prototype_name = donateTypes_dict[Dipper].Prototype_name,
+                                Prototype = donateTypes_dict[Dipper].Prototype,
+                                Category = donateTypes_dict[Dipper].Category,
+                                Category_name = donateTypes_dict[Dipper].Category_name
+                            });
+                        }
+
+                        // 情況1
+                        foreach (var item in donateHouseholds_m.DonateItem_idv.Where(x => x.DonateTypeId <= 2 && x.DonateTypeId > 0))
                         {
                             item.DonateTypeId = Dipper;
                             item.SelectedPrice = donateTypes_dict[Dipper].Price;
                             item.Name_chinese = donateTypes_dict[Dipper].Name_chinese;
+
                         }
+                        
                     }
+
+                    Debug.WriteLine($"donateHouseholds_m: {JsonSerializer.Serialize(donateHouseholds_m)}");
 
 
                     //判斷安斗 
                     // 照著 Donatetype 邏輯，所以沒有安斗，資料送不出來
-                    if (donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId <= 2)) // 小斗:2    大斗:1
+                    if (donateHouseholds_m.DonateItem_idv.Any(x => x.DonateTypeId <= 2 && x.DonateTypeId > 0)) // 小斗:2    大斗:1
                     {
                         don.Is_dipper = true;
 
@@ -599,7 +793,7 @@ namespace TempleManagement.Controllers
 
                 donateQuery.Add(don_list);
             }
-            Debug.WriteLine($"donateQuery check: {JsonSerializer.Serialize(donateQuery)}");
+            Debug.WriteLine($"IDonateQuery check: {JsonSerializer.Serialize(donateQuery)}");
             return donateQuery;
 
         }
@@ -666,7 +860,6 @@ namespace TempleManagement.Controllers
                             {
                                 DonateItem_idv = new List<DonationItem>()
                             };
-                        var donateHouseholds_m = donateHouseholds_dict[member.House_ID];
 
                         // 更改處在這
                         var donationSubmits_idv_m = donationSubmits_dict_idv[member.MemberID];
@@ -695,7 +888,7 @@ namespace TempleManagement.Controllers
 
                         //判斷安斗 
                         // 照著 Donatetype 邏輯，所以沒有安斗，資料送不出來
-                        if (donationSubmits_household_m.Any(x=>x.DonateTypeId <= 2)) // 小斗:2    大斗:1
+                        if (donationSubmits_household_m.Any(x=>x.DonateTypeId <= 2 && x.DonateTypeId >0 )) // 小斗:2    大斗:1
                         {
                             don.Is_dipper = true;
 
@@ -735,7 +928,7 @@ namespace TempleManagement.Controllers
                              * 抓 (需安斗 + 不需安斗)
                              */
 
-                            foreach (var dipper_case in donateTypes.Where(x=>x.ID>2)) // 排除安斗
+                            foreach (var dipper_case in donateTypes.Where(x=>x.ID>2)) // 排除安斗 及 無 0
                             {
                                 if (donationSubmits_idv_m.Any(x=>x.DonateTypeId == dipper_case.ID) || donationSubmits_household_m.Any(x => x.DonateTypeId == dipper_case.ID))
                                 {

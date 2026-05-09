@@ -99,10 +99,11 @@ namespace TempleManagement.Models
     public class DonateOperation
     {
         public int DonationID { get; set; } // primary key 
-        public int MID { get; set; } //與 basicInfo primary key對應
+        public int MID { get; set; } // donatetype 類別為individual *只會紀錄 mid 沒houseid
+        public int HouseID { get; set; } // donatetype 類別為household * 同理上面規則
         public DateTime? Date { get; set; }
-        public int Price { get; set; }
-        public string? Donation_type { get; set; }
+        public int? Price { get; set; }
+        public int? DonateTypeId { get; set; }
 
         public string? Note { get; set; }
 
@@ -128,12 +129,6 @@ namespace TempleManagement.Models
         public int DH_ID { get; set; } // primary key 
         public int HouseID { get; set; } //與 basicInfo primary key對應
 
-        // V1更改SQL結構
-        //public bool Is_dipper { get; set; }
-        //public bool Is_taisui { get; set; }
-        //public bool Is_peacelight { get; set; }
-        //public bool Dipper_big { get; set; }
-        //public bool Dipper_small { get; set; }
 
         public string? Note { get; set; }
 
@@ -152,8 +147,6 @@ namespace TempleManagement.Models
         public bool? Is_head { get; set; }
 
         public bool Is_dipper { get; set; }
-        public bool Is_taisui { get; set; }
-        public bool Is_peacelight { get; set; }
 
 
         // 即將把DonateItem 整合一起 
@@ -181,7 +174,8 @@ namespace TempleManagement.Models
     // 選好捐贈項目，post出去
     public class DonationSubmit
     {
-        public int DonateTypeId { get; set; } 
+        public int DonateTypeId { get; set; }
+        public int Prototype { get; set; } // 判斷要刪除的 類型
         public int MID { get; set; }
         public int HouseId { get; set; }
         public string? Note { get; set; }

@@ -187,6 +187,9 @@
                 modal.hide();
 
                 $('#Change_to_Donation_create').html(result);
+
+                var html = `<button class="button-24" id="donation_submit_btn" role="button"> 確定送出</button>`;
+                $('#submit_donation').html(html);
             },
             error: function () {
                 alert("發生錯誤");

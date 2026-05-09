@@ -79,11 +79,14 @@ namespace TempleManagement.Models.DBManager
             NpgsqlCommand cmd;
             List<DonateType> Infos = new List<DonateType>();
 
-
-
+            
+            
             cmd = new NpgsqlCommand(
-                $"SELECT * FROM donatetype JOIN donatetype_prototype ON donatetype.prototype=donatetype_prototype.id JOIN DonateType_Category ON DonateType_Category.id=donatetype.category",
-                conn);
+            $"SELECT * FROM donatetype JOIN donatetype_prototype ON donatetype.prototype=donatetype_prototype.id JOIN DonateType_Category ON DonateType_Category.id=donatetype.category",
+            conn);
+            
+
+            
 
 
             await using (var reader = await cmd.ExecuteReaderAsync())
@@ -276,64 +279,6 @@ namespace TempleManagement.Models.DBManager
 
         }
 
-        /*
-        // 取得HouseholdMember資料表 資料 by BasicInfo info
-        public async Task<List<HouseholdMember>> getHousehold_by_basicinfo(BasicInfo info)
-        {
-            using var conn = new NpgsqlConnection(connectionString_postgresql);
-            await conn.OpenAsync();
-
-            NpgsqlCommand cmd;
-            List<HouseholdMember> Infos = new List<HouseholdMember>();
-
-
-
-            cmd = new NpgsqlCommand(
-                $"SELECT * FROM HouseholdMember where house_id=(select house_id from HouseholdMember where memberid= @memberid) ",
-                conn);
-
-            cmd.Parameters.AddWithValue("@memberid", info.MID);
-            Debug.WriteLine($"{info.MID}");
-            Debug.WriteLine($"{cmd.CommandText}");
-
-
-            await using (var reader = await cmd.ExecuteReaderAsync())
-            {
-                int ordinal_householdid = reader.GetOrdinal("householdid");
-                int ordinal_memberid = reader.GetOrdinal("memberid");
-                int ordinal_member_no = reader.GetOrdinal("member_no");
-                int ordinal_house_id = reader.GetOrdinal("house_id");
-                int ordinal_is_head = reader.GetOrdinal("is_head");
-                int ordinal_start_date = reader.GetOrdinal("start_date");
-                int ordinal_end_date = reader.GetOrdinal("end_date");
-
-
-                while (await reader.ReadAsync())
-                {
-                    HouseholdMember Info = new HouseholdMember
-                    {
-
-                        HouseholdID = reader.IsDBNull(ordinal_householdid) ? 0 : reader.GetInt32(ordinal_householdid),
-                        MemberID = reader.IsDBNull(ordinal_memberid) ? 0 : reader.GetInt32(ordinal_memberid),
-                        Member_no = reader.IsDBNull(ordinal_member_no) ? 0 : reader.GetInt32(ordinal_member_no),
-                        House_ID = reader.IsDBNull(ordinal_house_id) ? 0 : reader.GetInt32(ordinal_house_id),
-                        Is_head = reader.IsDBNull(ordinal_is_head) ? false : reader.GetBoolean(ordinal_is_head),
-                        Start_date = reader.IsDBNull(ordinal_start_date) ? null : reader.GetDateTime(ordinal_start_date),
-                        End_date = reader.IsDBNull(ordinal_end_date) ? null : reader.GetDateTime(ordinal_end_date),
-
-                    };
-
-                    Infos.Add(Info);
-                    Debug.WriteLine($"getHousehold_by_basicinfo: info {JsonSerializer.Serialize(Info)}");
-                }
-                ;
-
-            }
-            Debug.WriteLine($"getHousehold_by_basicinfo: check return back to controller{JsonSerializer.Serialize(Infos)}");
-
-            return Infos;
-
-        }
-        */
+        
     }
 }

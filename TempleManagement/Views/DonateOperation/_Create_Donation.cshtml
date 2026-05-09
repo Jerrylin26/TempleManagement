@@ -18,7 +18,7 @@
             <col style="width: 10%;">
             <col style="width: 10%;">
             <col style="width: 10%;">
-            <col style="width: 15%;">
+            <col style="width: 10%;">
             <col style="width: 10%;">
             <col style="width: 10%;">
             <col style="width: 15%;">
@@ -56,7 +56,7 @@
                     <select name="DonationSubmit[@index].DonateTypeId" data-index="@count" class="category_dipper">
                         <option value="999" class="price_ajax" data-dipper="0" data-value="0">無</option>
 
-                        @foreach (var item in Model.DonateType.Where(x => x.ID <= 2))
+                        @foreach (var item in Model.DonateType.Where(x => x.ID <= 2 && x.ID>0))
                         {
                             @if (member.Donate_item.Any(x => x.DonateTypeId == item.ID))
                             {
@@ -79,6 +79,7 @@
 
                     <!-- 為了給出DonateTypeId -->
                     <input type="hidden" name="DonationSubmit[@index].HouseId" value="@member.HouseID" />
+                    <input type="hidden" name="DonationSubmit[@index].Prototype" value="@Model.DonateType.FirstOrDefault(x => x.ID <= 2 && x.ID>0)?.Prototype" />
                     @{
                         index++;
                     }
@@ -109,7 +110,7 @@
 
                                 @* <div>@type.First().Prototype_name</div> *@
                                 <select name="DonationSubmit[@index].DonateTypeId" data-index="@count" class="category">
-                                    <option value="998" class="price_ajax" data-value="0">無</option>
+                                    <option value="0" class="price_ajax" data-value="0">無</option>
 
                                 </select>
 
@@ -119,7 +120,7 @@
                             {
                                 @* <div>@type.First().Prototype_name</div> *@
                                 <select name="DonationSubmit[@index].DonateTypeId" data-index="@count" class="category">
-                                    <option value="997" class="price_ajax" data-value="0">無</option>
+                                    <option value="0" class="price_ajax" data-value="0">無</option>
                                     @foreach (var item in type)
                                     {
                                         @if (member.Donate_item.Any(x => x.DonateTypeId == item.ID))
@@ -143,6 +144,7 @@
                             <!-- 為了給出MID -->
                             <!-- 想一下怎麼對應到正確的MID -->
                             <input type="hidden" name="DonationSubmit[@index].HouseId" value="@member.HouseID" />
+                            <input type="hidden" name="DonationSubmit[@index].Prototype" value="@type.FirstOrDefault()?.Prototype" />
                             @{
                                 index++;
                             }
@@ -164,7 +166,7 @@
                     <div class="total_price_@count">@(member.Donate_item.Where(x => x.Category == 1).Sum(x => x.SelectedPrice))</div>
                     @if (member.Is_dipper)
                     {
-                        <div class="dipper_price_ajax">(@member.Donate_item.Where(x => x.DonateTypeId <= 2).FirstOrDefault()?.Name_chinese :@member.Donate_item.Where(x => x.DonateTypeId <= 2).FirstOrDefault()?.SelectedPrice)</div>
+                        <div class="dipper_price_ajax">(@member.Donate_item.Where(x => x.DonateTypeId <= 2 && x.DonateTypeId > 0).FirstOrDefault()?.Name_chinese :@member.Donate_item.Where(x => x.DonateTypeId <= 2 && x.DonateTypeId > 0).FirstOrDefault()?.SelectedPrice)</div>
                     }
                     else
                     {
@@ -258,6 +260,7 @@
 
                             <!-- 為了給出DonateTypeId -->
                             <input type="hidden" name="DonationSubmit[@index].MID" value="@member.MID" />
+                            <input type="hidden" name="DonationSubmit[@index].Prototype" value="@type.FirstOrDefault()?.Prototype" />
                             @{
                                 index++;
                             }
@@ -278,7 +281,7 @@
                 </td>
 
                 <td>
-                    <textarea class="cell-edit-textarea">@member.Note</textarea>
+                    <textarea class="cell-edit-textarea" name="Note">@member.Note</textarea>
                 </td>
 
             </tr>
@@ -357,20 +360,41 @@
     });
 </script>
 
-<!-- 送出Donation 選項 -->
+<!-- 送出Donation 每個人捐獻結果 -->
 <script>
-    $(document).on('click', '#donation_submit_btn', function () {
+    $(document)
+        .off('click', '#donation_submit_btn')
+        .on('click', '#donation_submit_btn', function () {
 
-        let formData = $('#donation_submit').serialize();
+            let btn = $(this);
 
-        alert(`${formData}`);
+            btn.prop('disabled', true);
 
-        $.ajax({
-            type: "POST",
-            url: "/DonateOperation/Donation_Submit",
-            data: formData,
+            setTimeout(function () {
+                btn.prop('disabled', false);
+            }, 1000);
+
+            let formData = $('#donation_submit').serialize();
+
+            alert(`${formData}`);
+
+            $.ajax({
+                type: "POST",
+                url: "/DonateOperation/Donation_Submit",
+                data: formData,
+
+                success: function (result) {
+
+                    if(result.success){
+                        alert(`成功新增資料`);
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
 
           
+            });
         });
-    });
 </script>

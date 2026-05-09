@@ -41,32 +41,32 @@ namespace TempleManagement.Controllers
                 await dbManager.newBasicInfo(info);
 
                 
-                Debug.WriteLine("BDManager_newHouseholdMember");
-                await dbManager.newHouseholdMember(info);
+                //Debug.WriteLine("BDManager_newHouseholdMember");
+                //await dbManager.newHouseholdMember(info);
 
                 //之後要，寫入Donate_individual Donate_household
-                DonateOperation_DBManager donateOperation_dbManager = new DonateOperation_DBManager();
-                Debug.WriteLine("BDManager_newDonate_individual");
-                await donateOperation_dbManager.create_donation_individual(new DonateIndividual
-                {
-                    //MID = info.MID, 有更正寫在此函式庫裡，抓的MID
-                    DonateItem_idv = new List<DonationItem>(),
-                    Note = null
-                });
+                //DonateOperation_DBManager donateOperation_dbManager = new DonateOperation_DBManager();
+                //Debug.WriteLine("BDManager_newDonate_individual");
+                //await donateOperation_dbManager.create_donation_individual(new DonateIndividual
+                //{
+                //    //MID = info.MID, 有更正寫在此函式庫裡，抓的MID
+                //    DonateItem_idv = new List<DonationItem>(),
+                //    Note = null
+                //});
 
-                // 只有戶長才需要
-                if (info.Is_head)
-                {
-                    Debug.WriteLine("BDManager_newDonate_household");
+                //// 只有戶長才需要
+                //if (info.Is_head)
+                //{
+                //    Debug.WriteLine("BDManager_newDonate_household");
 
-                    HouseholdManagement_DBManager householdManagement_dbManager = new HouseholdManagement_DBManager();
-                    List<HouseholdMember> house_info = await householdManagement_dbManager.getHousehold_by_basicinfo(info); //實際上info沒作用，特地抓MID
+                //    HouseholdManagement_DBManager householdManagement_dbManager = new HouseholdManagement_DBManager();
+                //    List<HouseholdMember> house_info = await householdManagement_dbManager.getHousehold_by_basicinfo(info); //實際上info沒作用，特地抓MID
 
-                    await donateOperation_dbManager.create_donation_household(new DonateHousehold
-                    {
-                        HouseID = house_info[0].House_ID,
-                    });
-                }
+                //    await donateOperation_dbManager.create_donation_household(new DonateHousehold
+                //    {
+                //        HouseID = house_info[0].House_ID,
+                //    });
+                //}
                 
 
                 return Json(new { success = true, name = info.Name });

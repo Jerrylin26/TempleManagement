@@ -1,0 +1,16 @@
+﻿
+1. 架構圖
+IDonateQuery(bool Is_NoDipper = false, int Dipper=1, int houseid=1)
+
+參數說明: 
+	1. Is_NoDipper: 還原當初DB資料 但是安斗會改變
+	2. Dipper: 改成的安斗類型 (Is_NoDipper=true 才使用)
+	3. houseid: 戶號 (Is_NoDipper=true 才使用)
+
+安斗類型 =>
+
+1. 無 -> 大/小斗 : 抓DB資料(意味著還原當初狀態)，新增大小斗 *因為還原DB當初是沒有安斗資料
+
+2. 大/小斗 -> 大/小斗: 抓DB資料(意味著還原當初狀態)，更動安斗類型
+
+3. 大/小斗 -> 無: NeedDipper類型全部歸0，其餘不動 *防呆，避免沒安斗卻新增捐獻

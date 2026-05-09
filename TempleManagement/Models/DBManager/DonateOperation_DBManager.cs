@@ -95,9 +95,9 @@ namespace TempleManagement.Models.DBManager
         /*
          Create: create_donateOperation()
          Read: get_donateOperation()
-         Update: update_donateOperation()
-         Delete: delete_donateOperation()
-         特殊函式: show_record_donateOperation()
+         Update: 
+         Delete: 
+         特殊函式: 
         */
 
         // 取得donation_operation資料表
@@ -122,7 +122,7 @@ namespace TempleManagement.Models.DBManager
                 int ordinal_mid = reader.GetOrdinal("mid");
                 int ordinal_date = reader.GetOrdinal("date");
                 int ordinal_price = reader.GetOrdinal("price");
-                int ordinal_donation_type = reader.GetOrdinal("donation_type");
+                int ordinal_donatetypeid = reader.GetOrdinal("donatetypeid");
                 int ordinal_note = reader.GetOrdinal("note");
 
 
@@ -133,7 +133,7 @@ namespace TempleManagement.Models.DBManager
 
                         DonationID = reader.IsDBNull(ordinal_donationid) ? 0 : reader.GetInt32(ordinal_donationid),
                         MID = reader.IsDBNull(ordinal_mid) ? 0 : reader.GetInt32(ordinal_mid),
-                        Donation_type = reader.IsDBNull(ordinal_donation_type) ? "" : reader.GetString(ordinal_donation_type),
+                        DonateTypeId = reader.IsDBNull(ordinal_donatetypeid) ? 0 : reader.GetInt32(ordinal_donatetypeid),
                         Price = reader.IsDBNull(ordinal_price) ? 0 : reader.GetInt32(ordinal_price),
                         Note = reader.IsDBNull(ordinal_note) ? "" : reader.GetString(ordinal_note),
                         Date = reader.IsDBNull(ordinal_date) ? null : reader.GetDateTime(ordinal_date),
@@ -151,12 +151,41 @@ namespace TempleManagement.Models.DBManager
             return Infos;
 
         }
+
+        // create donateOperation
+        // 設計成一次一筆DonateType，而非一起insert
+        // 基本上就是每次變更的紀錄
+        public async Task create_donateOperation(DonateOperation user, Guid groupid)
+        {
+            Debug.WriteLine("start insert: create_donateOperation");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_operation(mid,houseid, donatetypeid, note, price, groupid) VALUES(@mid,@houseid, @donatetypeid, @note, @price, @groupid)", conn);
+
+
+            cmd.Parameters.AddWithValue("@mid", user.MID);
+            // 每次呼叫此函式，只會傳送一筆 donatetypeid
+            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateTypeId == null ? DBNull.Value : user.DonateTypeId);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+            cmd.Parameters.AddWithValue("@price", user.Price == null ? DBNull.Value : user.Price);
+            cmd.Parameters.AddWithValue("@houseid", user.HouseID);
+            cmd.Parameters.AddWithValue("@groupid", groupid);
+
+
+            Debug.WriteLine("完成insert");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
+
         /*---------------------------------------------------------------------------------------*/
 
         /*
          Create: create_donation_individual()
          Read: get_donation_individual()
-         Update: 
+         Update: update_donation_individual()
          Delete: 
         */
         // 取得donation_individual資料表
@@ -210,7 +239,7 @@ namespace TempleManagement.Models.DBManager
                 int ordinal_category_id = reader.GetOrdinal("category_id");
                 int ordinal_price = reader.GetOrdinal("price");
                 int ordinal_name_chinese = reader.GetOrdinal("name_chinese");
-                int ordinal_note = reader.GetOrdinal("donate_type_note");
+                int ordinal_note = reader.GetOrdinal("individual_note");
                 int ordinal_donate_type_id = reader.GetOrdinal("donate_type_id");
 
                 
@@ -262,9 +291,9 @@ namespace TempleManagement.Models.DBManager
 
         // create donation_individual
         // 設計成一次一筆DonateType，而非一起insert
-        public async Task create_donation_individual(DonateIndividual user)
+        public async Task create_donation_individual(DonationSubmit user)
         {
-            Debug.WriteLine("start insert");
+            Debug.WriteLine("start insert: create_donation_individual");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
@@ -277,9 +306,9 @@ namespace TempleManagement.Models.DBManager
             Debug.WriteLine("檢查create_donation_individual的basicinfo");
             Debug.WriteLine(JsonSerializer.Serialize(basicInfo));
 
-            cmd.Parameters.AddWithValue("@mid", basicInfo[0].MID == null ? DBNull.Value : basicInfo[0].MID);
+            cmd.Parameters.AddWithValue("@mid", user.MID == null ? DBNull.Value : user.MID);
             // 每次呼叫此函式，只會傳送一筆 donatetypeid
-            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateItem_idv.First().DonateTypeId == null ? DBNull.Value : user.DonateItem_idv.First().DonateTypeId);
+            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateTypeId == null ? DBNull.Value : user.DonateTypeId);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
 
@@ -289,13 +318,92 @@ namespace TempleManagement.Models.DBManager
 
         }
 
+        // 基本上 都是做update 因為一開始建立Basicinfo時 就會create donate_individual
+        public async Task update_donation_individual(DonationSubmit user)
+        {
+            Debug.WriteLine("start update");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"UPDATE donation_individual SET  note=@note where mid = @mid and donatetypeid=@donatetypeid", conn);
+
+            cmd.Parameters.AddWithValue("@mid", user.MID);
+            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateTypeId);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+
+
+            Debug.WriteLine("完成update");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
+        // for update 同prototype
+        public async Task update_prototype_donation_individual(DonationSubmit user)
+        {
+            Debug.WriteLine("start update");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(
+
+                """
+                UPDATE donation_individual ddi SET donatetypeid = @donatetypeid, note = @note 
+                where mid = @mid and donatetypeid IN
+                    (select dt.id from donatetype dt 
+                join donatetype_prototype dp 
+                    on dt.prototype = dp.id 
+                where prototype = @prototype)
+                
+                """
+                , conn);
+
+            cmd.Parameters.AddWithValue("@mid", user.MID);
+            cmd.Parameters.AddWithValue("@prototype", user.Prototype);
+            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateTypeId);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+
+
+            Debug.WriteLine("完成update");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
+        // delete 
+        public async Task delete_donation_individual(DonationSubmit user)
+        {
+            Debug.WriteLine("start delete");
+
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@"
+                DELETE FROM donation_individual
+                WHERE mid = @mid
+                AND donatetypeid IN
+                    (select dt.id from donatetype dt 
+                    join donatetype_prototype dp 
+                        on dt.prototype = dp.id 
+                    where prototype = @prototype)
+            ", conn);
+
+            cmd.Parameters.AddWithValue("@mid", user.MID);
+            cmd.Parameters.AddWithValue("@prototype", user.Prototype);
+            cmd.Parameters.AddWithValue("@donatetypeid", user.DonateTypeId);
+
+            int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+            Debug.WriteLine($"完成 delete_donation_individual");
+        }
+
         /*---------------------------------------------------------------------------------------*/
 
         /*
          Create: create_donation_household()
          Read: get_donation_household()
-         Update: 
-         Delete: 
+         Update: update_donation_household()
+         Delete: delete_donation_household()
         */
         // 取得donation_household資料表
         public async Task<List<DonateHousehold>> get_donation_household()
@@ -398,7 +506,7 @@ namespace TempleManagement.Models.DBManager
         }
 
         // create donation_household
-        public async Task create_donation_household(DonateHousehold user)
+        public async Task create_donation_household(DonationSubmit user)
         {
             Debug.WriteLine("start insert create_donation_household");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
@@ -407,8 +515,8 @@ namespace TempleManagement.Models.DBManager
             await using var cmd = new NpgsqlCommand(@$"INSERT INTO donation_household(houseid, donatetype_id, note) VALUES(@houseid, @donatetype_id, @note)", conn);
 
 
-            cmd.Parameters.AddWithValue("@houseid", user.HouseID == null ? DBNull.Value : user.HouseID);
-            cmd.Parameters.AddWithValue("@donatetype_id", user.DonateItem_idv.First().DonateTypeId == null ? DBNull.Value : user.DonateItem_idv.First().DonateTypeId);
+            cmd.Parameters.AddWithValue("@houseid", user.HouseId == null ? DBNull.Value : user.HouseId);
+            cmd.Parameters.AddWithValue("@donatetype_id", user.DonateTypeId == null ? DBNull.Value : user.DonateTypeId);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
 
             Debug.WriteLine("完成insert create_donation_household");
@@ -418,6 +526,83 @@ namespace TempleManagement.Models.DBManager
         }
 
 
-        
+        // 基本上 都是做update 因為一開始建立Basicinfo時 就會create donation_household
+        public async Task update_donation_household(DonationSubmit user)
+        {
+            Debug.WriteLine("start update");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@$"UPDATE donation_household SET  note=@note where houseid = @houseid and donatetype_id=@donatetype_id", conn);
+
+            cmd.Parameters.AddWithValue("@houseid", user.HouseId);
+            cmd.Parameters.AddWithValue("@donatetype_id", user.DonateTypeId);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+
+
+            Debug.WriteLine("完成update");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
+        // 為了更改同prototype不同donateid
+        public async Task update_prototype_donation_household(DonationSubmit user)
+        {
+            Debug.WriteLine("start update update_prototype_donation_household");
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(
+
+                """
+                UPDATE donation_household ddi SET donatetype_id = @donatetype_id, note = @note 
+                where houseid = @houseid and donatetype_id IN
+                    (select dt.id from donatetype dt 
+                join donatetype_prototype dp 
+                    on dt.prototype = dp.id 
+                where prototype = @prototype)
+                
+                """
+                , conn);
+
+            cmd.Parameters.AddWithValue("@houseid", user.HouseId);
+            cmd.Parameters.AddWithValue("@prototype", user.Prototype);
+            cmd.Parameters.AddWithValue("@donatetype_id", user.DonateTypeId);
+            cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
+
+
+            Debug.WriteLine("完成update");
+
+            await cmd.ExecuteNonQueryAsync();
+
+        }
+
+
+        // delete
+        public async Task delete_donation_household(DonationSubmit user)
+        {
+            Debug.WriteLine("start delete donation_household");
+
+            await using var conn = new NpgsqlConnection(connectionString_postgresql);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(@"
+                DELETE FROM donation_household
+                WHERE houseid = @houseid
+                AND donatetype_id IN 
+                    (select dt.id from donatetype dt 
+                    join donatetype_prototype dp 
+                        on dt.prototype = dp.id 
+                    where prototype = @prototype)
+            ", conn);
+
+            cmd.Parameters.AddWithValue("@houseid", user.HouseId);
+            cmd.Parameters.AddWithValue("@prototype", user.Prototype);
+
+            int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+            Debug.WriteLine($"完成 delete donation_household");
+        }
     }
 }
