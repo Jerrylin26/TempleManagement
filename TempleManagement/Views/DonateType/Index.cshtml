@@ -1,4 +1,4 @@
-﻿@*
+﻿﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
@@ -14,13 +14,13 @@
     <div class="w3-container my-table">
         <h2>捐獻類別管理</h2>
         <button class="btn btn-secondary dropdown-toggle" type="button" id="DonationTypeButton" data-bs-toggle="dropdown" aria-expanded="false">
-           全部
+            全部
         </button>
         <ul class="dropdown-menu" aria-labelledby="DonationTypeButton">
             <li><button class="dropdown-item" id="individual_search">個人(為單位)</button></li>
             <li><button class="dropdown-item" id="household_search">戶(為單位)</button></li>
             <li><button class="dropdown-item" id="all_search">全部</button></li>
-            
+
         </ul>
 
 
@@ -30,7 +30,7 @@
         <span id="btn_2">
             <button class="button-25" id="modify_button" role="button"> 修改</button>
         </span>
-        
+
         <form id="modify_type" method="POST">
             <table class="w3-table-all w3-xlarge fixed-table">
                 <colgroup>
@@ -50,39 +50,39 @@
                     <th>價格</th>
                     <th>備註</th>
                 </tr>
-                
+
 
                 <tbody id="search_change">
-                        @{
-                            var count = 0; //拿來全局使用
-                        }
-                        @foreach (var infos in Model)
-                        {
-                            <tr>
-                                <th>@infos.First().Prototype_name</th>
-                                <td>
-                                    @if (infos.First().NeedDipper || infos.First().ID<=2)
-                                    {
-                                        <input checked="" class="check_dipper" type="checkbox" disabled>
-                                    }
-                                    else
-                                    {
-                                        <input checked="" class="no_check_dipper" type="checkbox" disabled>
-                                    }
+                    @{
+                        var count = 0; //拿來全局使用
+                    }
+                    @foreach (var infos in Model)
+                    {
+                        <tr>
+                            <th>@infos.First().Prototype_name</th>
+                            <td>
+                                @if (infos.First().NeedDipper || infos.First().ID <= 2)
+                                {
+                                    <input checked="" class="check_dipper" type="checkbox"  disabled>
+                                }
+                                else
+                                {
+                                    <input checked="" class="no_check_dipper"  type="checkbox" disabled>
+                                }
 
-                                </td>
-                                <td>@infos.First().Category_name</td>
-                            </tr>
-                            
-                            @foreach (var info in infos)
-                            {
+                            </td>
+                            <td>@infos.First().Category_name</td>
+                        </tr>
+
+                        @foreach (var info in infos)
+                        {
                             <tr data-id="@info.ID">
                                 <td>
                                     <input type="text" class="cell-edit-input" name="donateTypes[@count].Prototype" maxlength="10" value="@info.Prototype" hidden>
                                 </td>
                                 <td></td>
                                 <td></td>
-                                
+
                                 <td>
                                     <input type="text" class="cell-edit-input" name="donateTypes[@count].Name_chinese" maxlength="10" value="@info.Name_chinese" disabled>
                                 </td>
@@ -94,15 +94,14 @@
                                 </td>
                             </tr>
                             count++;
-                            }
                         }
-                    @{
-                        
                     }
-    
-                </tbody>    
-                <tbody id="add_type_tr">
+                    @{
 
+                    }
+
+                </tbody>
+                <tbody id="add_type_tr">
                 </tbody>
             </table>
         </form>
@@ -123,35 +122,25 @@
     <br />
     <br />
 
-    
+
     <script src="~/js/ChangeHousehold/jquery-3.3.1.min.js"></script>
 
     <!--新增type button-->
     <script>
         let counter = 9999;
         $(document).on('click', '#Add_type', function () {
-                         
+
             let html = "";
 
             html += `
-                
-               <tr data-id="${counter}">
-                        
-                        
-                    <td style="display:flex; gap:20px;">
-                        <input name="donateTypes[${count}].ID" value="${counter}" hidden> 
 
-                        <button class="keycap delete_button" data-id="${count}" type="button">
-                            <aside class="letter">刪除</aside>
-                        </button>
-                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Name_chinese" maxlength="10" required>
-                    </td>
-                    <td>
-                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Price" maxlength="10" required>
-                    </td>
-                    <td>
-                        <textarea class="cell-edit-textarea" name="donateTypes[${count}].Note" placeholder="(備註可以不填)"></textarea>
-                    </td>
+               <tr>
+                    <th>
+                        <button class="keycap delete_button" data-id="${count}" type="button"><aside class="letter">刪除</aside></button>
+                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Prototype_name"  >
+                    </th>
+                    <td><input checked class="check_dipper" type="checkbox"></td>
+                    <td><input type="text" class="cell-edit-input" name="donateTypes[${count}].Category_name" ></td>
                 </tr>
             `
             $('#add_type_tr').append(html);
@@ -179,57 +168,151 @@
                         let html = "";
                         count = 0;
 
-                            result.infos.forEach(function (info) {
+                        const groups = Object.groupBy(result.infos, x => x.prototype_name);
 
-                            html += `
+                        Object.values(groups).forEach(function (infos) {
+
+                            // 群組第一筆
+                            let first = infos[0];
+
+                            let dipperHtml = '';
+                            let deleteBtn = '';
+                            let category_name_dipper_show = '';
+                            let category_name_dipper_value = '';
+
+                            const buildHidden = (name, count, value) =>
+                                `<input class="category-hidden" name="${name}[${count}].Category" value="${value}" hidden>`;
+
+                            if (first.needDipper) {
+                                dipperHtml =
+                                    `<input checked class="check_dipper" type="checkbox">`;
+
+                                deleteBtn =
+                                    `<button class="keycap delete_button" data-id="${count}" type="button">
+                                            <aside class="letter">刪除</aside>
+                                        </button>`;
+                            }
+                            else {
+                                dipperHtml =
+                                    `<input class="check_dipper" type="checkbox">`;
+
+                                deleteBtn =
+                                    `<button class="keycap delete_button" data-id="${count}" type="button">
+                                            <aside class="letter">刪除</aside>
+                                        </button>`;
+                            }
+
+                            
+                            if (first.category_name == "戶"){
+                                category_name_dipper_show = `
+                                        <select class="category-select">
+                                            <option value="1" selected>戶</option>
+                                            <option value="2">個人</option>
+                                        </select>`;
+
+                            }else{
+                                category_name_dipper_show = `
+                                        <select class="category-select">
+                                            <option value="1">戶</option>
+                                            <option value="2" selected>個人</option>
+                                        </select>`;
+
+                            }
+
+                            if (first.id <= 2) {
+                                dipperHtml =
+                                    `<input checked class="check_dipper" type="checkbox" disabled>
+                                    <input checked class="check_dipper" type="checkbox" hidden>`;
+
+                                deleteBtn = '';
+                                category_name_dipper_show = `
+                                        <input value="戶" disabled>`;
                                 
-                                <tr data-id="${info.id}">                                        
-                                    
-                                    
-                                    <td style="display:flex; gap:20px;">
-                                        <input name="donateTypes[${count}].ID" value="${info.id}" hidden>
 
-                                        <button class="keycap delete_button" data-id="${count}" type="button">
-                                          <aside class="letter">刪除</aside>
-                                        </button>
-                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Name_chinese" maxlength="10" value="${info.name_chinese}" required>
-                                    </td>
+                            }
+
+
+
+                            // ===== 群組標題列 =====
+                            html += `
+                                <tr>
+                                    <th>${first.prototype_name}</th>
+
                                     <td>
-                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Price" maxlength="10" value="${info.price}" required>
+                                        ${dipperHtml}
                                     </td>
+
                                     <td>
-                                        <textarea class="cell-edit-textarea" name="donateTypes[${count}].Note">${info.note}</textarea>
+                                        
+                                        ${category_name_dipper_show}
+  
                                     </td>
                                 </tr>
                             `;
-                            count++;
+                            
+                            infos.forEach(function (info) {
+                                    
+                                html += `
 
+                                <tr data-id="${info.id}">
+
+
+                                    <td>
+                                        <div class="td-flex">
+
+                                            <input name="donateTypes[${count}].ID"
+                                                   value="${info.id}"
+                                                   hidden>
+
+                                            ${deleteBtn}
+
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        ${buildHidden('donateTypes',count,first.category_name == "戶" ? 1 : 2)}
+                                    </td>
+                                    <td>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Name_chinese"  value="${info.name_chinese}" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Price"  value="${info.price}" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Note" value="${info.note}">
+                                    </td>
+                                </tr>
+                                `;
+                                count++;
                             });
+      
 
-                            $('#search_change').html(html);
+                        });
 
-
-                            let html_save = "";
-                            let html_modify = "";
-                            let html_add = "";
-
-                            html_save += `
-                                <button class="button-24" id="save_button" role="button"> 確定儲存</button>
-                                <button class="button-24" id="leave_button" role="button"> 返回</button>
-                            `
-                            html_modify += `
-                                <button class="button-25" id="modify_button" role="button" style="display:none"> 修改</button>
-                            `
-
-                            html_add += `
-                                <button class="button-4" role="button" id="Add_type"> 新增類別</button>
-                                <button class="button-4" role="button" id="Add_option"> 新增選項</button>
-                            `
+                        $('#search_change').html(html);
 
 
-                            $('#btn_2').html(html_modify);
-                            $('#btn_1').html(html_save);
-                            $('#btn_3').html(html_add);
+                        let html_save = "";
+                        let html_modify = "";
+                        let html_add = "";
+
+                        html_save += `
+                            <button class="button-24" id="save_button" role="button"> 確定儲存</button>
+                            <button class="button-24" id="leave_button" role="button"> 返回</button>
+                        `
+                        html_modify += `
+                            <button class="button-25" id="modify_button" role="button" style="display:none"> 修改</button>
+                        `
+
+                        html_add += `
+                            <button class="button-4" role="button" id="Add_type"> 新增類別</button>
+                            <button class="button-4" role="button" id="Add_option"> 新增選項</button>
+                        `
+
+
+                        $('#btn_2').html(html_modify);
+                        $('#btn_1').html(html_save);
+                        $('#btn_3').html(html_add);
 
                     }
                      else {
@@ -249,6 +332,7 @@
 
 
             let formData = $('#modify_type').serialize();
+            
             // alert(formData);
             $.ajax({
                 type: "POST",
@@ -279,13 +363,13 @@
 
 
             $(this).closest('tr').css('display', 'none');
-            
+
             let $tr = $(this).closest('tr');
             $tr.find('input[name*="Name_chinese"]').val('刪除'); // 把Name_chinese清空，藉此在controller判斷是要刪除的。(因為List<>格式不能斷了 donateTypes[${count}].Name_chinese )
             $tr.find('input[name*="Price"]').val('111');
         });
     </script>
-    
+
 
     <!--返回button-->
     <script>
@@ -295,5 +379,33 @@
 
         });
     </script>
+
+    <!-- 同category下 所有donatetype更新 -->
+    <script>
+        $(document).on('change', '.category-select', function () {
+
+            const value = $(this).val();
+
+            // 找到 header row
+            let headerRow = $(this).closest('tr');
+
+            // 往下掃描所有 row，直到遇到下一個 header
+            let next = headerRow.next();
+
+            while (next.length) {
+
+            // 如果遇到下一個 group header → 停止
+            if (next.find('.category-select').length > 0) {
+            break;
+            }
+
+            // 更新這個 group 的 hidden
+            next.find('.category-hidden').val(value);
+
+            next = next.next();
+            }
+        });
+    </script>
+    
 </body>
 

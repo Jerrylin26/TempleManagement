@@ -1,7 +1,25 @@
-﻿.fixed-table td {
+﻿
+
+.td-flex {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+th,
+td {
     padding: 8px;
-    vertical-align: top;
     overflow: hidden;
+}
+
+.cell-edit-input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cell-edit-textarea {
@@ -252,4 +270,7 @@
     appearance: none;
     background-color: #bbb;
     transition: all .3s;
+}
+td {
+    padding: 8px;
 }

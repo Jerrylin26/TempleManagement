@@ -40,9 +40,9 @@ namespace TempleManagement.Controllers
                 Debug.WriteLine("BDManager_newBasicInfo");
                 await dbManager.newBasicInfo(info);
 
-                
-                //Debug.WriteLine("BDManager_newHouseholdMember");
-                //await dbManager.newHouseholdMember(info);
+
+                Debug.WriteLine("BDManager_newHouseholdMember");
+                await dbManager.newHouseholdMember(info);
 
                 //之後要，寫入Donate_individual Donate_household
                 //DonateOperation_DBManager donateOperation_dbManager = new DonateOperation_DBManager();
@@ -67,7 +67,7 @@ namespace TempleManagement.Controllers
                 //        HouseID = house_info[0].House_ID,
                 //    });
                 //}
-                
+
 
                 return Json(new { success = true, name = info.Name });
             }

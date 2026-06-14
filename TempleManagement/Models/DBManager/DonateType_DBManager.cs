@@ -182,7 +182,7 @@ namespace TempleManagement.Models.DBManager
                         donateType.Note = data.Note;
                         donateType.Name = data.Name;
                         donateType.Name_chinese = data.Name_chinese;
-                        donateType.Prototype = data.Prototype; // 這與Category其實不能讓管理者update
+                        donateType.Category = data.Category; 
 
                         await dBManager.update_donatetype(donateType);
                     }
@@ -246,9 +246,10 @@ namespace TempleManagement.Models.DBManager
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET  name_chinese=@name_chinese, price=@price,  note=@note where id = @id", conn);
+            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET modifydate=NOW(),  name_chinese=@name_chinese, price=@price, category=@category,  note=@note where id = @id", conn);
 
             cmd.Parameters.AddWithValue("@id", user.ID);
+            cmd.Parameters.AddWithValue("@category", user.Category);
             cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
             cmd.Parameters.AddWithValue("@price", user.Price);
             //cmd.Parameters.AddWithValue("@prototype", user.Prototype);
