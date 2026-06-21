@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
@@ -139,8 +140,9 @@ namespace TempleManagement.Models.DBManager
 
         // 決定把新增、修改、刪除 包成一起
         // update: 頁面上 id 在 DB
-        // insert: 頁面上 id 不在 DB
+        // insert: (頁面上 id 不在 DB) && 舊的prototype
         // delete: DB id 不在 頁面上
+        // insert_new_prototype: (頁面上 id 不在 DB) && 新的prototype
         public async Task modify_donatetype(List<DonateType> info)
         {
    
@@ -156,7 +158,9 @@ namespace TempleManagement.Models.DBManager
 
 
             DonateType_DBManager dBManager = new DonateType_DBManager();
-            Dictionary<int, DonateType> dict_info = info.ToDictionary(x => x.ID);
+            Dictionary<int, DonateType> dict_info = info.Where(x => x.ID > 0).ToDictionary(x => x.ID); // 拿來update、delete
+            var insert_data = info.Where(x => x.ID == 0).ToList();
+
             List<int> not_to_insert = new List<int>();
 
             // 取得DB資料
@@ -182,7 +186,8 @@ namespace TempleManagement.Models.DBManager
                         donateType.Note = data.Note;
                         donateType.Name = data.Name;
                         donateType.Name_chinese = data.Name_chinese;
-                        donateType.Category = data.Category; 
+                        donateType.Category = data.Category;
+                        donateType.NeedDipper = data.NeedDipper;
 
                         await dBManager.update_donatetype(donateType);
                     }
@@ -192,7 +197,7 @@ namespace TempleManagement.Models.DBManager
                     
             }
 
-            // DB.id迴圈結束 id不存在DB insert
+            // DB.id迴圈結束 id不存在DB 排除錯誤ID
             foreach (var d in info)
             {
                 if (! not_to_insert.Contains(d.ID))
@@ -203,13 +208,17 @@ namespace TempleManagement.Models.DBManager
                         Debug.WriteLine("刪新增，又刪除的");
                         await dBManager.delete_donatetype(d);
                     }
-                    else
-                    {
-                        await dBManager.create_donatetype(d);
-                    }
                         
                 }
             }
+
+            // 新增 insert 判斷(ID==0)
+            foreach (var data in insert_data)
+            {
+                await dBManager.create_donatetype(data);
+            }
+
+
 
             Debug.WriteLine("modify_donatetype done!!!");
 
@@ -222,13 +231,30 @@ namespace TempleManagement.Models.DBManager
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
+            // 因為 新增的類別沒有prototype，使用postgresql組合技
+            int prototype_ID;
+
+            await using var cmd_prototype = new NpgsqlCommand(@"
+                INSERT INTO donatetype_prototype (prototype_name)
+                VALUES (@prototype_name)
+                ON CONFLICT (prototype_name)
+                DO UPDATE SET prototype_name = EXCLUDED.prototype_name
+                RETURNING id;
+            ", conn);
+
+            cmd_prototype.Parameters.AddWithValue("prototype_name", user.Prototype_name ?? (object)DBNull.Value);
+            var result = await cmd_prototype.ExecuteScalarAsync();
+            prototype_ID = Convert.ToInt32(result);
+
+
+            // 新增進入 donatetype
             await using var cmd = new NpgsqlCommand(@$"INSERT INTO donatetype(name, name_chinese, price, note, prototype, needdipper, category) VALUES(@name, @name_chinese, @price, @note, @prototype, @needdipper, @category)", conn);
 
 
             cmd.Parameters.AddWithValue("@name", user.Name == null ? DBNull.Value : user.Name);
             cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
             cmd.Parameters.AddWithValue("@price", user.Price);
-            cmd.Parameters.AddWithValue("@prototype", user.Prototype);
+            cmd.Parameters.AddWithValue("@prototype", prototype_ID);
             cmd.Parameters.AddWithValue("@note", user.Note == null ? DBNull.Value : user.Note);
             cmd.Parameters.AddWithValue("@needdipper", user.NeedDipper);
             cmd.Parameters.AddWithValue("@category", user.Category);
@@ -246,9 +272,10 @@ namespace TempleManagement.Models.DBManager
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET modifydate=NOW(),  name_chinese=@name_chinese, price=@price, category=@category,  note=@note where id = @id", conn);
+            await using var cmd = new NpgsqlCommand(@$"UPDATE donatetype SET modifydate=NOW(),  needdipper=@needdipper, name_chinese=@name_chinese, price=@price, category=@category,  note=@note where id = @id", conn);
 
             cmd.Parameters.AddWithValue("@id", user.ID);
+            cmd.Parameters.AddWithValue("@needdipper", user.NeedDipper);
             cmd.Parameters.AddWithValue("@category", user.Category);
             cmd.Parameters.AddWithValue("@name_chinese", user.Name_chinese);
             cmd.Parameters.AddWithValue("@price", user.Price);

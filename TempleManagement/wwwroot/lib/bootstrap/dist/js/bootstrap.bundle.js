@@ -2106,7 +2106,7 @@
     };
   }
 
-  // means it doesn't take into account transforms.
+  // means it doesn't take into acid transforms.
 
   function getLayoutRect(element) {
     var clientRect = getBoundingClientRect(element); // Use the clientRect sizes if it's not been transformed.
@@ -3336,7 +3336,7 @@
     var scaleY = rect.height / element.offsetHeight || 1;
     return scaleX !== 1 || scaleY !== 1;
   } // Returns the composite rect of an element relative to its offsetParent.
-  // Composite means it takes into account transforms as well as layout.
+  // Composite means it takes into acid transforms as well as layout.
 
 
   function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {

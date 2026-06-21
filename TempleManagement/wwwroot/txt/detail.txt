@@ -16,7 +16,7 @@
 	Index.cshtml
 9. 戶長變更作業 ChangeHousehold
 	Index.cshtml
-10. 帳密作業管理  AccountManagement
+10. 帳密作業管理  AcidManagement
 	Login.cshtml
 
 
@@ -148,7 +148,7 @@
 		DB [Admin] 管理員
 
 		[Primary Key : AdminID]
-		帳號 Account
+		帳號 Acid
 		密碼 Password
 		
 		

@@ -64,9 +64,10 @@ namespace TempleManagement.Controllers
             {
                 return Json(new { success = false, message = "請填寫 [價格] ! 否則請刪除" });
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return Json(new { success = false, message = "其他錯誤!" });
+                Debug.WriteLine(e);
+                return Json(new { success = false, message = $"其他錯誤! {e}" });
             }
 
 

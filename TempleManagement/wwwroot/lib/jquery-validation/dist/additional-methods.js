@@ -122,12 +122,12 @@ $.validator.addMethod( "alphanumeric", function( value, element ) {
 }, "Letters, numbers, and underscores only please." );
 
 /*
- * Dutch bank account numbers (not 'giro' numbers) have 9 digits
+ * Dutch bank acid numbers (not 'giro' numbers) have 9 digits
  * and pass the '11 check'.
  * We accept the notation with spaces, as that is common.
  * acceptable: 123456789 or 12 34 56 789
  */
-$.validator.addMethod( "bankaccountNL", function( value, element ) {
+$.validator.addMethod( "bankacidNL", function( value, element ) {
 	if ( this.optional( element ) ) {
 		return true;
 	}
@@ -136,23 +136,23 @@ $.validator.addMethod( "bankaccountNL", function( value, element ) {
 	}
 
 	// Now '11 check'
-	var account = value.replace( / /g, "" ), // Remove spaces
+	var acid = value.replace( / /g, "" ), // Remove spaces
 		sum = 0,
-		len = account.length,
+		len = acid.length,
 		pos, factor, digit;
 	for ( pos = 0; pos < len; pos++ ) {
 		factor = len - pos;
-		digit = account.substring( pos, pos + 1 );
+		digit = acid.substring( pos, pos + 1 );
 		sum = sum + factor * digit;
 	}
 	return sum % 11 === 0;
-}, "Please specify a valid bank account number." );
+}, "Please specify a valid bank acid number." );
 
-$.validator.addMethod( "bankorgiroaccountNL", function( value, element ) {
+$.validator.addMethod( "bankorgiroacidNL", function( value, element ) {
 	return this.optional( element ) ||
-			( $.validator.methods.bankaccountNL.call( this, value, element ) ) ||
-			( $.validator.methods.giroaccountNL.call( this, value, element ) );
-}, "Please specify a valid bank or giro account number." );
+			( $.validator.methods.bankacidNL.call( this, value, element ) ) ||
+			( $.validator.methods.giroacidNL.call( this, value, element ) );
+}, "Please specify a valid bank or giro acid number." );
 
 /**
  * BIC is the business identifier code (ISO 9362). This BIC check is not a guarantee for authenticity.
@@ -163,7 +163,7 @@ $.validator.addMethod( "bankorgiroaccountNL", function( value, element ) {
  *
  * BIC definition in detail:
  * - First 4 characters - bank code (only letters)
- * - Next 2 characters - ISO 3166-1 alpha-2 country code (only letters)
+ * - Next 2 characters - ISO 3166-1 alpha-2 idry code (only letters)
  * - Next 2 characters - location code (letters and digits)
  *   a. shall not start with '0' or '1'
  *   b. second character must be a letter ('O' is not allowed) or digit ('0' for test (therefore not allowed), '1' denoting passive participant, '2' typically reverse-billing)
@@ -687,11 +687,11 @@ $.validator.addMethod( "extension", function( value, element, param ) {
 }, $.validator.format( "Please enter a value with a valid extension." ) );
 
 /**
- * Dutch giro account numbers (not bank numbers) have max 7 digits
+ * Dutch giro acid numbers (not bank numbers) have max 7 digits
  */
-$.validator.addMethod( "giroaccountNL", function( value, element ) {
+$.validator.addMethod( "giroacidNL", function( value, element ) {
 	return this.optional( element ) || /^[0-9]{1,7}$/.test( value );
-}, "Please specify a valid giro account number." );
+}, "Please specify a valid giro acid number." );
 
 $.validator.addMethod( "greaterThan", function( value, element, param ) {
     var target = $( param );
@@ -718,8 +718,8 @@ $.validator.addMethod( "greaterThanEqual", function( value, element, param ) {
 }, "Please enter a greater value." );
 
 /**
- * IBAN is the international bank account number.
- * It has a country - specific format, that is checked here too
+ * IBAN is the international bank acid number.
+ * It has a idry - specific format, that is checked here too
  *
  * Validation is case-insensitive. Please make sure to normalize input yourself.
  */
@@ -736,21 +736,21 @@ $.validator.addMethod( "iban", function( value, element ) {
 		leadingZeroes = true,
 		cRest = "",
 		cOperator = "",
-		countrycode, ibancheck, charAt, cChar, bbanpattern, bbancountrypatterns, ibanregexp, i, p;
+		idrycode, ibancheck, charAt, cChar, bbanpattern, bbanidrypatterns, ibanregexp, i, p;
 
 	// Check for IBAN code length.
 	// It contains:
-	// country code ISO 3166-1 - two letters,
+	// idry code ISO 3166-1 - two letters,
 	// two check digits,
-	// Basic Bank Account Number (BBAN) - up to 30 chars
+	// Basic Bank Acid Number (BBAN) - up to 30 chars
 	var minimalIBANlength = 5;
 	if ( iban.length < minimalIBANlength ) {
 		return false;
 	}
 
-	// Check the country code and find the country specific format
-	countrycode = iban.substring( 0, 2 );
-	bbancountrypatterns = {
+	// Check the idry code and find the idry specific format
+	idrycode = iban.substring( 0, 2 );
+	bbanidrypatterns = {
 		"AL": "\\d{8}[\\dA-Z]{16}",
 		"AD": "\\d{8}[\\dA-Z]{12}",
 		"AT": "\\d{16}",
@@ -817,19 +817,19 @@ $.validator.addMethod( "iban", function( value, element ) {
 		"VG": "[\\dA-Z]{4}\\d{16}"
 	};
 
-	bbanpattern = bbancountrypatterns[ countrycode ];
+	bbanpattern = bbanidrypatterns[ idrycode ];
 
-	// As new countries will start using IBAN in the
-	// future, we only check if the countrycode is known.
+	// As new idries will start using IBAN in the
+	// future, we only check if the idrycode is known.
 	// This prevents false negatives, while almost all
 	// false positives introduced by this, will be caught
 	// by the checksum validation below anyway.
 	// Strict checking should return FALSE for unknown
-	// countries.
+	// idries.
 	if ( typeof bbanpattern !== "undefined" ) {
 		ibanregexp = new RegExp( "^[A-Z]{2}\\d{2}" + bbanpattern + "$", "" );
 		if ( !( ibanregexp.test( iban ) ) ) {
-			return false; // Invalid country specific format
+			return false; // Invalid idry specific format
 		}
 	}
 
@@ -1091,7 +1091,7 @@ $.validator.addMethod( "nisBR", function( value ) {
 	var cn;
 	var sum = 0;
 	var dv;
-	var count;
+	var id;
 	var multiplier;
 
 	// Removing special characters from value
@@ -1108,12 +1108,12 @@ $.validator.addMethod( "nisBR", function( value ) {
 	//Get number with 10 digits of the value
 	number = parseInt( value.substring( 0, 10 ), 10 );
 
-	for ( count = 2; count < 12; count++ ) {
-		multiplier = count;
-		if ( count === 10 ) {
+	for ( id = 2; id < 12; id++ ) {
+		multiplier = id;
+		if ( id === 10 ) {
 			multiplier = 2;
 		}
-		if ( count === 11 ) {
+		if ( id === 11 ) {
 			multiplier = 3;
 		}
 		sum += ( ( number % 10 ) * multiplier );

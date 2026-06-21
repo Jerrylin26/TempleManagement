@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace TempleManagement.Models.DBManager
 {
-    public class AccountManagement_DBManager
+    public class AcidManagement_DBManager
     {
         private readonly string connStr = "Data Source=(localdb)\\MSSQLLocalDB;Database=templeManagement;User ID=Jerry;Password=lccJerry1;Trusted_Connection=True";
         private readonly string connectionString_postgresql = "Host=localhost;Port=5432;Username=postgres;Password=2026fafafa;Database=templemanagement";
@@ -30,22 +30,22 @@ namespace TempleManagement.Models.DBManager
 
         /*---------------------------------------------------------------------------------------*/
         /*
-         Create: newAccount()
-         Read: getAccount()、
+         Create: newAcid()
+         Read: getAcid()、
          Update: 
          Delete:
         */
 
         // 順序很重要，在create時，會mapping
-        private static string[] column_array = { "adminid", "account" , "password", "name"};
+        private static string[] column_array = { "adminid", "acid" , "password", "name"};
         private static string column = string.Join(",", column_array);
 
-        // getAccount
+        // getAcid
         private static string column_for_create = string.Join(",", column_array.Skip(1));
         private static string column_for_create_value = "@" + string.Join(",  @", column_array.Skip(1));
 
         // 取得admin 資料表 資料 
-        public async Task<List<Admin>> getAccount(Admin info)
+        public async Task<List<Admin>> getAcid(Admin info)
         {
             using var conn = new NpgsqlConnection(connectionString_postgresql);
             await conn.OpenAsync();
@@ -57,10 +57,10 @@ namespace TempleManagement.Models.DBManager
 
 
             cmd = new NpgsqlCommand(
-                $"SELECT * FROM admin where account= @account and password=@password",
+                $"SELECT * FROM admin where acid= @acid and password=@password",
                 conn);
 
-            cmd.Parameters.AddWithValue("@account", info.Account);
+            cmd.Parameters.AddWithValue("@acid", info.Account);
             cmd.Parameters.AddWithValue("@password", info.Password);
 
             await using (var reader = await cmd.ExecuteReaderAsync())
@@ -68,7 +68,7 @@ namespace TempleManagement.Models.DBManager
                 int ordinal_AdminID = reader.GetOrdinal("adminid");
                 int ordinal_Name = reader.GetOrdinal("name");
                 int ordinal_Password = reader.GetOrdinal("password");
-                int ordinal_Account = reader.GetOrdinal("account");
+                int ordinal_Acid = reader.GetOrdinal("acid");
 
 
                 while (await reader.ReadAsync())
@@ -78,7 +78,7 @@ namespace TempleManagement.Models.DBManager
 
                         AdminID = reader.IsDBNull(ordinal_AdminID) ? 0 : reader.GetInt32(ordinal_AdminID),
                         Name = reader.IsDBNull(ordinal_Name) ? "" : reader.GetString(ordinal_Name),
-                        Account = reader.IsDBNull(ordinal_Account) ? "" : reader.GetString(ordinal_Account),
+                        Account = reader.IsDBNull(ordinal_Acid) ? "" : reader.GetString(ordinal_Acid),
                         Password = reader.IsDBNull(ordinal_Password) ? "" : reader.GetString(ordinal_Password),
 
                     };
@@ -94,7 +94,7 @@ namespace TempleManagement.Models.DBManager
         }
 
 
-        public async Task newAccount(Admin user)
+        public async Task newAcid(Admin user)
         {
             Debug.WriteLine("start insert");
             await using var conn = new NpgsqlConnection(connectionString_postgresql);
@@ -104,7 +104,7 @@ namespace TempleManagement.Models.DBManager
 
 
             cmd.Parameters.AddWithValue("@name", user.Name);
-            cmd.Parameters.AddWithValue("@account", user.Account);
+            cmd.Parameters.AddWithValue("@acid", user.Account);
             cmd.Parameters.AddWithValue("@password", user.Password);
 
 

@@ -592,17 +592,17 @@ $.extend( $.validator, {
 
 		objectLength: function( obj ) {
 			/* jshint unused: false */
-			var count = 0,
+			var id = 0,
 				i;
 			for ( i in obj ) {
 
-				// This check allows counting elements with empty error
+				// This check allows iding elements with empty error
 				// message as invalid elements
 				if ( obj[ i ] !== undefined && obj[ i ] !== null && obj[ i ] !== false ) {
-					count++;
+					id++;
 				}
 			}
-			return count;
+			return id;
 		},
 
 		hideErrors: function() {
@@ -767,7 +767,7 @@ $.extend( $.validator, {
 			element = this.validationTargetFor( this.clean( element ) );
 
 			var rules = $( element ).rules(),
-				rulesCount = $.map( rules, function( n, i ) {
+				rulesid = $.map( rules, function( n, i ) {
 					return i;
 				} ).length,
 				dependencyMismatch = false,
@@ -799,7 +799,7 @@ $.extend( $.validator, {
 
 					// If a method indicates that the field is optional and therefore valid,
 					// don't mark it as valid when there are no other rules
-					if ( result === "dependency-mismatch" && rulesCount === 1 ) {
+					if ( result === "dependency-mismatch" && rulesid === 1 ) {
 						dependencyMismatch = true;
 						continue;
 					}

@@ -34,11 +34,11 @@
         <form id="modify_type" method="POST">
             <table class="w3-table-all w3-xlarge fixed-table">
                 <colgroup>
-                    <col style="width: 15%;">
+                    <col style="width: 25%;">
                     <col style="width: 10%;">
                     <col style="width: 10%;">
                     <col style="width: 15%;">
-                    <col style="width: 15%;">
+                    <col style="width: 8%;">
                     <col style="width: 30%;">
                 </colgroup>
 
@@ -54,7 +54,7 @@
 
                 <tbody id="search_change">
                     @{
-                        var count = 0; //拿來全局使用
+                        var idx = 0;
                     }
                     @foreach (var infos in Model)
                     {
@@ -76,24 +76,25 @@
 
                         @foreach (var info in infos)
                         {
-                            <tr data-id="@info.ID">
+                            <tr data-id="@idx">
                                 <td>
-                                    <input type="text" class="cell-edit-input" name="donateTypes[@count].Prototype" maxlength="10" value="@info.Prototype" hidden>
+                                    <input type="text" class="cell-edit-input" name="donateTypes[@idx].Prototype" maxlength="10" value="@info.Prototype" hidden>
                                 </td>
                                 <td></td>
                                 <td></td>
 
                                 <td>
-                                    <input type="text" class="cell-edit-input" name="donateTypes[@count].Name_chinese" maxlength="10" value="@info.Name_chinese" disabled>
+                                    <input type="text" class="cell-edit-input" name="donateTypes[@idx].Name_chinese" maxlength="10" value="@info.Name_chinese" disabled>
                                 </td>
                                 <td>
-                                    <input type="text" class="cell-edit-input" name="donateTypes[@count].Price" maxlength="10" value="@info.Price" disabled>
+                                    <input type="text" class="cell-edit-input" name="donateTypes[@idx].Price" maxlength="10" value="@info.Price" disabled>
                                 </td>
                                 <td>
-                                    <textarea class="cell-edit-textarea" name="donateTypes[@count].Note" disabled>@info.Note</textarea>
+                                    <textarea class="cell-edit-textarea" name="donateTypes[@idx].Note" disabled>@info.Note</textarea>
                                 </td>
                             </tr>
-                            count++;
+
+                            idx++;
                         }
                     }
                     @{
@@ -101,19 +102,19 @@
                     }
 
                 </tbody>
-                <tbody id="add_type_tr">
+                <tbody id="add_prototype_tr">
                 </tbody>
             </table>
         </form>
 
     </div>
     <br />
+    <div id="warn"></div>
     <br />
     <br />
     <!-- HTML !-->
     <span id="btn_3">
-        <button class="button-4" role="button" id="Add_type" style="display:none"> 新增類別</button>
-        <button class="button-4" role="button" id="Add_option" style="display:none"> 新增選項</button>
+        <button class="button-4" role="button" id="Add_prototype" style="display:none"> 新增類別</button>
     </span>
     <br />
     <br />
@@ -125,31 +126,93 @@
 
     <script src="~/js/ChangeHousehold/jquery-3.3.1.min.js"></script>
 
-    <!--新增type button-->
+    <!--新增類別 button-->
     <script>
-        let counter = 9999;
-        $(document).on('click', '#Add_type', function () {
+
+        $(document).on('click', '#Add_prototype', function () {
 
             let html = "";
 
+            let id = crypto.randomUUID();
+
+            let prototype_name = `
+                        <button class="keycap delete_button" data-id="${id}" type="button"><aside class="letter">刪除</aside></button>
+                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype_name"  style="max-width: 60%;">
+                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype" value=""  hidden disabled>`; // 這是拿來給 新增選項時傳送該prototype用的
+
+            let dipperHtml = `<input class="check_dipper needdipper-select" type="checkbox">`;
+
+            let category_name_dipper_show = `
+                        <select class="category-select">
+                            <option value="1" selected>戶</option>
+                            <option value="2">個人</option>
+                        </select>`;
+
+            let deleteBtn =
+                        `<button class="keycap delete_button" data-id="${id}" type="button">
+                                <aside class="letter">刪除</aside>
+                            </button>`;
+
+            const buildHidden = (class_name,name, id, type, value) =>
+                                `<input class="${class_name}-hidden" name="${name}[${id}].${type}" value="${value}" hidden>`;
+
+
+            html += `
+                    <tr class="prototype_tr new_donatetype_tr">
+                        <th>${prototype_name}</th>
+
+                        <td>
+                            ${dipperHtml}
+                        </td>
+
+                        <td>
+                            ${category_name_dipper_show}
+                        </td>
+                        <td>
+                            <button class="button-4 Add_donatetype" role="button"  style="color:#193615"> 新增選項</button>
+                        </td>
+                    </tr>
+                `;
+
             html += `
 
-               <tr>
-                    <th>
-                        <button class="keycap delete_button" data-id="${count}" type="button"><aside class="letter">刪除</aside></button>
-                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Prototype_name"  >
-                    </th>
-                    <td><input checked class="check_dipper" type="checkbox"></td>
-                    <td><input type="text" class="cell-edit-input" name="donateTypes[${count}].Category_name" ></td>
-                </tr>
-            `
-            $('#add_type_tr').append(html);
-            counter++;
-            count++;
+                    <tr data-id="new_data" class="new_donatetype_tr new_donatetype_tr">
+
+
+                        <td>
+                            <div class="td-flex">
+
+
+                                ${deleteBtn}
+
+                            </div>
+                        </td>
+                        <td>
+                            <input name="donateTypes.index" value=${id} hidden>
+                            ${buildHidden('needdipper','donateTypes',id,'NeedDipper',false)}
+                        </td>
+                        <td>
+                            <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype" maxlength="10" value="0" hidden>
+                            ${buildHidden('category','donateTypes',id,'Category',1)}
+                        </td>
+                        <td>
+                            <input type="text" class="cell-edit-input" name="donateTypes[${id}].Name_chinese"  value="" required>
+                        </td>
+                        <td>
+                            <input type="text" class="cell-edit-input" name="donateTypes[${id}].Price"  value="" required>
+                        </td>
+                        <td>
+                            <input type="text" class="cell-edit-input" name="donateTypes[${id}].Note" value="">
+                        </td>
+                    </tr>
+                    `;
+
+            $('#add_prototype_tr').append(html);
+
         });
     </script>
 
-    <!--修改type button-->
+    <!--修改 button-->
     <script>
         $(document).on('click', '#modify_button', function () {
 
@@ -166,7 +229,6 @@
                         // alert(result.message);
 
                         let html = "";
-                        count = 0;
 
                         const groups = Object.groupBy(result.infos, x => x.prototype_name);
 
@@ -174,30 +236,31 @@
 
                             // 群組第一筆
                             let first = infos[0];
+                            let id = crypto.randomUUID();
 
                             let dipperHtml = '';
                             let deleteBtn = '';
                             let category_name_dipper_show = '';
                             let category_name_dipper_value = '';
 
-                            const buildHidden = (name, count, value) =>
-                                `<input class="category-hidden" name="${name}[${count}].Category" value="${value}" hidden>`;
+                            const buildHidden = (class_name,name, id, type, value) =>
+                                `<input class="${class_name}-hidden" name="${name}[${id}].${type}" value="${value}" hidden>`;
 
                             if (first.needDipper) {
                                 dipperHtml =
-                                    `<input checked class="check_dipper" type="checkbox">`;
+                                    `<input checked class="check_dipper needdipper-select" type="checkbox">`;
 
                                 deleteBtn =
-                                    `<button class="keycap delete_button" data-id="${count}" type="button">
+                                    `<button class="keycap delete_button" data-id="${id}" type="button">
                                             <aside class="letter">刪除</aside>
                                         </button>`;
                             }
                             else {
                                 dipperHtml =
-                                    `<input class="check_dipper" type="checkbox">`;
+                                    `<input class="check_dipper needdipper-select" type="checkbox">`;
 
                                 deleteBtn =
-                                    `<button class="keycap delete_button" data-id="${count}" type="button">
+                                    `<button class="keycap delete_button" data-id="${id}" type="button">
                                             <aside class="letter">刪除</aside>
                                         </button>`;
                             }
@@ -221,8 +284,7 @@
 
                             if (first.id <= 2) {
                                 dipperHtml =
-                                    `<input checked class="check_dipper" type="checkbox" disabled>
-                                    <input checked class="check_dipper" type="checkbox" hidden>`;
+                                    `<input checked class="check_dipper needdipper-select" type="checkbox" disabled> `;
 
                                 deleteBtn = '';
                                 category_name_dipper_show = `
@@ -235,8 +297,13 @@
 
                             // ===== 群組標題列 =====
                             html += `
-                                <tr>
-                                    <th>${first.prototype_name}</th>
+                                <tr class="prototype_tr">
+
+                                    <th>
+                                        ${first.prototype_name}
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype_name" value="${first.prototype_name}"  hidden>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype" value="${first.prototype}"  hidden>
+                                    </th>
 
                                     <td>
                                         ${dipperHtml}
@@ -247,11 +314,15 @@
                                         ${category_name_dipper_show}
   
                                     </td>
+                                    <td>
+                                        <button class="button-4 Add_donatetype" role="button"  style="color:#193615" > 新增選項</button>
+                                    </td>
                                 </tr>
                             `;
                             
                             infos.forEach(function (info) {
-                                    
+
+                                let id = crypto.randomUUID();
                                 html += `
 
                                 <tr data-id="${info.id}">
@@ -260,7 +331,7 @@
                                     <td>
                                         <div class="td-flex">
 
-                                            <input name="donateTypes[${count}].ID"
+                                            <input name="donateTypes[${id}].ID"
                                                    value="${info.id}"
                                                    hidden>
 
@@ -268,26 +339,33 @@
 
                                         </div>
                                     </td>
-                                    <td></td>
                                     <td>
-                                        ${buildHidden('donateTypes',count,first.category_name == "戶" ? 1 : 2)}
+                                        <input name="donateTypes.index" value=${id} hidden>
+                                        ${buildHidden('needdipper','donateTypes',id,'NeedDipper',first.needDipper == true || first.id <= 2 ? true : false)}
                                     </td>
                                     <td>
-                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Name_chinese"  value="${info.name_chinese}" required>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype" maxlength="10" value="${info.prototype}" hidden>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype_name" maxlength="10" value="${info.prototype_name}" hidden>
+                                        ${buildHidden('category','donateTypes',id,'Category',first.category_name == "戶" ? 1 : 2)}
                                     </td>
                                     <td>
-                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Price"  value="${info.price}" required>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Name_chinese"  value="${info.name_chinese}" required>
                                     </td>
                                     <td>
-                                        <input type="text" class="cell-edit-input" name="donateTypes[${count}].Note" value="${info.note}">
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Price"  value="${info.price}" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="cell-edit-input" name="donateTypes[${id}].Note" value="${info.note}">
                                     </td>
                                 </tr>
                                 `;
-                                count++;
                             });
+
       
 
                         });
+
+                        $('#warn').html(`<span style="color:red;font-size:25px;">再次確認你要做的所有更動!</span>`);
 
                         $('#search_change').html(html);
 
@@ -305,8 +383,7 @@
                         `
 
                         html_add += `
-                            <button class="button-4" role="button" id="Add_type"> 新增類別</button>
-                            <button class="button-4" role="button" id="Add_option"> 新增選項</button>
+                            <button class="button-4" role="button" id="Add_prototype" > 新增類別</button>
                         `
 
 
@@ -323,6 +400,97 @@
                     alert("發生錯誤：" + error);
                 }
             });
+        });
+    </script>
+
+    <!--新增選項 button-->
+    <script>
+        $(document).on('click', '.Add_donatetype', function () {
+
+            let headerRow = $(this).closest('.prototype_tr');
+
+            let prototype = headerRow.find('input[name$=".Prototype"]').val() || 0;
+
+            let prototype_name = headerRow.find('input[name$=".Prototype_name"]').val();
+
+            let category =
+            headerRow.find('.category-select').val() ?? 1;
+
+            let needDipper =
+            headerRow.find('.needdipper-select').prop('checked');
+
+            let id = crypto.randomUUID();
+
+            let html = `
+            <tr data-id="new_data" class="new_donatetype_tr">
+                
+                <td>
+                    <button class="keycap delete_button"
+                            data-id="${id}"
+                            type="button">
+                        <aside class="letter">刪除</aside>
+                    </button>
+                </td>
+
+                <td>
+                    <input name="donateTypes.index" value=${id} hidden>
+                    <input class="needdipper-hidden"
+                           name="donateTypes[${id}].NeedDipper"
+                           value="${needDipper}"
+                           hidden>
+                </td>
+
+                <td>
+                    <input class="category-hidden"
+                           name="donateTypes[${id}].Category"
+                           value="${category}"
+                           hidden>
+                </td>
+
+                <td>
+                    <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype" maxlength="10" value="${prototype}" hidden>
+                    <input type="text" class="cell-edit-input" name="donateTypes[${id}].Prototype_name" maxlength="10" value="${prototype_name}" hidden>
+                    <input type="text"
+                           class="cell-edit-input"
+                           name="donateTypes[${id}].Name_chinese"
+                           required>
+                </td>
+
+                <td>
+                    <input type="text"
+                           class="cell-edit-input"
+                           name="donateTypes[${id}].Price"
+                           required>
+                </td>
+
+                <td>
+                    <input type="text"
+                           class="cell-edit-input"
+                           name="donateTypes[${id}].Note">
+                </td>
+
+            </tr>
+            `;
+
+            
+
+            let next = headerRow.next();
+            let lastRow = headerRow; // 先假設自己是最後一個
+
+            while (next.length) {
+
+                // 如果遇到下一個 prototype → 停止
+                if (next.hasClass('prototype_tr')) {
+                    break;
+                }
+
+                lastRow = next;
+                next = next.next();
+            }
+
+            // 插在該 group 最後一個 row 後面
+            lastRow.after(html);
+
         });
     </script>
 
@@ -361,12 +529,18 @@
     <script>
         $(document).on('click', '.delete_button', function () {
 
-
-            $(this).closest('tr').css('display', 'none');
-
             let $tr = $(this).closest('tr');
-            $tr.find('input[name*="Name_chinese"]').val('刪除'); // 把Name_chinese清空，藉此在controller判斷是要刪除的。(因為List<>格式不能斷了 donateTypes[${count}].Name_chinese )
-            $tr.find('input[name*="Price"]').val('111');
+
+            // 如果是新增的 row → 直接移除（不送回後端）
+            if ($tr.hasClass('new_donatetype_tr')) {
+                $tr.remove();
+                return;
+            }
+            $tr.hide();
+
+
+            $tr.find('input[name*="Name_chinese"]').val('刪除'); // 把Name_chinese清空，藉此在controller判斷是要刪除的。(因為List<>格式不能斷了 donateTypes[${id}].Name_chinese )
+            $tr.find('input[name*="Price"]').val('111'); // 藉此在controller判斷是要刪除的
         });
     </script>
 
@@ -394,17 +568,51 @@
 
             while (next.length) {
 
-            // 如果遇到下一個 group header → 停止
-            if (next.find('.category-select').length > 0) {
-            break;
-            }
+                // 如果遇到下一個 group header → 停止
+                if (next.find('.category-select').length > 0) {
+                break;
+                }
 
-            // 更新這個 group 的 hidden
-            next.find('.category-hidden').val(value);
+                // 更新這個 group 的 hidden
+                next.find('.category-hidden').val(value);
 
-            next = next.next();
+                next = next.next();
             }
         });
+    </script>
+
+    <!-- 同NeedDipper下 所有donatetype更新 -->
+    <script>
+        $(document).on('change', '.needdipper-select', function () {
+
+            const value = $(this).prop('checked');
+
+            // 找到 header row
+            let headerRow = $(this).closest('tr');
+
+            // 往下掃描所有 row，直到遇到下一個 header
+            let next = headerRow.next();
+
+            while (next.length) {
+
+                // 如果遇到下一個 group header → 停止
+                if (next.find('.needdipper-select').length > 0) {
+                break;
+                }
+
+                // 更新這個 group 的 hidden
+                next.find('.needdipper-hidden')
+                    .val(value ? true : false);
+
+                next = next.next();
+            }
+        });
+    </script>
+
+    <script>
+        function newId() {
+            return crypto.randomUUID();
+        }
     </script>
     
 </body>

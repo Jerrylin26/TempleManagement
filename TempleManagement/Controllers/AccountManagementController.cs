@@ -6,7 +6,7 @@ using TempleManagement.Models.DBManager;
 
 namespace TempleManagement.Controllers
 {
-    public class AccountManagementController : Controller
+    public class AcidManagementController : Controller
     {
         public IActionResult Index()
         {
@@ -33,13 +33,13 @@ namespace TempleManagement.Controllers
                 return Json(new { success = false, message = "資料驗證失敗" });
             }
 
-            Debug.WriteLine($"NewAccount_info_check:{JsonSerializer.Serialize(info)}");
+            Debug.WriteLine($"NewAcid_info_check:{JsonSerializer.Serialize(info)}");
 
             try
             {
-                AccountManagement_DBManager dbManager = new AccountManagement_DBManager();
-                Debug.WriteLine("AccountManagement_DBManager");
-                await dbManager.newAccount(info);
+                AcidManagement_DBManager dbManager = new AcidManagement_DBManager();
+                Debug.WriteLine("AcidManagement_DBManager");
+                await dbManager.newAcid(info);
 
 
                 return Json(new { success = true, name = info.Name });
@@ -75,9 +75,9 @@ namespace TempleManagement.Controllers
 
             try
             {
-                AccountManagement_DBManager dbManager = new AccountManagement_DBManager();
-                Debug.WriteLine("AccountManagement_DBManager start");
-                List<Admin> infos = await dbManager.getAccount(info);
+                AcidManagement_DBManager dbManager = new AcidManagement_DBManager();
+                Debug.WriteLine("AcidManagement_DBManager start");
+                List<Admin> infos = await dbManager.getAcid(info);
 
                 if (infos.Count == 1)
                 {

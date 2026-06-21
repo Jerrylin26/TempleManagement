@@ -4,7 +4,7 @@
 @model List<Donate_Insert_query>;
 
 @{
-    var count = 0;
+    var id = 0;
 }
 
 
@@ -47,15 +47,15 @@
             <label style="cursor:pointer;">
 
                 <input type="checkbox"
-                        name="donateOperations[@count].Dummy_Is_checked"
+                        name="donateOperations[@id].Dummy_Is_checked"
                         style="transform: scale(1.5); margin: 5px;" />
             </label>
 
-            <input type="hidden" name="donateOperations[@count].MID" value="@member.MID" />
-            <input type="hidden" name="donateOperations[@count].HouseID" value="@member.HouseID" />
-            <input type="hidden" name="donateOperations[@count].Name" value="@member.Name" />
-            <input type="hidden" name="donateOperations[@count].Member_number" value="@member.Member_number" />
-            <input type="hidden" name="donateOperations[@count].Is_head" value="@(member.Is_head == true ? "true" : "false")" />
+            <input type="hidden" name="donateOperations[@id].MID" value="@member.MID" />
+            <input type="hidden" name="donateOperations[@id].HouseID" value="@member.HouseID" />
+            <input type="hidden" name="donateOperations[@id].Name" value="@member.Name" />
+            <input type="hidden" name="donateOperations[@id].Member_number" value="@member.Member_number" />
+            <input type="hidden" name="donateOperations[@id].Is_head" value="@(member.Is_head == true ? "true" : "false")" />
         </td>
         <td>
             <div>@member.Member_number</div>
@@ -72,7 +72,7 @@
 
     </tr>
 
-    count++; //計數器
+    id++; //計數器
 }
 
 

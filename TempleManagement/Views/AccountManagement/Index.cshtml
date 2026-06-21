@@ -2,7 +2,7 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    <link rel="stylesheet" href="~/css/AccountManagement/Login.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/AcidManagement/Login.css" asp-append-version="true" />
 }
 
 <!-- From Uiverse.io by andrew-demchenk0 -->
@@ -17,7 +17,7 @@
                 <div class="flip-card__front">
                     <div class="title">登入</div>
                     <form class="flip-card__form" action="POST" id="login">
-                        <input class="flip-card__input" name="account" placeholder="帳號" type="text">
+                        <input class="flip-card__input" name="acid" placeholder="帳號" type="text">
                         <input class="flip-card__input" name="password" placeholder="密碼" type="password">
                         <button class="flip-card__btn">送出</button>
                     </form>
@@ -26,7 +26,7 @@
                     <div class="title">註冊</div>
                     <form class="flip-card__form" action="POST" id="signup">
                         <input class="flip-card__input" placeholder="姓名" type="text" name="name">
-                        <input class="flip-card__input" name="account" placeholder="帳號" type="text">
+                        <input class="flip-card__input" name="acid" placeholder="帳號" type="text">
                         <input class="flip-card__input" name="password" placeholder="密碼" type="password">
                         <button class="flip-card__btn">確認</button>
                     </form>
@@ -53,7 +53,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "/AccountManagement/SignUp",
+                url: "/AcidManagement/SignUp",
                 data: formData ,
 
                 success: function (result) {
@@ -88,7 +88,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "/AccountManagement/Login",
+                url: "/AcidManagement/Login",
                 data: formData ,
 
                 success: function (result) {
