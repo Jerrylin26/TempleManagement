@@ -1,0 +1,246 @@
+﻿
+@{
+    <link rel="stylesheet" href="~/css/DonateOperation/ShowDonateOption.css">
+}
+
+@model BasicInfo
+
+<div style="display:flex; gap:15px;">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="DonateButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            篩選
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="DonateButton1">
+            <li><a class="dropdown-item menu-household" data-dropdown="household">戶號</a></li>
+            <li><a class="dropdown-item menu-household-reverse" data-dropdown="household-reverse">戶號(倒序)</a></li>
+
+
+        </ul>
+    </div>
+    <form method="POST" id="search_household">
+        <input type="text" class="input-household" maxlength="7" placeholder="輸入戶號" name="household_id" />
+        <button id="btn_search" type="submit">
+            查詢
+        </button>
+    </form>
+
+
+
+
+</div>
+
+
+<div class="modal-body">
+
+    <div class="row g-3">
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">編號</div>
+                <div id="show_id">@Model.MID</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">姓名</div>
+                <div id="show_name">@Model.Name</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">性別</div>
+                <div id="show_gender">@((Model.Sex==true) ? "男":"女")</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">年齡</div>
+                <div id="show_age">@Model.Age</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">生肖</div>
+                <div id="show_zodiac">@Model.Zodiac</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">身份</div>
+                <div id="show_identity">@Model.Character_type</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">職業</div>
+                <div id="show_job">@Model.Job</div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">農曆生日</div>
+                <div>@Model.Lunar_birthday?.ToString("yyyy-MM-dd")</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">國曆生日</div>
+                <div>@Model.Birthday?.ToString("yyyy-MM-dd")</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">手機</div>
+                <div>@Model.Phone</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">市內電話</div>
+                <div>@Model.Home_num</div>
+            </div>
+        </div>
+
+
+        <div class="col-12">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">身分證</div>
+                <div>@Model.ID_num</div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">戶籍地址</div>
+                <div>@Model.Household_address</div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">通訊地址</div>
+                <div>@Model.Current_address</div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex">
+                <div class="fw-bold" style="width:120px;">備註</div>
+                <div style="min-height:80px;">@Model.Note</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+<!-- 以戶號查詢 -->
+<script>
+    $(document).ready(function (){
+        $('#search_household').submit(function(e) {
+            e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+
+
+
+            // 序列化 form 內的資料
+            var formData = $(this).serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "/DonateOperation/search_household",
+                data: formData,
+
+                success: function (result) {
+
+                    if (result.message == "失敗"){
+                        alert(`無此戶號: ${result.houseid}`);
+                    }
+
+
+                    $('#household_table').html(result);
+
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>
+
+
+<!-- 篩選 不同方式顯示人選 -->
+<script>
+    $(document).ready(function (){
+        $('.dropdown-item').click(function(e) {
+            e.preventDefault(); // 防止 form 提交，讓畫面不跳頁
+
+
+            let option = $(this).data('dropdown');
+
+            $.ajax({
+                type: "POST",
+                url: "/DonateOperation/dropdown_insert_query",
+                data: {option: option},
+
+                success: function (result) {
+
+                    if (result.message == "失敗"){
+                        alert(`無此戶號: ${result.houseid}`);
+                    }
+
+
+                    $('#modalBody').html(result);
+
+
+                },
+                error: function (xhr, status, error) {
+                    alert("發生錯誤：" + error);
+                }
+            });
+        });
+    });
+</script>
+
+<!-- 提交新增 選定人選 準備進入新增表單 -->
+<script>
+    $(document).on('click', '#btn_post', function (e) {
+        e.preventDefault();
+
+        let formData = $('#post_selected_option').serialize();
+
+        $.ajax({
+            type: "POST",
+            url: "/DonateOperation/Post_selected_option",
+            data: formData,
+            success: function (result) {
+
+                var modalEl = document.getElementById('updateModal');
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+
+                $('#Change_to_Donation_create').html(result);
+
+                var html = `<button class="button-24" id="donation_submit_btn" role="button"> 確定送出</button>`;
+                $('#submit_donation').html(html);
+            },
+            error: function () {
+                alert("發生錯誤");
+            }
+        });
+    });
+</script>

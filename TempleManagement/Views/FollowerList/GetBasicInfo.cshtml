@@ -11,7 +11,7 @@
 <body>
 
     <div class="content">
-
+        <button class="button-25" id="modify_button" role="button"> 檢視個人資料</button>
         <div class="container">
             <h2 class="mb-5">信徒清冊</h2>
             <div class="dropdown">
@@ -79,7 +79,7 @@
                                     </td>
                                     <td>@item.Age</td>
                                     <td>@item.Zodiac</td>
-                                    <td><a href="#" class="more">Details</a></td>
+                                    <td><a href="#" data-mid="@item.MID" class="more">Details</a></td>
 
                                 </tr>
                             }
@@ -98,3 +98,73 @@
     
 
 </body>
+
+
+
+<div id="updateModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">詳細資料</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="modalBody">
+                <!--  PartialView 會塞進來 -->
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <!-- 解決post2次問題-->
+                <button type="button"
+                        class="btn btn-primary"
+                        id="btn_post">
+
+                    確定
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $('#modify_button').on('click', function () {
+
+        $.get('/FollowerList/ShowOption', function (html) {
+
+            // 把 PartialView 塞進 Modal
+            $('#modalBody').html(html);
+
+            // 開啟 Modal
+            var modal = new bootstrap.Modal(document.getElementById('updateModal'));
+            modal.show();
+        });
+
+    });
+</script>
+
+<script>
+    $(document).on("click", ".more", function (e) {
+        e.preventDefault();
+
+        let mid = $(this).data("mid"); // ⭐ 這裡拿到 mid
+
+        $.ajax({
+            url: "/FollowerList/Detail",
+            type: "GET",
+            data: { mid: mid },  // ⭐ 送給 controller
+            success: function (result) {
+
+                $('#modalBody').html(result);
+                var modal = new bootstrap.Modal(document.getElementById("updateModal"));
+
+                modal.show();
+            }
+        });
+    });
+</script>
